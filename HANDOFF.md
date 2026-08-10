@@ -56,8 +56,29 @@ docstring 순으로 읽으면 지금까지의 경위·근거를 대부분 따라
      배너로 명시, (c) 결측월은 선을 끊어서 표시, (d) 먼 미래의 신뢰구간이 y축을
      지배하지 않도록 앞 6개월 기준으로 스케일 잡고 넘치는 부분은 clip.
 
-**다음 작업 후보**: 웹앱 실제 배포(공개 URL 확보) → forecast_future.py의 전북 전체/상추
-시군별 산출물도 웹앱에 통합(현재는 작물×시군 축만 노출) → KREI 월보 API 신청 결과 반영.
+7. **배포 완료 + 웹앱 지도 기반으로 전면 개편** (2026-08-10 오후):
+   - 저장소 https://github.com/erato0310/crop-price-forecast (public, 99개 파일)
+   - 공개 URL **https://erato0310.github.io/crop-price-forecast/** (GitHub Pages, main/root).
+     루트 index.html이 webapp/으로 넘긴다(신청서에 짧은 주소를 적으려고).
+     `.env`가 원격에 없음을 GitHub API로 확인함.
+   - gh CLI는 winget으로 설치(UAC 승인 필요했음), device flow로 로그인(erato0310).
+   - **사용자 요구로 UI 전면 교체**: 작물/시군 선택 + 기간(연·월) 설정 →
+     (a) 작물로 보기: 전북 지도 choropleth + 시군별 최저/평균/최고 표
+     (b) 지역으로 보기: 그 시군의 작물별 최저/평균/최고 표
+     지도 클릭 시 월별 상세 추이(기존 차트) 표시.
+   - `src/build_geo.py` 신규: 통계청 2018 시군구 경계(southkorea-maps, 전북=코드 35*)를
+     받아 Douglas-Peucker로 단순화(3.2만점→1868점, 23KB), 전주시 완산/덕진 병합,
+     작은 섬 제외, 등장방형 투영. 라벨 위치는 무게중심이 아니라 **pole of inaccessibility**
+     근사로 계산(완주군이 전주시를 감싸는 오목한 모양이라 무게중심이 남의 시군에 떨어짐).
+     `room`(라벨 여유 공간)도 같이 내보내서, 좁은 전주시는 앱이 값 라벨을 생략한다.
+   - 집계는 전부 클라이언트에서 한다 — app_data.json에 hist/fc 월별 값이 이미 다 있어서
+     기간이 바뀌어도 서버 왕복이 없다.
+   - **오독 방지 처리(중요)**: gpj(산지공판장) 타깃 시군은 거래단위가 달라 색 척도에서
+     제외하고 빗금으로 표시(같은 램프에 올렸더니 군산 1,741원이 "제일 싼 곳"으로 보였음).
+     데이터 없음은 채움 없이 점선 테두리(다크모드에서 회색 채움이 램프 최저값과 구별 안 됐음).
+
+**다음 작업 후보**: forecast_future.py의 전북 전체 산출물도 웹앱에 통합(현재 작물×시군 축만
+노출) → 지역추천(토양적성) 지도 레이어 → 발표 자료.
 
 월별 데이터 갱신 루틴(필요할 때): scrape_jeonbuk_all_crops.py(신규 월만 이어받음)
 → scrape_gongpanjang.py(동일) → build_dataset.py → crop_county_cv.py →

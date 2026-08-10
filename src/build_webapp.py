@@ -26,12 +26,15 @@ def main() -> None:
     css = (WEBAPP / "style.css").read_text(encoding="utf-8")
     js = (WEBAPP / "app.js").read_text(encoding="utf-8")
     data = json.loads((WEBAPP / "data" / "app_data.json").read_text(encoding="utf-8"))
+    geo = json.loads((WEBAPP / "data" / "jeonbuk_geo.json").read_text(encoding="utf-8"))
 
     # fetch 대신 인라인 상수를 읽도록 진입점만 교체 (원본 app.js는 그대로 둔다)
-    js_inline = js.replace(
-        'const res = await fetch("data/app_data.json");\n  DATA = await res.json();',
-        "DATA = window.__APP_DATA__;",
-    )
+    fetch_block = """const [a, g] = await Promise.all([
+    fetch("data/app_data.json").then((r) => r.json()),
+    fetch("data/jeonbuk_geo.json").then((r) => r.json()),
+  ]);
+  DATA = a; GEO = g;"""
+    js_inline = js.replace(fetch_block, "DATA = window.__APP_DATA__; GEO = window.__GEO_DATA__;")
     if "window.__APP_DATA__" not in js_inline:
         raise SystemExit("app.js의 데이터 로딩 부분을 찾지 못했습니다 — build_webapp.py를 함께 수정하세요.")
 
@@ -39,12 +42,14 @@ def main() -> None:
         '<link rel="stylesheet" href="style.css">',
         f"<style>\n{css}\n</style>",
     )
-    payload = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
-    # </script> 가 문자열 안에 들어가 파싱이 깨지는 것 방지
-    payload = payload.replace("</", "<\\/")
+    def embed(obj) -> str:
+        # </script> 가 문자열 안에 들어가 파싱이 깨지는 것 방지
+        return json.dumps(obj, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
+
     html = html.replace(
         '<script src="app.js"></script>',
-        f"<script>window.__APP_DATA__={payload};</script>\n<script>\n{js_inline}\n</script>",
+        f"<script>window.__APP_DATA__={embed(data)};"
+        f"window.__GEO_DATA__={embed(geo)};</script>\n<script>\n{js_inline}\n</script>",
     )
 
     DIST.parent.mkdir(parents=True, exist_ok=True)
