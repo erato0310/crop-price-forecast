@@ -1,0 +1,9 @@
+﻿region_id,name_ko,ldong_code,kosis_region_code,asos_station,rda_spot,station_type,notes
+jinan,진안군,5272000000,35,244,TODO,인접,임실지점 인접-확인. kosis_region_code=35(전라북도)는 시군단위 데이터가 없어 8개 시군 전부 도단위 값 공유(build_area_yearly에서 sum이 아닌 mean으로 집계해 8중복 방지). ldong_code는 code.go.kr 실측 확인(52+시군구코드+00000 / 전북특별자치도=52)
+namwon,남원시,5219000000,35,247,TODO,자체,
+jeongeup,정읍시,5218000000,35,245,TODO,자체,
+wanju,완주군,5271000000,35,146,TODO,인접,전주지점 인접
+iksan,익산시,5214000000,35,140,TODO,인접,군산지점 인접-확인
+gimje,김제시,5221000000,35,146,TODO,인접,전주/부안지점 인접-확인
+gochang,고창군,5279000000,35,172,TODO,자체,코드·지점 확인
+buan,부안군,5280000000,35,243,TODO,자체,code.go.kr에서 5280000000 직접 조회로 실측 확인(나머지 7개는 시군구코드로 공식 유도)

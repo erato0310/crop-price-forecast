@@ -1,0 +1,12 @@
+﻿crop_id,name_ko,category,kamis_item,kamis_kind,income_code,soil_code,kosis_item,kosis_itm_id,hs_code,storage_type,trade_exposure,protected,perennial,garak_item,notes
+strawberry,딸기(시설),과채,226,00,TODO,TODO,DT_1ET0017,TODO,TODO,신선,수출,Y,N,TODO,시설·작기뚜렷 KAMIS코드확인
+tomato,방울토마토(시설),과채,225,01,TODO,TODO,DT_1ET0017,TODO,TODO,신선,내수,Y,N,TODO,KAMIS코드확인
+paprika,파프리카(시설),과채,TODO,00,TODO,TODO,DT_1ET0017,TODO,TODO,신선,수출,Y,N,TODO,대일수출 비중큼
+apple,사과,과수,411,05,TODO,TODO,DT_1AG20411,TODO,TODO,저장,내수,N,Y,TODO,CA저장 신선수입거의없음
+peach,복숭아,과수,414,00,TODO,TODO,DT_1AG20411,TODO,TODO,신선,내수,N,Y,TODO,저장성낮음
+blueberry,블루베리,과수,TODO,TODO,TODO,TODO,DT_1AG20411,TODO,TODO,신선,수입민감,N,Y,TODO,냉동·신선 수입경쟁
+rice,벼,식량,111,01,TODO,TODO,DT_1ET0033,TODO,TODO,저장,정책민감,N,N,TODO,공공비축·TRQ 영향
+soybean,콩,식량,TODO,TODO,TODO,TODO,TODO,TODO,TODO,저장,수입민감,N,N,TODO,수입의존 큼
+pepper,고추,조미채소,TODO,TODO,TODO,TODO,TODO,TODO,TODO,저장,수입민감,N,N,TODO,건고추기준 다대기수입
+omija,오미자,특용,TODO,TODO,TODO,TODO,TODO,TODO,TODO,저장,내수,N,Y,TODO,건과 유통
+lettuce,상추,엽채류,214,01,TODO,CR044,DT_1ET0028,T66,,신선,내수,혼재,N,21400,itemcode=214/kindcode=01 실측확인·garak_item=21400 실측확인(2021-09~현재)·kosis_item/kosis_itm_id는 KOSIS getMeta로 실측확인(상추:면적 / 시도단위만 제공)·soil_code=CR044(COR_LETTUCE)는 soil.rda.go.kr 작물별토양적성도 페이지 JS(go_Map 호출부)에서 실측확인

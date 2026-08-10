@@ -1,0 +1,37 @@
+[재개] 체크포인트 446498건, 완료월 78개 스킵
+[79/104] 2024-07 -> OK(9026건, 110개 작물)
+[80/104] 2024-08 -> OK(8849건, 122개 작물)
+[81/104] 2024-09 -> OK(6172건, 118개 작물)
+[82/104] 2024-10 -> OK(7499건, 136개 작물)
+[83/104] 2024-11 -> OK(7729건, 140개 작물)
+[84/104] 2024-12 -> OK(4457건, 115개 작물)
+[85/104] 2025-01 -> OK(4718건, 119개 작물)
+[86/104] 2025-02 -> OK(3692건, 115개 작물)
+[87/104] 2025-03 -> OK(4318건, 123개 작물)
+[88/104] 2025-04 -> OK(5293건, 130개 작물)
+[89/104] 2025-05 -> OK(6572건, 135개 작물)
+[90/104] 2025-06 -> OK(8458건, 134개 작물)
+[91/104] 2025-07 -> OK(8575건, 115개 작물)
+[92/104] 2025-08 -> OK(8461건, 128개 작물)
+[93/104] 2025-09 -> OK(9105건, 138개 작물)
+[94/104] 2025-10 -> OK(4908건, 136개 작물)
+[95/104] 2025-11 -> OK(7165건, 128개 작물)
+[96/104] 2025-12 -> OK(4476건, 121개 작물)
+[97/104] 2026-01 -> OK(4586건, 121개 작물)
+[98/104] 2026-02 -> OK(3540건, 118개 작물)
+[99/104] 2026-03 -> OK(4397건, 130개 작물)
+[100/104] 2026-04 -> OK(5680건, 132개 작물)
+[101/104] 2026-05 -> OK(6633건, 126개 작물)
+[102/104] 2026-06 -> OK(8788건, 127개 작물)
+[103/104] 2026-07 -> OK(8741건, 114개 작물)
+[104/104] 2026-08 -> OK(2772건, 91개 작물)
+
+저장 완료(작물x시군별 산지가격): C:\문서\projects 1\crop-price-forecast\data\raw\jeonbuk_origin_top10crops_by_county.csv (8017행)
+저장 완료(전체 79개 작물 원시 레코드, 확장용): C:\문서\projects 1\crop-price-forecast\data\raw\jeonbuk_origin_allcrops_raw.csv (611108행)
+저장 완료(상추 시군별, build_dataset용): C:\문서\projects 1\crop-price-forecast\data\raw\jeonbuk_origin_lettuce_by_county.csv (1195행)
+Traceback (most recent call last):
+  File "C:\문서\projects 1\crop-price-forecast\src\scrape_jeonbuk_all_crops.py", line 233, in <module>
+    main()
+  File "C:\문서\projects 1\crop-price-forecast\src\scrape_jeonbuk_all_crops.py", line 221, in main
+    print("\n네트워크 실패 0건 \u2014 전 요청 정상 수신")
+UnicodeEncodeError: 'cp949' codec can't encode character '\u2014' in position 13: illegal multibyte sequence

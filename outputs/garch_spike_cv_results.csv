@@ -1,0 +1,4 @@
+﻿crop,n_months,n_spikes,brier_fixed,brier_garch,garch_better
+greenonion,48,11,0.1162,0.118,False
+watermelon,48,14,0.1712,0.171,True
+sweetpotato,48,1,0.0184,0.0179,True

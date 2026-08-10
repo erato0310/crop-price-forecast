@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>전북 농산물 가격예측 | 지역×작목 AI 예측</title>
+<meta name="description" content="전북 14개 시군 × 10개 작물의 산지 가격을 공공데이터로 학습해 예측합니다. 월별 예측가격, 폭등 위험, 2027년까지의 전망을 제공합니다.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="brand">
+      <h1>전북 농산물 가격예측</h1>
+      <p class="tagline">전북 14개 시군 × 10개 작물의 산지 가격을 공공데이터로 학습해 예측합니다</p>
+    </div>
+    <div class="updated" id="updated">데이터 불러오는 중…</div>
+    <button class="theme-toggle" id="themeToggle" type="button">◐ 화면</button>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="controls">
+    <div class="field">
+      <label for="cropSel">작물</label>
+      <select id="cropSel"></select>
+    </div>
+    <div class="field">
+      <label for="countySel">시군</label>
+      <select id="countySel"></select>
+    </div>
+    <div class="field">
+      <label>표시 기간</label>
+      <div class="range-group" id="rangeGroup" role="group" aria-label="표시 기간">
+        <button type="button" data-months="24" aria-pressed="false">2년</button>
+        <button type="button" data-months="48" aria-pressed="true">4년</button>
+        <button type="button" data-months="999" aria-pressed="false">전체</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="notice" id="notice"></div>
+
+  <section class="stats" id="stats" aria-label="핵심 지표"></section>
+
+  <section class="card">
+    <div class="card-head">
+      <div>
+        <h2 id="chartTitle">가격 추이와 전망</h2>
+        <p class="desc" id="chartDesc"></p>
+      </div>
+      <button class="table-toggle" id="tableToggle" type="button" aria-expanded="false">표로 보기</button>
+    </div>
+
+    <div class="legend">
+      <span class="item"><span class="swatch" style="background:var(--series-1)"></span>실제 거래가격</span>
+      <span class="item"><span class="swatch" style="background:repeating-linear-gradient(90deg,var(--series-1) 0 5px,transparent 5px 9px)"></span>예측</span>
+      <span class="item"><span class="swatch band"></span>90% 예측 범위</span>
+    </div>
+
+    <div class="chart-box" id="chartBox">
+      <svg class="chart" id="chart" role="img" aria-labelledby="chartTitle"></svg>
+      <div class="tooltip" id="tooltip" role="status" aria-live="polite"></div>
+    </div>
+
+    <div class="table-wrap" id="tableWrap" hidden>
+      <table>
+        <caption class="desc" style="text-align:left;caption-side:top">월별 예측값 (마지막 실측 이후)</caption>
+        <thead>
+          <tr>
+            <th scope="col">시점</th>
+            <th scope="col">예측가격</th>
+            <th scope="col">예측 범위 (90%)</th>
+            <th scope="col">폭등 확률</th>
+          </tr>
+        </thead>
+        <tbody id="fcTableBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <div>
+        <h2>이 예측을 얼마나 믿을 수 있나</h2>
+        <p class="desc">과거 데이터로 "학습 후 다음 해 맞히기" 시험을 본 성적입니다. 막대가 짧을수록 정확합니다.</p>
+      </div>
+    </div>
+    <div id="accuracy"></div>
+  </section>
+
+  <section class="card" id="regionCard" hidden>
+    <div class="card-head">
+      <div>
+        <h2>재배 적합 지역 (토양 기준)</h2>
+        <p class="desc">흙토람 토양적성 데이터 기준, 해당 작물 재배에 적합한 토양의 비율입니다.</p>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">시군</th>
+            <th scope="col">적합 이상 비율</th>
+            <th scope="col">최적지 비율</th>
+            <th scope="col">조사 면적</th>
+          </tr>
+        </thead>
+        <tbody id="regionBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <p><strong>데이터 출처</strong> · 공공데이터포털(한국농수산식품유통공사 전국 공영도매시장 정산정보), 농림축산식품부 산지공판장 정산가격,
+      기상청 지상관측(ASOS), 농림축산식품 공공데이터(흙토람 토양적성), KAMIS, KOSIS, 한국은행 ECOS</p>
+    <p><strong>예측 방법</strong> · 로그 변환한 가격을 대상으로 Ridge 회귀와 계절평균 베이스라인을 블렌딩하며,
+      조합별 설정값은 2020~2025년 walk-forward 교차검증으로 결정했습니다.
+      가격은 "시장 소재지"가 아니라 거래기록의 <em>산지</em> 기준으로 집계해 실제 그 지역 농산물의 가격을 추적합니다.</p>
+    <p><strong>가격 단위</strong> · 도매시장 정산정보의 거래 단위당 평균 단가를 물량가중평균한 값입니다.
+      포장·거래 단위가 작물마다 다르므로 <em>서로 다른 작물의 가격을 직접 비교하지 마세요</em>.
+      같은 작물의 시점별·시군별 비교에 사용하는 것이 적절합니다.</p>
+    <p><strong>유의사항</strong> · 본 예측은 참고 자료이며 실제 가격을 보장하지 않습니다.
+      3~6개월 이내 전망은 참고할 만하지만, 12개월을 넘어가면 불확실성이 급격히 커집니다(예측 범위가 넓어지는 것으로 표시됩니다).
+      영농·거래 의사결정의 최종 책임은 이용자에게 있습니다.</p>
+  </footer>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

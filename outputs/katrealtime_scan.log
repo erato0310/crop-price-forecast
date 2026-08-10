@@ -1,0 +1,38 @@
+﻿page=8: 누적시장수=19, 전북히트=151
+
+======================================================================
+최종: 총 8000행 스캔, 시장 19종, 전북히트 151건
+======================================================================
+
+시장별 건수:
+  광주서부: 2220
+  광주각화: 1690
+  안동: 1614
+  진주: 1139
+  서울가락: 374
+  춘천: 268
+  창원내서: 232
+  익산: 151
+  대전오정: 107
+  원주: 88
+  순천: 38
+  대구북부: 22
+  청주: 20
+  구리: 17
+  서울강서: 12
+  부산엄궁: 3
+  울산: 2
+  부산반여: 2
+  인천삼산: 1
+
+전북(전주/익산/정읍) 샘플:
+  {'whsl_mrkt_nm': '익산', 'whsl_mrkt_cd': '350301', 'gds_lclsf_nm': '과실류', 'gds_mclsf_nm': '사과', 'corp_gds_item_nm': '사과', 'corp_gds_vrty_nm': '아오리', 'scsbd_prc': '12000.000'}
+  {'whsl_mrkt_nm': '익산', 'whsl_mrkt_cd': '350301', 'gds_lclsf_nm': '과실류', 'gds_mclsf_nm': '사과', 'corp_gds_item_nm': '사과', 'corp_gds_vrty_nm': '아오리', 'scsbd_prc': '15000.000'}
+  {'whsl_mrkt_nm': '익산', 'whsl_mrkt_cd': '350301', 'gds_lclsf_nm': '과실류', 'gds_mclsf_nm': '사과', 'corp_gds_item_nm': '사과', 'corp_gds_vrty_nm': '아오리', 'scsbd_prc': '25000.000'}
+  {'whsl_mrkt_nm': '익산', 'whsl_mrkt_cd': '350301', 'gds_lclsf_nm': '과실류', 'gds_mclsf_nm': '사과', 'corp_gds_item_nm': '사과', 'corp_gds_vrty_nm': '아오리', 'scsbd_prc': '27000.000'}
+  {'whsl_mrkt_nm': '익산', 'whsl_mrkt_cd': '350301', 'gds_lclsf_nm': '과실류', 'gds_mclsf_nm': '사과', 'corp_gds_item_nm': '사과', 'corp_gds_vrty_nm': '아오리', 'scsbd_prc': '24000.000'}
+  {'whsl_mrkt_nm': '익산', 'whsl_mrkt_cd': '350301', 'gds_lclsf_nm': '과실류', 'gds_mclsf_nm': '사과', 'corp_gds_item_nm': '사과', 'corp_gds_vrty_nm': '아오리', 'scsbd_prc': '38000.000'}
+  {'whsl_mrkt_nm': '익산', 'whsl_mrkt_cd': '350301', 'gds_lclsf_nm': '과실류', 'gds_mclsf_nm': '사과', 'corp_gds_item_nm': '사과', 'corp_gds_vrty_nm': '아오리', 'scsbd_prc': '46000.000'}
+  {'whsl_mrkt_nm': '익산', 'whsl_mrkt_cd': '350301', 'gds_lclsf_nm': '과실류', 'gds_mclsf_nm': '사과', 'corp_gds_item_nm': '사과', 'corp_gds_vrty_nm': '아오리', 'scsbd_prc': '53000.000'}
+  {'whsl_mrkt_nm': '익산', 'whsl_mrkt_cd': '350301', 'gds_lclsf_nm': '과실류', 'gds_mclsf_nm': '사과', 'corp_gds_item_nm': '사과', 'corp_gds_vrty_nm': '아오리', 'scsbd_prc': '57000.000'}
+  {'whsl_mrkt_nm': '익산', 'whsl_mrkt_cd': '350301', 'gds_lclsf_nm': '과실류', 'gds_mclsf_nm': '사과', 'corp_gds_item_nm': '사과', 'corp_gds_vrty_nm': '아오리', 'scsbd_prc': '60000.000'}
