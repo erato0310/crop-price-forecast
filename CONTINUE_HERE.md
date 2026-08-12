@@ -45,18 +45,12 @@ cd "C:/Users/지리산 살래농장/Documents/project 1/crop-price-forecast" && 
 
 ## 바로 다음에 할 일 (우선순위)
 
-1. **push 하나 남았다** (2026-08-12) — 커밋 3개가 로컬에 쌓여 있고 원격에는 안 올라갔다.
-   ```bash
-   cd "C:/Users/지리산 살래농장/Documents/project 1/crop-price-forecast" && git push origin main
-   ```
-   **자격증명 창이 뜨면 `erato0310`으로 로그인할 것.** 아래 「git 함정」 참조.
-   올라가면 공개 URL이 바로 상추 앱이 된다(1~2분 뒤 반영).
-2. **`scrape_jeonbuk_all_crops.py`의 `qty_kg` 버그 수정** — 10작물 라인이 4배 부풀려져 있다.
+1. **`scrape_jeonbuk_all_crops.py`의 `qty_kg` 버그 수정** — 10작물 라인이 4배 부풀려져 있다.
    `:231`의 `d["qty_kg"] = d["qty"] * d["unit_qty"]`가 범인이고, `unit_tot_qty`는
    **이미 kg 총량**이라 상자무게를 또 곱하는 꼴이다 (HANDOFF 7.1). 상추 라인은 수정됨.
    이 버그 때문에 10작물 앱을 사이트에서 내렸다. **고쳐야 다시 올릴 수 있다.**
-3. 지역추천 재구성 — 토양적성도는 전북 상추 면적의 6.5%만 설명 (HANDOFF 9.5)
-4. 남원 산간 구조 변화 추적 — 운봉이 2023년 0t → 2026년 1,193t (HANDOFF 10.5)
+2. 지역추천 재구성 — 토양적성도는 전북 상추 면적의 6.5%만 설명 (HANDOFF 9.5)
+3. 남원 산간 구조 변화 추적 — 운봉이 2023년 0t → 2026년 1,193t (HANDOFF 10.5)
 
 ---
 
@@ -189,4 +183,6 @@ audit_hardcoded_lists.py    전 항목 통과
 월간 CV 23.28% / 홀드아웃 11.17%     (32개 시장·17품종 기준, 30개 시장과 동일)
 주간 광 -0.52%p [-0.95, -0.10]      개선 판정 유지
 웹앱 지도14·시군13·읍면63·차트·2027전망  전부 렌더 확인
+공개 사이트 https://erato0310.github.io/crop-price-forecast/
+  → 상추 앱으로 배포 완료. 지도·읍면 드릴다운·2027 전망·/webapp/ 이동 전부 실서버 확인
 ```
