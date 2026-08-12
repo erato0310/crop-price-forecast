@@ -149,8 +149,19 @@ printf 'protocol=https\nhost=github.com\n\n' | git credential reject
 
 **3. push는 반드시 사람이 쓰는 터미널에서 할 것.** 에이전트 셸에서는
 자격증명 로그인 창을 띄우지 못해 그냥 멈춘다(5분 대기 후 타임아웃).
+`/dev/tty`가 없어서 device 코드조차 표시하지 못한다.
 
-**4. `core.autocrlf`가 시스템 전역에서 true다.** 이 저장소는 `false`로 덮어 놨다.
+**4. 로그인 창이 아예 안 뜨는 문제가 있었다.** GCM이 GUI 프롬프트를 못 띄웠다.
+그래서 창 대신 **터미널에 코드가 찍히는 device 방식**으로 바꿔 뒀고, 그걸로 통과했다.
+설정은 `.git/config`에 있으니 clone을 다시 받으면 또 해줘야 한다:
+```bash
+git config credential.gitHubAuthModes device
+git config credential.guiPrompt false
+```
+push하면 터미널에 `github.com/login/device` 주소와 8자리 코드가 뜬다.
+브라우저에서 그 코드를 넣으면 push가 이어진다.
+
+**5. `core.autocrlf`가 시스템 전역에서 true다.** 이 저장소는 `false`로 덮어 놨다.
 안 그러면 줄바꿈만 바뀐 파일이 수십 개씩 변경된 것처럼 잡힌다.
 `git status`가 `M`인데 `git diff --numstat`에 안 나오면 stat 캐시 노이즈다.
 
