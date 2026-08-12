@@ -45,10 +45,16 @@ cd "C:/Users/지리산 살래농장/Documents/project 1/crop-price-forecast" && 
 
 ## 바로 다음에 할 일 (우선순위)
 
-1. **GitHub Pages 배포** — 저장소 `erato0310/crop-price-forecast`,
-   현재 공개 URL은 10작물 웹앱. `lettuce.html`을 대문으로 올릴지 병렬로 둘지 결정 필요.
-2. **`scrape_jeonbuk_all_crops.py`의 `qty_kg` 버그 수정** — 10작물 라인이 4배 부풀려져 있다
-   (HANDOFF 7.1). 상추 라인은 이미 수정됨. **사용자는 "상추만 하자"고 했으므로 후순위.**
+1. **push 하나 남았다** (2026-08-12) — 커밋 3개가 로컬에 쌓여 있고 원격에는 안 올라갔다.
+   ```bash
+   cd "C:/Users/지리산 살래농장/Documents/project 1/crop-price-forecast" && git push origin main
+   ```
+   **자격증명 창이 뜨면 `erato0310`으로 로그인할 것.** 아래 「git 함정」 참조.
+   올라가면 공개 URL이 바로 상추 앱이 된다(1~2분 뒤 반영).
+2. **`scrape_jeonbuk_all_crops.py`의 `qty_kg` 버그 수정** — 10작물 라인이 4배 부풀려져 있다.
+   `:231`의 `d["qty_kg"] = d["qty"] * d["unit_qty"]`가 범인이고, `unit_tot_qty`는
+   **이미 kg 총량**이라 상자무게를 또 곱하는 꼴이다 (HANDOFF 7.1). 상추 라인은 수정됨.
+   이 버그 때문에 10작물 앱을 사이트에서 내렸다. **고쳐야 다시 올릴 수 있다.**
 3. 지역추천 재구성 — 토양적성도는 전북 상추 면적의 6.5%만 설명 (HANDOFF 9.5)
 4. 남원 산간 구조 변화 추적 — 운봉이 2023년 0t → 2026년 1,193t (HANDOFF 10.5)
 
@@ -123,6 +129,44 @@ $P export_lettuce_webapp.py                  # 웹앱 JSON 생성 (~10분)
 | at.agromarket | `AT_AGROMARKET_KEY` | **남은 API가 산지공판장뿐이라 현재 용도 없음** |
 
 katSale 전 구간 재수집은 약 2,100요청 / 70분.
+
+---
+
+## git 함정 (2026-08-12에 걸린 것)
+
+**1. 이 폴더의 `.git`이 한 번 사라진 적 있다.** zip으로 옮기면서 빠졌다.
+저장소는 멀쩡히 살아 있었는데 로컬만 연결이 끊겨 "git 설정을 안 했나" 싶은 상황이 됐다.
+복구는 `git clone` 받아서 그 `.git`만 작업 폴더로 옮기면 된다. 파일은 손대지 않는다.
+
+**2. 자격증명이 다른 계정으로 캐시돼 있다.** 저장소 주인은 `erato0310`인데
+Windows 자격증명 관리자에는 `pilos050804`가 저장돼 있어서 push가 403으로 막혔다.
+그래서 원격 주소에 계정을 박아 뒀다 — `https://erato0310@github.com/...`.
+
+캐시를 지우고 다시 로그인하려면:
+```bash
+printf 'protocol=https\nhost=github.com\n\n' | git credential reject
+```
+
+**3. push는 반드시 사람이 쓰는 터미널에서 할 것.** 에이전트 셸에서는
+자격증명 로그인 창을 띄우지 못해 그냥 멈춘다(5분 대기 후 타임아웃).
+
+**4. `core.autocrlf`가 시스템 전역에서 true다.** 이 저장소는 `false`로 덮어 놨다.
+안 그러면 줄바꿈만 바뀐 파일이 수십 개씩 변경된 것처럼 잡힌다.
+`git status`가 `M`인데 `git diff --numstat`에 안 나오면 stat 캐시 노이즈다.
+
+---
+
+## 사이트 구조 (2026-08-12 개편)
+
+```
+/                    → webapp/lettuce.html 로 이동
+/webapp/             → lettuce.html 로 이동 (예전 10작물 앱 자리, 밖에 적어둔 주소라 살려 둠)
+/webapp/lettuce.html 상추 앱 본체
+```
+
+10작물 앱(`app.js`·`style.css`·`dist/`·`app_data.json`)은 **사이트에서 내렸다.**
+qty_kg 4배 부풀림 위에 계산된 숫자라 공개해 둘 수 없었다.
+파일은 커밋 `2c1c9a1`에 남아 있으니 버그를 고치면 되살릴 수 있다.
 
 ---
 
