@@ -4,109 +4,300 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>전북 상추 가격 — 시군·읍면 상세</title>
+<meta name="description" content="전국 32개 공영도매시장 전수 자료로 본 전북 상추 산지가격. 시군·읍면별 주간 가격과 2027년까지의 월별 전망.">
 <style>
-  :root{
-    --bg:#fbfaf8; --card:#fff; --ink:#1c1a17; --dim:#6b655d; --line:#e6e1d8;
-    --accent:#2f6f4e; --hi:#c0392b; --lo:#2874a6; --warn:#b7791f;
-    --r1:#f2e8d5; --r2:#e8cfa0; --r3:#dda15e; --r4:#bc6c25; --r5:#8a4a12;
+/* ── 토큰 ─────────────────────────────────────────────────────
+   배경은 따뜻한 아이보리, 지도는 초록 한 색상 램프.
+   램프는 단조 밝기·단일 색상·단계간격 검증을 통과한 5단이다.
+   '자료 없음'은 램프의 어느 단계와도 헷갈리면 안 되므로
+   웜그레이 + 빗금으로 따로 뺐다(색만으로 구분하지 않는다). */
+:root{
+  color-scheme: light;
+  --page:#f4efe3; --card:#fffdf7; --card-2:#faf5ea;
+  --ink:#1b1a15; --ink-2:#57534a; --muted:#8b8578;
+  --line:#e5ded0; --line-2:#d5cbb6;
+  --accent:#1b6d4e; --accent-soft:#e4f0e6;
+  --hi:#b4462f; --lo:#2b6f9c; --warn:#9a6b12;
+  --g1:#c9e2bd; --g2:#a6d3a0; --g3:#7cbd84; --g4:#4a9a6b; --g5:#1b6d4e;
+  --nodata:#e8e3d6; --hatch:#cdc5b2;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100;
+  --s5:#e87ba4; --s6:#008300; --s7:#4a3aa7;
+  --shadow:0 1px 2px rgba(27,26,21,.04), 0 8px 24px -12px rgba(27,26,21,.18);
+  --ring:rgba(27,26,21,.08);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --page:#14120d; --card:#1e1b14; --card-2:#252118;
+    --ink:#f2efe6; --ink-2:#c0bbac; --muted:#8f8a7c;
+    --line:#332f26; --line-2:#443f33;
+    --accent:#7ec292; --accent-soft:#233026;
+    --hi:#e58a72; --lo:#7db4d8; --warn:#d6a44a;
+    --g1:#2e4633; --g2:#3a6144; --g3:#4a805a; --g4:#5da173; --g5:#7ec292;
+    --nodata:#2b2820; --hatch:#413c31;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+    --s5:#d55181; --s6:#008300; --s7:#9085e9;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.6);
+    --ring:rgba(255,255,255,.09);
   }
-  @media (prefers-color-scheme:dark){
-    :root{--bg:#16161a; --card:#1e1e24; --ink:#eceae6; --dim:#9a948c; --line:#33323a;
-          --accent:#6fbf8f; --hi:#e8776a; --lo:#6fa8d6;
-          --r1:#3a3428;--r2:#5c4b2c;--r3:#87602f;--r4:#b07a33;--r5:#d99b48;}
-  }
-  :root[data-theme="dark"]{--bg:#16161a;--card:#1e1e24;--ink:#eceae6;--dim:#9a948c;
-    --line:#33323a;--accent:#6fbf8f;--hi:#e8776a;--lo:#6fa8d6;
-    --r1:#3a3428;--r2:#5c4b2c;--r3:#87602f;--r4:#b07a33;--r5:#d99b48;}
-  :root[data-theme="light"]{--bg:#fbfaf8;--card:#fff;--ink:#1c1a17;--dim:#6b655d;
-    --line:#e6e1d8;--accent:#2f6f4e;--hi:#c0392b;--lo:#2874a6;
-    --r1:#f2e8d5;--r2:#e8cfa0;--r3:#dda15e;--r4:#bc6c25;--r5:#8a4a12;}
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);
-    font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif}
-  .wrap{max-width:1180px;margin:0 auto;padding:20px 16px 60px}
-  h1{font-size:22px;margin:0 0 4px}
-  .sub{color:var(--dim);font-size:13px;margin-bottom:18px}
-  .bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
-  select,button{font:inherit;padding:7px 11px;border:1px solid var(--line);
-    border-radius:7px;background:var(--card);color:var(--ink)}
-  button{cursor:pointer}
-  button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
-  .grid{display:grid;grid-template-columns:minmax(300px,1fr) minmax(320px,1.25fr);gap:16px}
-  @media(max-width:860px){.grid{grid-template-columns:1fr}}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
-  .card h2{font-size:14px;margin:0 0 10px;color:var(--dim);font-weight:600;
-    letter-spacing:.02em}
-  svg{width:100%;height:auto;display:block}
-  .cty{stroke:var(--card);stroke-width:1.2;cursor:pointer;transition:opacity .12s}
-  .cty:hover{opacity:.75}
-  .cty.sel{stroke:var(--ink);stroke-width:2.4}
-  .clab{font-size:10px;fill:var(--ink);pointer-events:none;text-anchor:middle}
-  .cval{font-size:9px;fill:var(--dim);pointer-events:none;text-anchor:middle}
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  th,td{padding:6px 8px;text-align:right;border-bottom:1px solid var(--line)}
-  th{color:var(--dim);font-weight:600;font-size:12px}
-  th:first-child,td:first-child{text-align:left}
-  tr.click{cursor:pointer}
-  tr.click:hover td{background:color-mix(in srgb,var(--accent) 8%,transparent)}
-  tr.sel td{background:color-mix(in srgb,var(--accent) 14%,transparent)}
-  tr.thin td{opacity:.5}
-  .u{font-weight:400;font-size:10px;color:var(--dim)}
-  .unitbox{background:color-mix(in srgb,var(--accent) 7%,transparent);
-    border:1px solid var(--line);border-radius:8px;padding:9px 12px;
-    font-size:12.5px;color:var(--ink);margin-bottom:14px;line-height:1.55}
-  .hi{color:var(--hi);font-weight:600}
-  .lo{color:var(--lo);font-weight:600}
-  .tag{display:inline-block;padding:1px 7px;border-radius:99px;font-size:11px;
-    border:1px solid var(--line);color:var(--dim);margin-left:6px}
-  .tag.warn{color:var(--warn);border-color:var(--warn)}
-  .note{font-size:12px;color:var(--dim);margin-top:10px;line-height:1.5}
-  .scroll{overflow-x:auto}
-  .vbar{display:flex;height:20px;border-radius:5px;overflow:hidden;margin:6px 0}
-  .vbar div{font-size:10px;color:#fff;text-align:center;line-height:20px;
-    white-space:nowrap;overflow:hidden}
-  .leg{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--dim);margin-top:4px}
-  .leg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px}
-  .kpi{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:8px}
-  .kpi div{font-size:12px;color:var(--dim)}
-  .kpi b{display:block;font-size:19px;color:var(--ink);font-weight:650}
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --page:#14120d; --card:#1e1b14; --card-2:#252118;
+  --ink:#f2efe6; --ink-2:#c0bbac; --muted:#8f8a7c;
+  --line:#332f26; --line-2:#443f33;
+  --accent:#7ec292; --accent-soft:#233026;
+  --hi:#e58a72; --lo:#7db4d8; --warn:#d6a44a;
+  --g1:#2e4633; --g2:#3a6144; --g3:#4a805a; --g4:#5da173; --g5:#7ec292;
+  --nodata:#2b2820; --hatch:#413c31;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+  --s5:#d55181; --s6:#008300; --s7:#9085e9;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.6);
+  --ring:rgba(255,255,255,.09);
+}
+
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--page); color:var(--ink);
+  font:15px/1.65 system-ui,-apple-system,"Segoe UI","Noto Sans KR",sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1240px;margin:0 auto;padding:28px 20px 72px}
+@media(max-width:640px){ .wrap{padding:18px 14px 48px} }
+
+/* 머리 */
+.head{display:flex;align-items:flex-start;gap:16px;margin-bottom:6px}
+h1{font-size:27px;line-height:1.25;letter-spacing:-.02em;margin:0;font-weight:680;flex:1}
+h1 .crumb{font-weight:450;color:var(--muted)}
+.meta{color:var(--ink-2);font-size:12.5px;line-height:1.6;margin:0 0 16px;max-width:86ch}
+.meta b{color:var(--ink);font-weight:600}
+
+.iconbtn{
+  border:1px solid var(--line);background:var(--card);color:var(--ink-2);
+  width:34px;height:34px;border-radius:9px;cursor:pointer;flex:none;
+  display:grid;place-items:center;padding:0;
+}
+.iconbtn:hover{border-color:var(--line-2);color:var(--ink)}
+.iconbtn svg{width:16px;height:16px;display:block}
+
+/* 단위 안내 — 접힘. 펼치기 전엔 한 줄만 차지한다. */
+details.unit{
+  background:var(--accent-soft);border:1px solid var(--line);
+  border-radius:11px;margin-bottom:18px;font-size:13px;
+}
+details.unit>summary{
+  cursor:pointer;padding:10px 14px;list-style:none;
+  display:flex;align-items:center;gap:8px;color:var(--ink);font-weight:560;
+}
+details.unit>summary::-webkit-details-marker{display:none}
+details.unit>summary::after{
+  content:"자세히";margin-left:auto;color:var(--muted);font-weight:450;font-size:12px;
+}
+details.unit[open]>summary::after{content:"접기"}
+.unit .body{padding:0 14px 12px;color:var(--ink-2);line-height:1.7;max-width:88ch}
+.unit .body b{color:var(--ink)}
+
+/* 조작줄 */
+.bar{
+  display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px;
+  padding:8px;background:var(--card);border:1px solid var(--line);
+  border-radius:12px;box-shadow:var(--shadow);
+}
+.bar .lbl{color:var(--muted);font-size:11.5px;font-weight:600;
+  letter-spacing:.04em;padding:0 4px 0 6px}
+.seg{display:flex;background:var(--card-2);border-radius:9px;padding:2px;gap:2px}
+.seg button{
+  font:inherit;font-size:13px;padding:5px 11px;border:0;border-radius:7px;
+  background:transparent;color:var(--ink-2);cursor:pointer;white-space:nowrap;
+}
+.seg button:hover{color:var(--ink)}
+.seg button.on{background:var(--card);color:var(--ink);font-weight:600;
+  box-shadow:0 1px 2px var(--ring)}
+.grow{flex:1 1 8px}
+.btn{
+  font:inherit;font-size:13px;padding:6px 12px;border:1px solid var(--line);
+  border-radius:9px;background:var(--card);color:var(--ink-2);cursor:pointer;
+}
+.btn:hover{border-color:var(--line-2);color:var(--ink)}
+.btn.on{background:var(--accent);border-color:var(--accent);color:var(--card);font-weight:600}
+.rnglbl{color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
+select{font:inherit;font-size:13px;padding:5px 9px;border:1px solid var(--line);
+  border-radius:8px;background:var(--card);color:var(--ink)}
+
+/* 판 */
+.grid{display:grid;gap:16px}
+.g-map{grid-template-columns:minmax(320px,0.92fr) minmax(340px,1.08fr)}
+.g-half{grid-template-columns:1fr 1fr}
+@media(max-width:900px){ .g-map,.g-half{grid-template-columns:1fr} }
+/* 좁은 화면에서는 조작줄이 세 줄로 접힌다. 버튼만 남기면 두 줄로 준다 —
+   '기간'·'값'은 버튼 이름만 봐도 알 수 있다. */
+@media(max-width:560px){
+  .bar .lbl{display:none}
+  .bar{gap:6px;padding:6px}
+  .seg button{padding:5px 9px;font-size:12.5px}
+  .rnglbl{order:9;flex-basis:100%;padding-left:2px}
+}
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:16px;box-shadow:var(--shadow);min-width:0;
+}
+.card>h2{
+  font-size:11.5px;margin:0 0 12px;color:var(--muted);font-weight:650;
+  letter-spacing:.06em;text-transform:uppercase;
+}
+.mt{margin-top:16px}
+
+/* 지도 */
+.mapwrap{position:relative}
+svg.map{width:100%;height:auto;display:block;border-radius:10px;
+  background:var(--card-2);touch-action:manipulation}
+.cty{cursor:pointer;transition:opacity .15s}
+.cty:hover{opacity:.82}
+.eup{cursor:pointer}
+.eup:hover{opacity:.8}
+/* 지도 글자는 viewBox 단위라, 확대하면 같이 커지고 지도가 좁으면 같이 작아진다.
+   실제 렌더 폭에서 역산한 값을 fitLabels()가 넣어 줘서 화면상 크기를 고정한다. */
+.clab{font-size:var(--labF,11px);font-weight:600;fill:var(--ink);pointer-events:none;
+  text-anchor:middle;paint-order:stroke;stroke:var(--card);stroke-width:var(--labS,2.5px)}
+.cval{font-size:var(--valF,9.5px);fill:var(--ink-2);pointer-events:none;text-anchor:middle;
+  font-variant-numeric:tabular-nums;paint-order:stroke;stroke:var(--card);
+  stroke-width:var(--labS,2.5px)}
+.leg{display:flex;gap:3px;flex-wrap:wrap;font-size:11px;color:var(--muted);
+  margin-top:10px;align-items:center;font-variant-numeric:tabular-nums}
+.leg .sw{width:26px;height:9px;border-radius:2px;display:block}
+/* SVG의 <pattern>은 CSS background로 못 쓴다. 범례 조각은 같은 모양을
+   그라디언트로 따로 그린다 — 지도의 빗금과 각도·간격을 맞췄다. */
+.leg .sw.none{background-color:var(--nodata);
+  background-image:repeating-linear-gradient(45deg,var(--hatch) 0 2px,transparent 2px 5px)}
+.leg .cell{display:flex;flex-direction:column;gap:3px;align-items:center}
+.note{font-size:12px;color:var(--muted);margin-top:10px;line-height:1.6}
+.note b{color:var(--ink-2)}
+
+/* 지표 */
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  gap:10px;margin-bottom:14px}
+.kpi .k{background:var(--card-2);border-radius:10px;padding:9px 11px}
+.kpi .t{font-size:11px;color:var(--muted);display:block;margin-bottom:2px}
+.kpi .v{font-size:18px;font-weight:660;letter-spacing:-.01em;display:block;
+  line-height:1.3}
+.kpi .u{font-size:11px;font-weight:450;color:var(--muted)}
+
+/* 표 */
+.scroll{overflow-x:auto;margin:0 -4px;padding:0 4px}
+table{width:100%;border-collapse:collapse;font-size:13px;
+  font-variant-numeric:tabular-nums}
+th,td{padding:7px 9px;text-align:right;border-bottom:1px solid var(--line);
+  white-space:nowrap}
+th{color:var(--muted);font-weight:600;font-size:11px;letter-spacing:.02em;
+  vertical-align:bottom;position:sticky;top:0;background:var(--card)}
+th:first-child,td:first-child{text-align:left}
+tbody tr:last-child td{border-bottom:0}
+tr.click{cursor:pointer}
+tr.click:hover td{background:var(--card-2)}
+tr.sel td{background:var(--accent-soft)}
+tr.thin td{color:var(--muted)}
+tr.thin td:first-child{color:var(--ink-2)}
+.u{font-weight:450;font-size:10px;color:var(--muted)}
+.hi{color:var(--hi)} .lo{color:var(--lo)}
+b.hi,b.lo{font-weight:650}
+.rank{color:var(--muted);font-variant-numeric:tabular-nums}
+.sub2{font-size:10.5px;color:var(--muted);font-weight:450}
+
+.tag{display:inline-block;padding:1px 7px;border-radius:99px;font-size:10.5px;
+  border:1px solid var(--line-2);color:var(--muted);margin-left:6px;
+  font-variant-numeric:tabular-nums}
+.tag.warn{color:var(--warn);border-color:var(--warn)}
+.tag.dim{opacity:.85}
+
+/* 도움말 */
+.tip{
+  position:fixed;z-index:60;pointer-events:none;opacity:0;transition:opacity .1s;
+  background:var(--card);border:1px solid var(--line-2);border-radius:9px;
+  padding:8px 10px;font-size:12px;line-height:1.55;color:var(--ink);
+  box-shadow:0 6px 24px -8px rgba(0,0,0,.35);max-width:250px;
+  font-variant-numeric:tabular-nums;
+}
+.tip.on{opacity:1}
+.tip .th{font-weight:650;margin-bottom:3px}
+.tip .r{display:flex;gap:10px;justify-content:space-between;color:var(--ink-2)}
+.tip .r b{color:var(--ink);font-weight:600}
+
+/* 품종 */
+.vbar{display:flex;height:26px;border-radius:7px;overflow:hidden;
+  margin:2px 0 10px;gap:2px}
+.vbar div{font-size:10.5px;color:#fff;text-align:center;line-height:26px;
+  white-space:nowrap;overflow:hidden;cursor:default}
+.vleg{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink-2);
+  font-variant-numeric:tabular-nums}
+.vleg i{display:inline-block;width:9px;height:9px;border-radius:2px;
+  margin-right:5px;vertical-align:baseline}
+
+svg.chart{width:100%;height:auto;display:block;overflow:visible}
+.axis{font-size:10px;fill:var(--muted);font-variant-numeric:tabular-nums}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>전북 상추 가격 <span id="crumb" style="font-weight:400;color:var(--dim)"></span></h1>
-  <div class="sub" id="meta">불러오는 중…</div>
-  <div class="unitbox">
-    <b>단위: 모든 가격은 원/kg</b> — 도매시장 원자료는 <b>상자단가</b>라 상자무게로 나눠 환산했다.
-    같은 거래라도 4kg 상자가 13만원에 낙찰되면 <b>상자단가 130,000원 = 32,500원/kg</b>이다.
-    "상추가 10만원 넘었다"는 기억은 대개 상자단가이므로, 표에 <b>최고 상자단가</b>를 함께 실었다.
-    <span id="boxRec"></span>
+
+  <div class="head">
+    <h1>전북 상추 가격 <span class="crumb" id="crumb"></span></h1>
+    <button class="iconbtn" id="theme" title="밝게/어둡게" aria-label="밝게/어둡게"></button>
   </div>
+  <p class="meta" id="meta">불러오는 중…</p>
+
+  <details class="unit">
+    <summary>모든 가격은 <b style="margin:0 2px">원/kg</b> — 상자단가가 아닙니다</summary>
+    <div class="body">
+      도매시장 원자료는 <b>상자단가</b>라 상자무게로 나눠 환산했다.
+      같은 거래라도 4kg 상자가 13만원에 낙찰되면 <b>상자단가 130,000원 = 32,500원/kg</b>이다.
+      "상추가 10만원 넘었다"는 기억은 대개 상자단가이므로, 표에 <b>최고 상자단가</b>를 함께 실었다.
+      <span id="boxRec"></span>
+    </div>
+  </details>
 
   <div class="bar">
-    <span style="color:var(--dim);font-size:13px">기간</span>
-    <button class="rng" data-w="8">8주</button>
-    <button class="rng" data-w="26">6개월</button>
-    <button class="rng on" data-w="53">1년</button>
-    <button class="rng" data-w="157">3년</button>
-    <button class="rng" data-w="0">전체</button>
-    <button id="btnCustom" title="직접 선택">직접</button>
-    <span id="rngLbl" style="color:var(--dim);font-size:12px"></span>
-    <span style="flex:1"></span>
-    <button id="btnBack" style="display:none">◀ 전북 전체</button>
-    <button id="mMode" data-m="avg" class="on">평균</button>
-    <button id="mMode2" data-m="hi">최고</button>
-    <button id="mMode3" data-m="lo">최저</button>
+    <span class="lbl">기간</span>
+    <div class="seg" id="rngSeg">
+      <button class="rng" data-w="8">8주</button>
+      <button class="rng" data-w="26">6개월</button>
+      <button class="rng on" data-w="53">1년</button>
+      <button class="rng" data-w="157">3년</button>
+      <button class="rng" data-w="0">전체</button>
+    </div>
+    <button class="btn" id="btnCustom">직접</button>
+    <span class="rnglbl" id="rngLbl"></span>
+    <span class="grow"></span>
+    <button class="btn" id="btnBack" style="display:none">◀ 전북 전체</button>
+    <span class="lbl">값</span>
+    <div class="seg" id="modeSeg">
+      <button data-m="avg" class="on">평균</button>
+      <button data-m="hi">최고</button>
+      <button data-m="lo">최저</button>
+    </div>
   </div>
   <div class="bar" id="customBar" style="display:none">
-    <label>시작 <select id="wkFrom"></select></label>
-    <label>끝 <select id="wkTo"></select></label>
+    <span class="lbl">구간</span>
+    <select id="wkFrom"></select>
+    <span style="color:var(--muted)">~</span>
+    <select id="wkTo"></select>
   </div>
 
-  <div class="grid">
+  <div class="grid g-map">
     <div class="card">
       <h2 id="mapTitle">시군별 가격 지도</h2>
-      <svg id="map" viewBox="0 0 760 640" role="img" aria-label="전북 시군 지도"></svg>
+      <div class="mapwrap">
+        <svg class="map" id="map" viewBox="0 0 760 640" role="img" aria-label="전북 지도">
+          <defs>
+            <pattern id="nodataHatch" width="7" height="7" patternUnits="userSpaceOnUse"
+                     patternTransform="rotate(45)">
+              <rect width="7" height="7" fill="var(--nodata)"/>
+              <line x1="0" y1="0" x2="0" y2="7" stroke="var(--hatch)" stroke-width="2.4"/>
+            </pattern>
+          </defs>
+          <g id="mapG"></g>
+        </svg>
+      </div>
       <div class="leg" id="mapLeg"></div>
       <div class="note" id="mapNote"></div>
     </div>
@@ -119,52 +310,98 @@
     </div>
   </div>
 
-  <div class="grid" style="margin-top:16px">
+  <div class="grid g-half mt">
     <div class="card">
       <h2 id="chartTitle">주간 가격 추이 · 예측</h2>
-      <svg id="chart" viewBox="0 0 720 300"></svg>
+      <svg class="chart" id="chart" viewBox="0 0 720 300"></svg>
       <div class="note" id="chartNote"></div>
     </div>
     <div class="card">
       <h2 id="ltTitle">2027년까지 월별 전망</h2>
-      <svg id="ltChart" viewBox="0 0 720 300"></svg>
+      <svg class="chart" id="ltChart" viewBox="0 0 720 300"></svg>
       <div class="note" id="ltNote"></div>
-      <div class="scroll" style="margin-top:8px"><table id="ltTbl"></table></div>
+      <div class="scroll mt"><table id="ltTbl"></table></div>
     </div>
   </div>
 
-  <div class="grid" style="margin-top:16px">
-    <div class="card">
-      <h2 id="varTitle">품종 구성</h2>
-      <div id="variety"></div>
-      <div class="note">
-        적상추·청상추는 지역에 따라 갈리고, 쫑상추는 전 지역에 나온다.
-        쫑상추는 한 작기가 끝날 무렵 순을 꺾어 내는 것이라 <b>가격 타깃에서는 제외</b>하고
-        별도 계열로 관리한다.
-      </div>
-    </div>
+  <div class="card mt">
+    <h2 id="varTitle">품종 구성</h2>
+    <div id="variety"></div>
   </div>
 </div>
 
-<script>
-let DATA=null, SEL=null, MODE="avg", WK=[], I0=0, I1=0;
-const $=s=>document.querySelector(s);
-const won=v=>v==null||isNaN(v)?"–":Math.round(v).toLocaleString();
+<div class="tip" id="tip"></div>
 
-let LT=null;   // 2027 장기전망 (lettuce_forecast_2027.json)
+<script>
+"use strict";
+let DATA=null, LT=null, EUPGEO=null, SEL=null, EUP=null, MODE="avg", WK=[], I0=0, I1=0;
+const $=s=>document.querySelector(s);
+const won=v=>v==null||isNaN(v)?"–":Math.round(v).toLocaleString("ko-KR");
+// 물량은 천단위 구분을 붙인다. 예전엔 toFixed 만 써서 21821t 처럼 읽기 어려웠다.
+const ton=(v,d)=>v==null||isNaN(v)?"–":v.toLocaleString("ko-KR",
+  {minimumFractionDigits:d||0,maximumFractionDigits:d||0});
+
+/* ── 테마 ─────────────────────────────────────────────
+   CSS에 라이트/다크 규칙만 있고 그걸 켜는 장치가 없어서 시스템 설정에
+   끌려다녔다. 세 상태(시스템/라이트/다크)를 돌린다. */
+const SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"'
+  +' stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2M4.9'
+  +' 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+const MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"'
+  +' stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5Z"/></svg>';
+const AUTO='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"'
+  +' stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v18"/>'
+  +'<path d="M12 3a9 9 0 0 1 0 18Z" fill="currentColor" stroke="none"/></svg>';
+function applyTheme(t){
+  if(t==="system") document.documentElement.removeAttribute("data-theme");
+  else document.documentElement.setAttribute("data-theme",t);
+  $("#theme").innerHTML = t==="light"?SUN : t==="dark"?MOON : AUTO;
+  $("#theme").title = "화면 밝기: "+(t==="light"?"밝게":t==="dark"?"어둡게":"시스템 설정")
+    +" (눌러서 바꾸기)";
+}
+(function initTheme(){
+  let t="system";
+  try{ t=localStorage.getItem("lettuceTheme")||"system"; }catch(e){}
+  applyTheme(t);
+  $("#theme").onclick=()=>{
+    const nx={system:"light",light:"dark",dark:"system"}[
+      document.documentElement.getAttribute("data-theme")||"system"];
+    try{ localStorage.setItem("lettuceTheme",nx); }catch(e){}
+    applyTheme(nx);
+    if(DATA) render();          // SVG 안의 색은 CSS 변수를 다시 읽어야 한다
+  };
+})();
+
+/* ── 도움말 상자 ───────────────────────────────────── */
+const tip=$("#tip");
+function showTip(ev,html){
+  tip.innerHTML=html; tip.classList.add("on");
+  const r=tip.getBoundingClientRect();
+  let x=ev.clientX+14, y=ev.clientY+14;
+  if(x+r.width>innerWidth-8) x=ev.clientX-r.width-14;
+  if(y+r.height>innerHeight-8) y=ev.clientY-r.height-14;
+  tip.style.left=Math.max(8,x)+"px"; tip.style.top=Math.max(8,y)+"px";
+}
+const hideTip=()=>tip.classList.remove("on");
+addEventListener("scroll",hideTip,{passive:true});
+
+/* ── 적재 ─────────────────────────────────────────── */
 Promise.all([
   fetch("data/lettuce_app.json").then(r=>r.json()),
   fetch("data/lettuce_forecast_2027.json").then(r=>r.json()).catch(()=>null),
 ]).then(([d,lt])=>{DATA=d;LT=lt;init()})
-  .catch(e=>{$("#meta").textContent="데이터를 불러오지 못했습니다: "+e});
+ .catch(e=>{$("#meta").textContent="데이터를 불러오지 못했습니다: "+e});
 
-// 지금 보고 있는 단위의 2027 전망을 꺼낸다
+// 읍면 경계는 드릴다운할 때만 쓴다 — 첫 화면을 169KB 무겁게 할 이유가 없다
+function loadEupGeo(){
+  if(EUPGEO) return Promise.resolve(EUPGEO);
+  return fetch("data/jeonbuk_eup_geo.json").then(r=>r.json())
+    .then(g=>{EUPGEO=g;return g}).catch(()=>{EUPGEO={counties:{}};return EUPGEO});
+}
+
 function longFC(){
   if(!LT) return null;
-  if(SEL&&window.__eup){
-    const e=LT.counties[SEL]?.eups?.[window.__eup];
-    if(e) return e.forecast;
-  }
+  if(SEL&&EUP){ const e=LT.counties[SEL]?.eups?.[EUP]; if(e) return e.forecast; }
   if(SEL) return LT.counties[SEL]?.forecast||null;
   return null;
 }
@@ -173,20 +410,20 @@ function init(){
   const m=DATA.meta;
   const mk=m.markets_surveyed
     ? `전국 ${m.markets_surveyed}개 공영도매시장 전수 조사`
-      +(m.markets_with_jeonbuk?` (전북산 거래 ${m.markets_with_jeonbuk}곳)`:"")
+      +(m.markets_with_jeonbuk?` <span style="color:var(--muted)">(전북산 거래 ${m.markets_with_jeonbuk}곳)</span>`:"")
     : `전국 ${m.markets}개 공영도매시장`;
-  $("#meta").innerHTML=`${m.period[0]} ~ ${m.period[1]} · ${mk} · `
+  $("#meta").innerHTML=`<b>${m.period[0]} ~ ${m.period[1]}</b> · ${mk} · `
     +`${(m.rows/10000).toFixed(0)}만 건 · ${m.target}`;
-  // 전 기간 최고 상자단가를 찾아 단위 설명에 실제 사례로 붙인다
+
   let best={v:0};
   Object.values(DATA.counties).forEach(c=>c.weekly.forEach(w=>{
     if(w[6]>best.v) best={v:w[6],kg:w[7],wk:w[0],name:c.name}}));
   if(best.v) $("#boxRec").innerHTML=`<br>실제 최고 기록: <b>${best.name} ${best.wk}주 `
     +`${won(best.v)}원/${best.kg}kg 상자 = ${won(best.v/best.kg)}원/kg</b>`;
+
   const set=new Set();
   Object.values(DATA.counties).forEach(c=>c.weekly.forEach(w=>set.add(w[0])));
   WK=[...set].sort();
-  // 450주를 한 목록에 쏟으면 못 고른다 — 연도별 optgroup + 프리셋 버튼
   const f=$("#wkFrom"), t=$("#wkTo");
   let gy=null, og=[null,null];
   WK.forEach((w,i)=>{
@@ -196,7 +433,7 @@ function init(){
     og[0].appendChild(new Option(w,i)); og[1].appendChild(new Option(w,i));
   });
   const sync=()=>{f.value=I0;t.value=I1;
-    $("#rngLbl").textContent=`${WK[I0]} ~ ${WK[I1]} (${I1-I0+1}주)`};
+    $("#rngLbl").textContent=`${WK[I0]} ~ ${WK[I1]} · ${I1-I0+1}주`};
   I0=Math.max(0,WK.length-53); I1=WK.length-1; sync();
   f.onchange=()=>{I0=+f.value; if(I0>I1)I1=I0; sync(); render()};
   t.onchange=()=>{I1=+t.value; if(I1<I0)I0=I1; sync(); render()};
@@ -208,20 +445,21 @@ function init(){
   });
   $("#btnCustom").onclick=()=>{
     const c=$("#customBar");
-    c.style.display=c.style.display==="none"?"flex":"none";
-    $("#btnCustom").classList.toggle("on",c.style.display!=="none");
+    const open=c.style.display==="none";
+    c.style.display=open?"flex":"none";
+    $("#btnCustom").classList.toggle("on",open);
   };
-  ["#mMode","#mMode2","#mMode3"].forEach(id=>$(id).onclick=e=>{
-    MODE=e.target.dataset.m;
-    ["#mMode","#mMode2","#mMode3"].forEach(x=>$(x).classList.toggle("on",$(x).dataset.m===MODE));
+  $("#modeSeg").querySelectorAll("button").forEach(b=>b.onclick=()=>{
+    MODE=b.dataset.m;
+    $("#modeSeg").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));
     render();
   });
-  $("#btnBack").onclick=()=>{SEL=null;render()};
+  $("#btnBack").onclick=()=>{SEL=null;EUP=null;zoomTo(null);render()};
   render();
 }
 
-// 기간 내 집계 — 평균은 물량가중, 최고/최저는 그 기간의 극값
-// weekly 배열: [주시작일, 평균원/kg, 최저원/kg, 최고원/kg, 물량t, 거래일, 최고상자단가, 상자kg]
+/* ── 집계 ─────────────────────────────────────────────
+   weekly: [주시작일, 평균원/kg, 최저원/kg, 최고원/kg, 물량t, 거래일, 최고상자단가, 상자kg] */
 function agg(weekly){
   const rows=weekly.filter(w=>w[0]>=WK[I0]&&w[0]<=WK[I1]);
   if(!rows.length) return null;
@@ -233,287 +471,483 @@ function agg(weekly){
           boxHi:bh,boxKg:bkg,boxW:bhW,rows};
 }
 const pick=a=>a?(MODE==="avg"?a.avg:MODE==="hi"?a.hi:a.lo):null;
-
+const RAMP=["var(--g1)","var(--g2)","var(--g3)","var(--g4)","var(--g5)"];
 function ramp(v,mn,mx){
-  if(v==null) return "transparent";
+  if(v==null) return "url(#nodataHatch)";
   const t=mx>mn?(v-mn)/(mx-mn):0.5;
-  return ["var(--r1)","var(--r2)","var(--r3)","var(--r4)","var(--r5)"]
-    [Math.min(4,Math.floor(t*5))];
+  return RAMP[Math.min(4,Math.floor(t*5))];
 }
+const MODEWORD=()=>MODE==="avg"?"평균":MODE==="hi"?"최고":"최저";
 
 function render(){
   SEL?renderEup():renderCounty();
   renderChart(); renderLong(); renderVariety();
 }
 
+/* ── 지도 확대 ─────────────────────────────────────────
+   시군을 고르면 viewBox를 그 시군 경계상자로 좁힌다. 좌표계가 시군·읍면
+   공통이라 확대해도 어긋나지 않는다. 선 굵기는 non-scaling-stroke 로
+   확대배율과 무관하게 유지한다. */
+const FULLBOX=[0,0,760,640];
+let curBox=FULLBOX.slice(), animId=null, LABPX=12;
+/* 화면에서 보이길 바라는 글자 크기(px)를 viewBox 단위로 되돌린다.
+   확대해도, 창을 줄여도 라벨이 같은 크기로 보인다. */
+function fitLabels(){
+  const map=$("#map");
+  const w=map.getBoundingClientRect().width;
+  if(!w) return;
+  const k=curBox[2]/w;                      // viewBox 단위 / CSS px
+  map.style.setProperty("--labF",(LABPX*k).toFixed(2)+"px");
+  map.style.setProperty("--valF",(LABPX*0.82*k).toFixed(2)+"px");
+  map.style.setProperty("--labS",(2.6*k).toFixed(2)+"px");
+}
+addEventListener("resize",fitLabels);
+function fitBox(bb,pad){
+  const aspect=760/640;
+  let [x0,y0,x1,y1]=bb, w=x1-x0, h=y1-y0;
+  if(w/h<aspect) w=h*aspect; else h=w/aspect;
+  w*=pad; h*=pad;
+  return [(x0+x1)/2-w/2,(y0+y1)/2-h/2,w,h];
+}
+function setBox(b){
+  curBox=b.slice();
+  $("#map").setAttribute("viewBox",b.map(v=>v.toFixed(1)).join(" "));
+  fitLabels();                      // 확대 중에도 글자는 같은 크기로 유지
+}
+let snapT=null;
+function zoomTo(bb){
+  const to=bb?fitBox(bb,1.14):FULLBOX.slice();
+  if(animId){ cancelAnimationFrame(animId); animId=null; }
+  if(snapT){ clearTimeout(snapT); snapT=null; }
+  // 움직임을 줄이라는 설정이면 애니메이션 없이 바로 간다
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches){ setBox(to); return; }
+  const from=curBox.slice(), t0=performance.now(), DUR=460;
+  const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+  // rAF는 화면을 그리지 않는 탭에서는 호출되지 않는다. 그때도 최종 위치는
+  // 반드시 맞아야 하므로 시간 기반 보험을 하나 걸어 둔다.
+  snapT=setTimeout(()=>{
+    if(animId){ cancelAnimationFrame(animId); animId=null; }
+    setBox(to); snapT=null;
+  },DUR+260);
+  (function step(now){
+    const t=Math.min(1,(now-t0)/DUR), e=ease(t);
+    setBox(from.map((v,i)=>v+(to[i]-v)*e));
+    if(t<1){ animId=requestAnimationFrame(step); }
+    else { animId=null; if(snapT){ clearTimeout(snapT); snapT=null; } }
+  })(performance.now());
+}
+
 /* ── 시군 단계 ─────────────────────────────────────── */
 function renderCounty(){
   $("#btnBack").style.display="none";
   $("#crumb").textContent="";
-  $("#mapTitle").textContent="시군별 가격 지도 — 클릭하면 읍면 상세";
+  $("#mapTitle").textContent="시군별 가격 지도";
   $("#tblTitle").textContent="시군 순위";
   const vals={};
   Object.entries(DATA.counties).forEach(([id,c])=>vals[id]=agg(c.weekly));
   const nums=Object.values(vals).map(pick).filter(v=>v!=null);
   const mn=Math.min(...nums), mx=Math.max(...nums);
-
   const g=DATA.geo;
+
   let svg="";
   Object.entries(g.counties).forEach(([id,geo])=>{
-    const a=vals[id], v=pick(a);
-    svg+=`<path class="cty" data-id="${id}" d="${geo.d}" fill="${ramp(v,mn,mx)}"><title>`
-      +`${geo.name}\n평균 ${won(a?.avg)}원/kg\n최고 ${won(a?.hi)} · 최저 ${won(a?.lo)}`
-      +`</title></path>`;
+    const v=pick(vals[id]);
+    svg+=`<path class="cty" data-id="${id}" d="${geo.d}" fill="${ramp(v,mn,mx)}"`
+      +` stroke="var(--card)" stroke-width="1.4" vector-effect="non-scaling-stroke"/>`;
   });
   Object.entries(g.counties).forEach(([id,geo])=>{
     const a=vals[id];
-    svg+=`<text class="clab" x="${geo.cx}" y="${geo.cy}">${geo.name.replace(/[시군]$/,"")}</text>`;
-    if(geo.room>=12&&a) svg+=`<text class="cval" x="${geo.cx}" y="${geo.cy+11}">${won(pick(a))}</text>`;
+    svg+=`<text class="clab" x="${geo.cx}" y="${geo.cy}">`
+      +`${geo.name.replace(/[시군]$/,"")}</text>`;
+    // dy는 em으로 준다 — 글자 크기가 확대배율을 따라 바뀌므로 간격도 같이 따라와야 한다
+    if(geo.room>=12&&a) svg+=`<text class="cval" x="${geo.cx}" y="${geo.cy}" dy="1.25em">`
+      +`${won(pick(a))}</text>`;
   });
-  $("#map").innerHTML=svg;
-  $("#map").querySelectorAll(".cty").forEach(p=>p.onclick=()=>{SEL=p.dataset.id;render()});
-  legend(mn,mx);
-  $("#mapNote").textContent=`${WK[I0]} ~ ${WK[I1]} 기준 ${MODE==="avg"?"주간 평균의 물량가중":MODE==="hi"?"기간 내 최고가":"기간 내 최저가"}. 색이 진할수록 높다.`;
+  $("#mapG").innerHTML=svg;
+  LABPX=12; fitLabels();
+  $("#mapG").querySelectorAll(".cty").forEach(p=>{
+    const id=p.dataset.id, a=vals[id], nm=g.counties[id].name;
+    p.onclick=()=>{SEL=id;EUP=null;hideTip();zoomTo(bboxOf(p));render()};
+    p.onmousemove=ev=>showTip(ev, a
+      ? `<div class="th">${nm}</div>`
+        +row("평균",won(a.avg)+" 원/kg")+row("최고",won(a.hi)+" 원/kg")
+        +row("최저",won(a.lo)+" 원/kg")+row("물량",ton(a.qty)+" t")
+      : `<div class="th">${nm}</div><div class="r">이 기간 거래 없음</div>`);
+    p.onmouseleave=hideTip;
+  });
+  legend(mn,mx,false);
+  $("#mapNote").innerHTML=`${WK[I0]} ~ ${WK[I1]} 기준 `
+    +(MODE==="avg"?"<b>주간 평균의 물량가중</b>":`기간 내 <b>${MODEWORD()}가</b>`)
+    +`. 색이 진할수록 높다. <b>시군을 누르면 읍면까지 확대된다.</b>`;
 
   const sorted=Object.entries(vals).filter(([,a])=>a)
     .sort((a,b)=>pick(b[1])-pick(a[1]));
-  let h=`<tr><th>시군</th><th>평균<br><span class="u">원/kg</span></th>`
+  let h=`<thead><tr><th>시군</th><th>평균<br><span class="u">원/kg</span></th>`
     +`<th>최고<br><span class="u">원/kg</span></th><th>최저<br><span class="u">원/kg</span></th>`
     +`<th>최고 상자<br><span class="u">원/상자</span></th>`
-    +`<th>물량<br><span class="u">t</span></th><th>신뢰도</th></tr>`;
+    +`<th>물량<br><span class="u">t</span></th><th>신뢰도</th></tr></thead><tbody>`;
   sorted.forEach(([id,a],i)=>{
     const c=DATA.counties[id], r=c.reliability;
     const badge=r.cv_mape==null?"":(r.beats
       ?`<span class="tag">CV ${r.cv_mape}% ${r.folds}</span>`
-      :`<span class="tag warn">기준 미달</span>`);
-    h+=`<tr class="click" data-id="${id}"><td>${c.name}${badge}</td>`
+      :`<span class="tag warn">△ 기준 미달</span>`);
+    h+=`<tr class="click" data-id="${id}"><td><span class="rank">${i+1}</span> `
+      +`<b>${c.name}</b>${badge}</td>`
       +`<td>${won(a.avg)}</td><td class="hi">${won(a.hi)}</td>`
       +`<td class="lo">${won(a.lo)}</td>`
       +`<td>${won(a.boxHi)}<br><span class="u">${a.boxKg}kg 상자</span></td>`
-      +`<td>${a.qty.toFixed(0)}</td>`
-      +`<td style="color:var(--dim)">${i+1}위</td></tr>`;
+      +`<td>${ton(a.qty)}</td>`
+      +`<td class="sub2">${r.cv_mape==null?"–":(r.beats?"검증됨":"미달")}</td></tr>`;
   });
-  $("#tbl").innerHTML=h;
-  $("#tbl").querySelectorAll("tr.click").forEach(tr=>tr.onclick=()=>{SEL=tr.dataset.id;render()});
+  $("#tbl").innerHTML=h+"</tbody>";
+  $("#tbl").querySelectorAll("tr.click").forEach(tr=>tr.onclick=()=>{
+    SEL=tr.dataset.id;EUP=null;
+    const p=$("#mapG").querySelector(`.cty[data-id="${SEL}"]`);
+    zoomTo(p?bboxOf(p):null); render();});
 
   const all=sorted.map(([,a])=>a);
-  const lab=e=>({label:DATA.counties[e[0]].name, agg:e[1]});
-  $("#kpi").innerHTML=kpiHtml(lab(sorted[0]),lab(sorted[sorted.length-1]),all);
+  $("#kpi").innerHTML=kpiHtml({label:DATA.counties[sorted[0][0]].name,agg:sorted[0][1]},
+    {label:DATA.counties[sorted[sorted.length-1][0]].name,agg:sorted[sorted.length-1][1]},all);
   $("#tblNote").textContent="행을 누르면 그 시군의 읍면 상세로 들어간다.";
 }
+const row=(k,v)=>`<div class="r"><span>${k}</span><b>${v}</b></div>`;
+function bboxOf(el){const b=el.getBBox();return [b.x,b.y,b.x+b.width,b.y+b.height]}
 
 /* ── 읍면 단계 ─────────────────────────────────────── */
 function renderEup(){
   const c=DATA.counties[SEL];
   $("#btnBack").style.display="";
   $("#crumb").textContent=" › "+c.name;
-  $("#mapTitle").textContent=c.name+" 위치";
+  $("#mapTitle").textContent=c.name+" 읍면 지도";
   $("#tblTitle").textContent=c.name+" 읍면별 가격";
 
-  const g=DATA.geo;
-  let svg="";
-  Object.entries(g.counties).forEach(([id,geo])=>{
-    svg+=`<path class="cty${id===SEL?" sel":""}" data-id="${id}" d="${geo.d}" `
-      +`fill="${id===SEL?"var(--r4)":"var(--r1)"}" opacity="${id===SEL?1:.45}"></path>`;
-  });
-  svg+=`<text class="clab" x="${g.counties[SEL].cx}" y="${g.counties[SEL].cy}">`
-    +`${c.name}</text>`;
-  $("#map").innerHTML=svg;
-  $("#map").querySelectorAll(".cty").forEach(p=>p.onclick=()=>{SEL=p.dataset.id;render()});
-  $("#mapLeg").innerHTML="";
-  $("#mapNote").textContent="다른 시군을 눌러 바로 이동할 수 있다.";
+  const rows=Object.entries(c.eups).map(([n,e])=>[n,e,agg(e.weekly)]).filter(x=>x[2]);
+  const byName={}; rows.forEach(r=>byName[r[0]]=r[2]);
 
-  const rows=Object.entries(c.eups).map(([n,e])=>[n,e,agg(e.weekly)])
-    .filter(x=>x[2]).sort((a,b)=>pick(b[2])-pick(a[2]));
-  if(!rows.length){
-    $("#tbl").innerHTML=`<tr><td style="color:var(--dim)">이 기간에 읍면 자료가 없다</td></tr>`;
-    $("#kpi").innerHTML=""; $("#tblNote").textContent=""; return;
-  }
   // 표본이 얇은 읍면은 순위를 왜곡한다 — 거래 1건짜리가 최고가 1위로 올라온다
-  // (실측: 남원 산동면 물량 0.2t, 최고=최저=9,622원). 표에는 남기되 순위·KPI에서
-  // 빼고 표시로 구분한다. 기준은 그 시군 기간물량의 3% 또는 5t 중 작은 쪽.
-  // '읍면 미기재'는 장소가 아니라 출하자가 주소를 시군까지만 적은 묶음이다.
-  // 전북산 물량의 41.7%가 여기 들어가고(익산이 그 3분의 2), 물량 1위로 올라와
-  // 순위를 지배하므로 최고·최저 판정에서 뺀다. 표에는 남겨서 규모는 보이게 한다.
+  // (실측: 남원 산동면 물량 0.2t, 최고=최저=9,622원). 기준은 그 시군 기간물량의
+  // 3% 또는 5t 중 작은 쪽. '읍면 미기재'(시군까지만 적은 묶음)는 장소가 아니라
+  // 전북산 물량의 41.7%가 몰리는 덩어리라 최고·최저 판정에서 뺀다.
   const totQ=rows.reduce((s,r)=>s+r[2].qty,0);
   const thr=Math.min(5,totQ*0.03);
-  const solid=rows.filter(r=>!r[1].unassigned && r[2].qty>=thr && r[2].n>=3);
-  const rank=solid.length?solid:rows.filter(r=>!r[1].unassigned);
+  const isThin=(n,e,a)=>!e.unassigned&&!(a.qty>=thr&&a.n>=3);
+  // rank 는 **값 순으로 세운 뒤** 걸러야 한다. 자료 순서 그대로 거르면
+  // rank[0]이 최고가 아니라 그냥 첫 번째 읍면이 돼서, 표의 1행과 지표가
+  // 서로 다른 곳을 가리킨다.
+  const byVal=rows.slice().sort((a,b)=>pick(b[2])-pick(a[2]));
+  const solid=byVal.filter(r=>!r[1].unassigned&&!isThin(...r));
+  const rank=solid.length?solid:byVal.filter(r=>!r[1].unassigned);
 
-  let h=`<tr><th>읍면</th><th>평균<br><span class="u">원/kg</span></th>`
+  drawEupMap(c,byName,rows,rank);
+
+  if(!rows.length){
+    $("#tbl").innerHTML=`<tr><td class="sub2">이 기간에 읍면 자료가 없다</td></tr>`;
+    $("#kpi").innerHTML=""; $("#tblNote").textContent=""; return;
+  }
+
+  // 값 순으로 세우되 표본 부족·순위 제외 행은 아래로 내린다.
+  // 예전에는 값만으로 세워서 0.2t짜리가 표 맨 위에 오고, 바로 위 지표는
+  // 다른 읍면을 최고 산지라고 말해 서로 어긋나 보였다.
+  const grade=r=>r[1].unassigned?2:(isThin(...r)?1:0);
+  const ordered=rows.slice().sort((a,b)=>grade(a)-grade(b)||pick(b[2])-pick(a[2]));
+
+  let h=`<thead><tr><th>읍면</th><th>평균<br><span class="u">원/kg</span></th>`
     +`<th>최고 <span class="u">원/kg</span><br><span class="u">(발생 주)</span></th>`
     +`<th>최저 <span class="u">원/kg</span><br><span class="u">(발생 주)</span></th>`
     +`<th>최고 상자<br><span class="u">원/상자</span></th>`
     +`<th>물량<br><span class="u">t</span></th>`
-    +`<th>다음주 예측<br><span class="u">원/kg</span></th></tr>`;
-  rows.forEach(([n,e,a])=>{
-    const una=!!e.unassigned;
-    const thin=!una && !(a.qty>=thr && a.n>=3);
+    +`<th>다음주 예측<br><span class="u">원/kg</span></th></tr></thead><tbody>`;
+  let rk=0;
+  ordered.forEach(([n,e,a])=>{
+    const una=!!e.unassigned, thin=isThin(n,e,a);
     const f=e.forecast&&e.forecast[0], rel=e.reliability;
     const fc=una?`<span class="tag">순위 제외</span>`
       : thin?`<span class="tag">표본 부족</span>`
-      : f?(rel.beats?`${won(f.p)}<br><span style="font-size:11px;color:var(--dim)">${won(f.lo)}~${won(f.hi)}</span>`
-        :`<span class="tag warn">신뢰 낮음</span>`):"–";
-    const mark=una?' <span class="tag">주소 시군까지만</span>'
-      : thin?' <span class="tag">표본 ${}</span>'.replace("${}",`${a.qty.toFixed(1)}t·${a.n}주`)
-      :(n===rank[0][0]?' <span class="hi">▲최고</span>'
-        :(n===rank[rank.length-1][0]?' <span class="lo">▼최저</span>':''));
-    h+=`<tr class="click${n===window.__eup?" sel":""}${(thin||una)?" thin":""}" data-e="${n}">`
-      +`<td>${n}${mark}</td><td>${won(a.avg)}</td>`
+      : f?(rel.beats?`<b>${won(f.p)}</b><br><span class="u">${won(f.lo)}~${won(f.hi)}</span>`
+        :`<span class="tag warn">△ 신뢰 낮음</span>`):"–";
+    let mark="";
+    if(una) mark=' <span class="tag">주소 시군까지만</span>';
+    else if(thin) mark=` <span class="tag dim">${ton(a.qty,1)}t · ${a.n}주</span>`;
+    else if(rank.length&&n===rank[0][0]) mark=' <span class="tag" style="color:var(--hi);'
+      +'border-color:var(--hi)">▲ 최고</span>';
+    else if(rank.length&&n===rank[rank.length-1][0]) mark=' <span class="tag" '
+      +'style="color:var(--lo);border-color:var(--lo)">▼ 최저</span>';
+    const num=(!una&&!thin)?`<span class="rank">${++rk}</span> `:"";
+    h+=`<tr class="click${n===EUP?" sel":""}${(thin||una)?" thin":""}" data-e="${n}">`
+      +`<td>${num}<b>${n}</b>${mark}</td><td>${won(a.avg)}</td>`
       +`<td class="hi">${won(a.hi)}<br><span class="u">${a.hiW}</span></td>`
       +`<td class="lo">${won(a.lo)}<br><span class="u">${a.loW}</span></td>`
       +`<td>${won(a.boxHi)}<br><span class="u">${a.boxKg}kg · ${a.boxW}</span></td>`
-      +`<td>${a.qty.toFixed(1)}</td><td>${fc}</td></tr>`;
+      +`<td>${ton(a.qty,1)}</td><td>${fc}</td></tr>`;
   });
-  $("#tbl").innerHTML=h;
+  $("#tbl").innerHTML=h+"</tbody>";
   $("#tbl").querySelectorAll("tr.click").forEach(tr=>tr.onclick=()=>{
-    window.__eup=(window.__eup===tr.dataset.e)?null:tr.dataset.e; render();});
+    EUP=(EUP===tr.dataset.e)?null:tr.dataset.e; render();});
 
-  $("#kpi").innerHTML=kpiHtml({label:rank[0][0], agg:rank[0][2]},
-                              {label:rank[rank.length-1][0], agg:rank[rank.length-1][2]},
-                              rows.map(r=>r[2]));
+  $("#kpi").innerHTML=kpiHtml({label:rank[0][0],agg:rank[0][2]},
+    {label:rank[rank.length-1][0],agg:rank[rank.length-1][2]}, rows.map(r=>r[2]));
+
   const una=rows.find(r=>r[1].unassigned);
-  const nThin=rows.length-solid.length-(una?1:0);
-  $("#tblNote").innerHTML="읍면을 누르면 아래 차트가 그 읍면으로 바뀐다. "
+  const nThin=rows.filter(r=>!r[1].unassigned&&isThin(...r)).length;
+  $("#tblNote").innerHTML="읍면을 누르면 지도와 아래 차트가 그 읍면으로 바뀐다. "
     +"최고·최저는 <b>그 기간 안에서 실제로 그 값이 나온 주</b>를 함께 표시한다."
     +(una?` 시군명과 같은 이름의 행(<b>${una[0]}</b>, 이 시군 물량의 `
       +`${(una[2].qty/totQ*100).toFixed(0)}%)은 출하자가 산지를 시군까지만 적어 `
       +`읍면을 알 수 없는 거래다. 실제 거래이므로 표에는 두되 순위에서만 뺐다.`:"")
-    +(nThin>0?` 표본이 얇은 ${nThin}개 읍면(${thr.toFixed(1)}t 미만 또는 3주 미만)도 `
+    +(nThin>0?` 표본이 얇은 ${nThin}개 읍면(${ton(thr,1)}t 미만 또는 3주 미만)도 `
       +`제외했다 — 거래 한두 건이 최고가로 잡히기 때문이다.`:"");
 }
 
-// top/bot 은 {label, agg} 로 통일해서 받는다. 예전엔 시군은 [id,agg],
-// 읍면은 [name,obj,agg] 로 모양이 달라 시군에서 영문 id가 노출됐다.
+/* 읍면 지도. 지도에는 그 시군의 **모든** 읍면을 그리고, 가격자료가 있는 곳만
+   색을 입힌다. 자료가 없는 읍면은 빗금으로 두어 "값이 낮은 곳"과 구분한다. */
+function drawEupMap(c,byName,rows,rank){
+  const g=DATA.geo;
+  const vals=Object.values(byName).map(pick).filter(v=>v!=null);
+  const mn=vals.length?Math.min(...vals):0, mx=vals.length?Math.max(...vals):1;
+
+  loadEupGeo().then(eg=>{
+    if(SEL!==null&&DATA.counties[SEL]!==c) return;      // 그 사이 다른 시군으로 갔다
+    const eups=(eg.counties[SEL]||{}).eups||{};
+    let svg="";
+    // 이웃 시군은 배경으로 옅게 깔아 위치 감각을 남긴다
+    Object.entries(g.counties).forEach(([id,geo])=>{
+      if(id===SEL) return;
+      svg+=`<path class="cty" data-id="${id}" d="${geo.d}" fill="var(--card-2)"`
+        +` stroke="var(--line)" stroke-width="1" vector-effect="non-scaling-stroke"`
+        +` opacity=".9"/>`;
+    });
+    const names=Object.keys(eups);
+    if(!names.length){
+      svg+=`<path d="${g.counties[SEL].d}" fill="url(#nodataHatch)" stroke="var(--ink-2)"`
+        +` stroke-width="1.6" vector-effect="non-scaling-stroke"/>`;
+    }
+    names.forEach(n=>{
+      const a=byName[n], v=pick(a);
+      svg+=`<path class="eup" data-e="${n}" d="${eups[n].d}" fill="${ramp(v,mn,mx)}"`
+        +` stroke="var(--card)" stroke-width="1.1" vector-effect="non-scaling-stroke"/>`;
+    });
+    // 선택한 읍면 테두리를 위에 한 번 더 — 아래 도형에 가리지 않게
+    if(EUP&&eups[EUP]) svg+=`<path d="${eups[EUP].d}" fill="none" stroke="var(--ink)"`
+      +` stroke-width="2.4" vector-effect="non-scaling-stroke" pointer-events="none"/>`;
+    // 시군 외곽선
+    svg+=`<path d="${g.counties[SEL].d}" fill="none" stroke="var(--ink-2)"`
+      +` stroke-width="1.8" vector-effect="non-scaling-stroke" pointer-events="none"/>`;
+    // 라벨은 자리가 나는 읍면만
+    names.forEach(n=>{
+      const e=eups[n], a=byName[n];
+      if(e.room<7) return;
+      svg+=`<text class="clab" x="${e.cx}" y="${e.cy}">`
+        +`${n.replace(/(읍|면|동)$/,"")}</text>`;
+      if(e.room>=11&&a) svg+=`<text class="cval" x="${e.cx}" y="${e.cy}" dy="1.25em">`
+        +`${won(pick(a))}</text>`;
+    });
+    $("#mapG").innerHTML=svg;
+    LABPX=10.5; fitLabels();
+
+    $("#mapG").querySelectorAll(".cty").forEach(p=>{
+      p.onclick=()=>{SEL=p.dataset.id;EUP=null;hideTip();zoomTo(bboxOf(p));render()};
+      p.onmousemove=ev=>showTip(ev,`<div class="th">${g.counties[p.dataset.id].name}</div>`
+        +`<div class="r">눌러서 이동</div>`);
+      p.onmouseleave=hideTip;
+    });
+    $("#mapG").querySelectorAll(".eup").forEach(p=>{
+      const n=p.dataset.e, a=byName[n];
+      p.onclick=()=>{ if(!a) return; EUP=(EUP===n)?null:n; render(); };
+      p.onmousemove=ev=>showTip(ev, a
+        ? `<div class="th">${n}</div>`+row(MODEWORD(),won(pick(a))+" 원/kg")
+          +row("물량",ton(a.qty,1)+" t")+row("거래",a.n+"주")
+        : `<div class="th">${n}</div><div class="r">이 기간 상추 출하 없음</div>`);
+      p.onmouseleave=hideTip;
+    });
+    legend(mn,mx,true);
+  });
+
+  const nHave=rows.filter(r=>!r[1].unassigned).length;
+  const q=rows.reduce((s,r)=>s+r[2].qty,0)||1;
+  const qUna=rows.filter(r=>r[1].unassigned).reduce((s,r)=>s+r[2].qty,0);
+  $("#mapNote").innerHTML=`${c.name}의 읍면 경계. 색이 진할수록 ${MODEWORD()}가 높다. `
+    +`<b>빗금</b>은 이 기간 상추 출하가 없거나 지도 이름과 이어지지 않은 구역이다.`
+    +(qUna>0?` 이 시군 물량의 <b>${(qUna/q*100).toFixed(0)}%</b>는 출하자가 산지를 `
+      +`시군까지만 적어 지도에 올릴 수 없다.`:"")
+    +` 자료가 있는 읍면 ${nHave}곳.`;
+}
+
 function kpiHtml(top,bot,all){
   const q=all.reduce((s,a)=>s+a.qty,0);
   const bx=all.reduce((m,a)=>a.boxHi>(m?.boxHi||0)?a:m,null);
-  return `<div>최고 산지<b class="hi">${top.label} ${won(pick(top.agg))}<span class="u"> 원/kg</span></b></div>`
-    +`<div>최저 산지<b class="lo">${bot.label} ${won(pick(bot.agg))}<span class="u"> 원/kg</span></b></div>`
-    +`<div>기간 최고 상자<b>${won(bx?.boxHi)}<span class="u"> 원/${bx?.boxKg||"?"}kg 상자</span></b></div>`
-    +`<div>기간 물량<b>${q.toFixed(0)}<span class="u"> t</span></b></div>`;
+  const k=(t,v,u,cls)=>`<div class="k"><span class="t">${t}</span>`
+    +`<span class="v ${cls||""}">${v}<span class="u"> ${u}</span></span></div>`;
+  return k("최고 산지",`${top.label} ${won(pick(top.agg))}`,"원/kg","hi")
+    +k("최저 산지",`${bot.label} ${won(pick(bot.agg))}`,"원/kg","lo")
+    +k("기간 최고 상자",won(bx?.boxHi),`원/${bx?.boxKg||"?"}kg 상자`)
+    +k("기간 물량",ton(q),"t");
 }
 
-function legend(mn,mx){
-  const s=["var(--r1)","var(--r2)","var(--r3)","var(--r4)","var(--r5)"];
-  $("#mapLeg").innerHTML=s.map((c,i)=>{
-    const a=mn+(mx-mn)*i/5, b=mn+(mx-mn)*(i+1)/5;
-    return `<span><i style="background:${c}"></i>${won(a)}~${won(b)}</span>`;
-  }).join("")+`<span style="color:var(--dim)">원/kg</span>`;
-}
-
-/* ── 차트 ──────────────────────────────────────────── */
-function renderChart(){
-  let unit, title;
-  if(SEL&&window.__eup&&DATA.counties[SEL].eups[window.__eup]){
-    unit=DATA.counties[SEL].eups[window.__eup];
-    // 시군까지만 적힌 행은 이름이 시군명과 같아 '진안군 진안군'이 된다
-    title=window.__eup===DATA.counties[SEL].name
-      ? DATA.counties[SEL].name+" (읍면 미상분)"
-      : DATA.counties[SEL].name+" "+window.__eup;
-  }else if(SEL){ unit=DATA.counties[SEL]; title=DATA.counties[SEL].name; }
-  else{
-    const t=Object.entries(DATA.counties).map(([id,c])=>[id,c,agg(c.weekly)])
-      .filter(x=>x[2]).sort((a,b)=>b[2].qty-a[2].qty)[0];
-    unit=t[1]; title=t[1].name+" (물량 최대)";
+function legend(mn,mx,isEup){
+  let h="";
+  for(let i=0;i<5;i++){
+    const a=mn+(mx-mn)*i/5;
+    h+=`<span class="cell"><i class="sw" style="background:${RAMP[i]}"></i>`
+      +`<span>${won(a)}</span></span>`;
   }
+  h+=`<span style="margin-left:6px">~${won(mx)} 원/kg</span>`;
+  if(isEup) h+=`<span class="cell" style="margin-left:12px">`
+    +`<i class="sw none"></i><span>없음</span></span>`;
+  $("#mapLeg").innerHTML=h;
+}
+
+/* ── 주간 차트 ─────────────────────────────────────── */
+function curUnit(){
+  if(SEL&&EUP&&DATA.counties[SEL].eups[EUP]){
+    return [DATA.counties[SEL].eups[EUP],
+      EUP===DATA.counties[SEL].name?DATA.counties[SEL].name+" (읍면 미상분)"
+        :DATA.counties[SEL].name+" "+EUP];
+  }
+  if(SEL) return [DATA.counties[SEL],DATA.counties[SEL].name];
+  const t=Object.entries(DATA.counties).map(([id,c])=>[id,c,agg(c.weekly)])
+    .filter(x=>x[2]).sort((a,b)=>b[2].qty-a[2].qty)[0];
+  return [t[1],t[1].name+" (물량 최대)"];
+}
+
+function renderChart(){
+  const [unit,title]=curUnit();
   $("#chartTitle").textContent=title+" 주간 추이 · 예측";
   const a=agg(unit.weekly);
-  if(!a){$("#chart").innerHTML="";return}
+  if(!a){$("#chart").innerHTML="";$("#chartNote").textContent="";return}
   const H=[...a.rows], F=(unit.forecast||[]);
-  const W=720,Ht=300,L=52,R=12,T=14,B=30;
+  const W=720,Ht=300,L=54,R=14,T=16,B=32;
   const vals=H.flatMap(r=>[r[2],r[3]]).concat(F.flatMap(f=>[f.lo,f.hi]));
-  const mn=Math.min(...vals)*.92, mx=Math.max(...vals)*1.05;
+  const mn=Math.min(...vals)*.92, mx=Math.max(...vals)*1.06;
   const n=H.length+F.length;
   const X=i=>L+(W-L-R)*(n<2?0:i/(n-1));
   const Y=v=>T+(Ht-T-B)*(1-(v-mn)/(mx-mn||1));
   let s="";
   for(let k=0;k<=4;k++){const v=mn+(mx-mn)*k/4,y=Y(v);
     s+=`<line x1="${L}" y1="${y}" x2="${W-R}" y2="${y}" stroke="var(--line)"/>`
-      +`<text x="${L-6}" y="${y+4}" text-anchor="end" font-size="10" fill="var(--dim)">${won(v)}</text>`;}
-  // 주간 최저~최고 밴드
+      +`<text class="axis" x="${L-8}" y="${y+3.5}" text-anchor="end">${won(v)}</text>`}
   let band="";
   H.forEach((r,i)=>{band+=`${i?"L":"M"}${X(i)},${Y(r[3])}`});
   for(let i=H.length-1;i>=0;i--) band+=`L${X(i)},${Y(H[i][2])}`;
-  s+=`<path d="${band}Z" fill="var(--accent)" opacity=".13"/>`;
-  s+=`<path d="${H.map((r,i)=>`${i?"L":"M"}${X(i)},${Y(r[1])}`).join("")}" `
-    +`fill="none" stroke="var(--accent)" stroke-width="2"/>`;
+  s+=`<path d="${band}Z" fill="var(--accent)" opacity=".14"/>`;
+  s+=`<path d="${H.map((r,i)=>`${i?"L":"M"}${X(i)},${Y(r[1])}`).join("")}"`
+    +` fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>`;
   if(F.length){
     const i0=H.length-1;
+    s+=`<line x1="${X(i0)}" y1="${T}" x2="${X(i0)}" y2="${Ht-B}" stroke="var(--line-2)"`
+      +` stroke-dasharray="2 3"/>`
+      +`<text class="axis" x="${X(i0)+4}" y="${T+9}">예측 시작</text>`;
     let fb=`M${X(i0)},${Y(H[i0][1])}`;
     F.forEach((f,i)=>fb+=`L${X(i0+1+i)},${Y(f.hi)}`);
     for(let i=F.length-1;i>=0;i--) fb+=`L${X(i0+1+i)},${Y(F[i].lo)}`;
-    fb+=`L${X(i0)},${Y(H[i0][1])}Z`;
-    s+=`<path d="${fb}" fill="var(--warn)" opacity=".16"/>`;
+    s+=`<path d="${fb}Z" fill="var(--accent)" opacity=".08"/>`;
     s+=`<path d="M${X(i0)},${Y(H[i0][1])}`
       +F.map((f,i)=>`L${X(i0+1+i)},${Y(f.p)}`).join("")
-      +`" fill="none" stroke="var(--warn)" stroke-width="2" stroke-dasharray="5 3"/>`;
-    F.forEach((f,i)=>{s+=`<circle cx="${X(i0+1+i)}" cy="${Y(f.p)}" r="${f.reliable?3.5:2}" `
-      +`fill="var(--warn)" opacity="${f.reliable?1:.5}"><title>${f.wk}\n`
-      +`${won(f.p)}원 (80% ${won(f.lo)}~${won(f.hi)})`
-      +`${f.reliable?"":"\n※ 2주 이후는 검증되지 않음"}</title></circle>`});
+      +`" fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="5 3"/>`;
+    F.forEach((f,i)=>{
+      const r=f.reliable?4.5:3.2;
+      s+=`<circle cx="${X(i0+1+i)}" cy="${Y(f.p)}" r="${r}" fill="${f.reliable
+        ?"var(--accent)":"var(--card)"}" stroke="var(--accent)" stroke-width="1.6"/>`});
   }
   [0,Math.floor(H.length/2),H.length-1].forEach(i=>{if(H[i])
-    s+=`<text x="${X(i)}" y="${Ht-8}" text-anchor="middle" font-size="10" fill="var(--dim)">${H[i][0].slice(2)}</text>`});
+    s+=`<text class="axis" x="${X(i)}" y="${Ht-10}" text-anchor="middle">`
+      +`${H[i][0].slice(2)}</text>`});
+  // 마우스 따라가는 세로선 + 값 — 점마다 숫자를 찍지 않고 필요한 것만 보여준다
+  s+=`<line id="cx1" x1="0" y1="${T}" x2="0" y2="${Ht-B}" stroke="var(--ink-2)"`
+    +` stroke-width="1" opacity="0" pointer-events="none"/>`
+    +`<rect x="${L}" y="${T}" width="${W-L-R}" height="${Ht-T-B}" fill="transparent"`
+    +` id="cxhit" style="cursor:crosshair"/>`;
   $("#chart").innerHTML=s;
+  const hit=$("#cxhit"), line=$("#cx1");
+  hit.onmousemove=ev=>{
+    const r=$("#chart").getBoundingClientRect();
+    const px=(ev.clientX-r.left)/r.width*W;
+    let i=Math.round((px-L)/((W-L-R)/(n-1||1)));
+    i=Math.max(0,Math.min(n-1,i));
+    line.setAttribute("x1",X(i)); line.setAttribute("x2",X(i));
+    line.setAttribute("opacity",".45");
+    if(i<H.length){const w=H[i];
+      showTip(ev,`<div class="th">${w[0]} 주</div>`+row("평균",won(w[1])+" 원/kg")
+        +row("그 주 최저~최고",won(w[2])+"~"+won(w[3]))+row("물량",ton(w[4],1)+" t"));
+    }else{const f=F[i-H.length];
+      showTip(ev,`<div class="th">${f.wk} 주 · 예측</div>`+row("전망",won(f.p)+" 원/kg")
+        +row("80% 구간",won(f.lo)+"~"+won(f.hi))
+        +(f.reliable?"":`<div class="r" style="color:var(--warn)">△ 2주 이후는 검증되지 않음</div>`));
+    }
+  };
+  hit.onmouseleave=()=>{hideTip();line.setAttribute("opacity","0")};
   const r=unit.reliability;
-  $("#chartNote").innerHTML=`세로축 <b>원/kg</b>. 연한 띠 = 그 주의 <b>최저~최고</b>, 실선 = 주간 평균. `
-    +`점선 = 예측(80% 구간). `
-    +(r.cv_mape!=null?`검증 MAPE ${r.cv_mape}% / 주차평균 ${r.baseline}% (${r.folds} 승). `:"")
+  $("#chartNote").innerHTML=`세로축 <b>원/kg</b>. 띠 = 그 주의 <b>최저~최고</b>, `
+    +`실선 = 주간 평균, 점선 = 예측(80% 구간). `
+    +(r.cv_mape!=null?`검증 MAPE <b>${r.cv_mape}%</b> / 주차평균 ${r.baseline}% (${r.folds} 승). `:"")
     +`<b>검증된 지평은 1주뿐</b> — ${DATA.meta.horizon_note}`;
 }
 
-/* ── 2027 장기전망 ─────────────────────────────────── */
-// 주간 차트와 분리한 이유: 이건 **월 단위**이고 근거가 다르다.
-// 1~3개월은 직접예측(모델), 4개월 이후는 계절평균×수준보정.
-// 지평별 실측에서 h>=4부터 모델이 계절평균에 지기 때문이다.
+/* ── 2027 장기전망 ─────────────────────────────────────
+   주간 차트와 분리한 이유: 이건 **월 단위**이고 근거가 다르다.
+   1~3개월은 직접예측(모델), 4개월 이후는 계절평균×수준보정.
+   같은 값을 다른 방법으로 낸 것이므로 색을 새로 쓰지 않고
+   실선/점선과 속·빈 점으로 구분한다. */
 function renderLong(){
   const F=longFC();
-  const nm=SEL?(window.__eup&&window.__eup!==DATA.counties[SEL].name
-      ? DATA.counties[SEL].name+" "+window.__eup
-      : DATA.counties[SEL].name)
-    :null;
+  const nm=SEL?(EUP&&EUP!==DATA.counties[SEL].name
+      ? DATA.counties[SEL].name+" "+EUP : DATA.counties[SEL].name):null;
   $("#ltTitle").textContent=(nm||"전북")+" 2027년까지 월별 전망";
   if(!F||!F.length){
-    $("#ltChart").innerHTML="";
-    $("#ltTbl").innerHTML="";
+    $("#ltChart").innerHTML=""; $("#ltTbl").innerHTML="";
     $("#ltNote").innerHTML=SEL
       ? "이 단위는 관측이 36개월 미만이거나 물량이 적어 장기 전망을 내지 않는다."
       : "<b>지도에서 시군을 선택</b>하면 그 시군의 2027년까지 월별 전망이 나온다.";
     return;
   }
-  const W=720,Ht=300,L=54,R=12,T=14,B=34;
+  const W=720,Ht=300,L=56,R=14,T=16,B=34;
   const vals=F.flatMap(f=>[f.lo,f.hi]);
-  const mn=Math.min(...vals)*.9, mx=Math.max(...vals)*1.05;
+  const mn=Math.min(...vals)*.9, mx=Math.max(...vals)*1.06;
   const X=i=>L+(W-L-R)*(F.length<2?0:i/(F.length-1));
   const Y=v=>T+(Ht-T-B)*(1-(v-mn)/(mx-mn||1));
   let s="";
   for(let k=0;k<=4;k++){const v=mn+(mx-mn)*k/4,y=Y(v);
     s+=`<line x1="${L}" y1="${y}" x2="${W-R}" y2="${y}" stroke="var(--line)"/>`
-      +`<text x="${L-6}" y="${y+4}" text-anchor="end" font-size="10" fill="var(--dim)">${won(v)}</text>`}
-  // 80% 구간 밴드
+      +`<text class="axis" x="${L-8}" y="${y+3.5}" text-anchor="end">${won(v)}</text>`}
   let band=F.map((f,i)=>`${i?"L":"M"}${X(i)},${Y(f.hi)}`).join("");
   for(let i=F.length-1;i>=0;i--) band+=`L${X(i)},${Y(F[i].lo)}`;
-  s+=`<path d="${band}Z" fill="var(--warn)" opacity=".14"/>`;
-  // 검증구간(1~3개월)과 그 이후를 선 모양으로 구분
+  s+=`<path d="${band}Z" fill="var(--accent)" opacity=".11"/>`;
   const nv=F.filter(f=>f.validated).length;
-  s+=`<path d="${F.slice(0,nv).map((f,i)=>`${i?"L":"M"}${X(i)},${Y(f.p)}`).join("")}" `
-    +`fill="none" stroke="var(--accent)" stroke-width="2.4"/>`;
-  s+=`<path d="${F.slice(nv-1<0?0:nv-1).map((f,i)=>`${i?"L":"M"}${X(nv-1+i)},${Y(f.p)}`).join("")}" `
-    +`fill="none" stroke="var(--warn)" stroke-width="2" stroke-dasharray="5 3"/>`;
-  F.forEach((f,i)=>{s+=`<circle cx="${X(i)}" cy="${Y(f.p)}" r="${f.validated?3.4:2.2}" `
-    +`fill="${f.validated?"var(--accent)":"var(--warn)"}"><title>${f.ym} (${f.h}개월 앞)\n`
-    +`${won(f.p)}원/kg  80% ${won(f.lo)}~${won(f.hi)}\n${f.method_ko}`
-    +`${f.mape!=null?"  실측 오차율 "+f.mape+"%":""}</title></circle>`});
+  if(nv>0&&nv<F.length){
+    s+=`<line x1="${X(nv-1)}" y1="${T}" x2="${X(nv-1)}" y2="${Ht-B}"`
+      +` stroke="var(--line-2)" stroke-dasharray="2 3"/>`
+      +`<text class="axis" x="${X(nv-1)+4}" y="${T+9}">여기부터 계절평균</text>`;
+  }
+  s+=`<path d="${F.slice(0,nv).map((f,i)=>`${i?"L":"M"}${X(i)},${Y(f.p)}`).join("")}"`
+    +` fill="none" stroke="var(--accent)" stroke-width="2.4" stroke-linejoin="round"/>`;
+  s+=`<path d="${F.slice(Math.max(0,nv-1)).map((f,i)=>
+      `${i?"L":"M"}${X(Math.max(0,nv-1)+i)},${Y(f.p)}`).join("")}"`
+    +` fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="5 3"/>`;
+  F.forEach((f,i)=>{s+=`<circle cx="${X(i)}" cy="${Y(f.p)}" r="${f.validated?4.2:3}"`
+    +` fill="${f.validated?"var(--accent)":"var(--card)"}" stroke="var(--accent)"`
+    +` stroke-width="1.6"/>`});
   F.forEach((f,i)=>{if(f.ym.endsWith("-01")||i===0||i===F.length-1)
-    s+=`<text x="${X(i)}" y="${Ht-10}" text-anchor="middle" font-size="10" fill="var(--dim)">${f.ym}</text>`});
+    s+=`<text class="axis" x="${X(i)}" y="${Ht-12}" text-anchor="middle">${f.ym}</text>`});
+  s+=`<rect x="${L}" y="${T}" width="${W-L-R}" height="${Ht-T-B}" fill="transparent"`
+    +` id="lthit" style="cursor:crosshair"/>`;
   $("#ltChart").innerHTML=s;
+  $("#lthit").onmousemove=ev=>{
+    const r=$("#ltChart").getBoundingClientRect();
+    const px=(ev.clientX-r.left)/r.width*W;
+    let i=Math.round((px-L)/((W-L-R)/(F.length-1||1)));
+    i=Math.max(0,Math.min(F.length-1,i));
+    const f=F[i];
+    showTip(ev,`<div class="th">${f.ym} · ${f.h}개월 앞</div>`
+      +row("전망",won(f.p)+" 원/kg")+row("80% 구간",won(f.lo)+"~"+won(f.hi))
+      +row("방법",f.method_ko)
+      +(f.mape!=null?row("실측 오차율",f.mape+"%"):""));
+  };
+  $("#lthit").onmouseleave=hideTip;
 
   const y27=F.filter(f=>f.ym.startsWith("2027"));
   const pk=y27.length?y27.reduce((a,b)=>b.p>a.p?b:a):null;
   const bt=y27.length?y27.reduce((a,b)=>b.p<a.p?b:a):null;
-  $("#ltNote").innerHTML=`<b>실선(초록)</b> = 1~3개월 직접예측(모델, 검증됨). `
-    +`<b>점선(주황)</b> = 4개월 이후 계절평균×수준보정. 띠 = 80% 구간.<br>`
+  $("#ltNote").innerHTML=`<b>실선 · 속 찬 점</b> = 1~3개월 직접예측(모델, 검증됨). `
+    +`<b>점선 · 빈 점</b> = 4개월 이후 계절평균×수준보정. 띠 = 80% 구간.<br>`
     +`지평별 실측에서 <b>h≥4부터 모델이 계절평균에 진다</b>(h=12: 29.7% vs 23.0%). `
     +`그래서 먼 구간은 모델을 쓰지 않는다.<br>`
     +(pk?`2027년 최고 <b class="hi">${pk.ym} ${won(pk.p)}원</b> · `
@@ -521,25 +955,25 @@ function renderLong(){
     +`<b>이건 예측이 아니라 계절 평년값에 최근 수준을 반영한 참고치다</b> — `
     +`그 해 작황·기상 충격은 반영돼 있지 않다.`;
 
-  let h=`<tr><th>월</th><th>앞</th><th>전망<span class="u"> 원/kg</span></th>`
-    +`<th>80% 구간</th><th>산출 방법</th><th>실측 오차율</th></tr>`;
+  let h=`<thead><tr><th>월</th><th>앞</th><th>전망<span class="u"> 원/kg</span></th>`
+    +`<th>80% 구간</th><th>산출 방법</th><th>실측 오차율</th></tr></thead><tbody>`;
   F.filter(f=>f.ym>="2026-11"||f.validated).forEach(f=>{
     h+=`<tr${f.validated?'':' class="thin"'}><td>${f.ym}</td><td>${f.h}개월</td>`
       +`<td><b>${won(f.p)}</b></td><td>${won(f.lo)}~${won(f.hi)}</td>`
       +`<td>${f.method_ko}</td><td>${f.mape!=null?f.mape+"%":"–"}</td></tr>`;
   });
-  $("#ltTbl").innerHTML=h;
+  $("#ltTbl").innerHTML=h+"</tbody>";
 }
 
-/* ── 품종 ──────────────────────────────────────────── */
+/* ── 품종 ─────────────────────────────────────────────
+   범주 색은 8개가 한계다. 1% 미만은 '기타 n종'으로 접되 몇 종을 접었는지
+   밝힌다. 쫑상추는 작기 종료 신호라 아무리 작아도 따로 세운다. */
 function renderVariety(){
   let unit,title;
-  if(SEL&&window.__eup&&DATA.counties[SEL].eups[window.__eup]){
-    unit=DATA.counties[SEL].eups[window.__eup];
-    // 시군까지만 적힌 행은 이름이 시군명과 같아 '진안군 진안군'이 된다
-    title=window.__eup===DATA.counties[SEL].name
-      ? DATA.counties[SEL].name+" (읍면 미상분)"
-      : DATA.counties[SEL].name+" "+window.__eup;
+  if(SEL&&EUP&&DATA.counties[SEL].eups[EUP]){
+    unit=DATA.counties[SEL].eups[EUP];
+    title=EUP===DATA.counties[SEL].name?DATA.counties[SEL].name+" (읍면 미상분)"
+      :DATA.counties[SEL].name+" "+EUP;
   }else if(SEL){unit=DATA.counties[SEL];title=DATA.counties[SEL].name;}
   else{unit=null;title="전북 전체";}
   $("#varTitle").textContent=title+" 품종 구성";
@@ -554,19 +988,40 @@ function renderVariety(){
     mix={}; Object.entries(t).sort((a,b)=>b[1].share-a[1].share).forEach(([k,v])=>
       mix[k]={share:+(v.share/tot*100).toFixed(1),price:Math.round(v.price/v.w)});
   }
-  const C=["#2f6f4e","#dda15e","#bc6c25","#6b8e23","#8a4a12","#9a948c","#5b7c99"];
-  const ks=Object.keys(mix);
+  const keep=[], fold=[];
+  const isJJ=k=>k.includes("쫑");
+  Object.entries(mix).sort((a,b)=>b[1].share-a[1].share).forEach(([k,v])=>{
+    (v.share>=1||isJJ(k)?keep:fold).push([k,v]);
+  });
+  const shown=keep.slice(0,7);
+  const rest=keep.slice(7).concat(fold);
+  if(rest.length){
+    const sh=rest.reduce((s,r)=>s+r[1].share,0);
+    const pr=rest.reduce((s,r)=>s+r[1].price*r[1].share,0)/(sh||1);
+    shown.push([`기타 ${rest.length}종`,{share:+sh.toFixed(1),price:Math.round(pr)}]);
+  }
+  const C=["var(--s1)","var(--s2)","var(--s3)","var(--s4)","var(--s5)","var(--s6)",
+           "var(--s7)","var(--muted)"];
   let bar=`<div class="vbar">`;
-  ks.forEach((k,i)=>{const w=mix[k].share;
-    bar+=`<div style="width:${w}%;background:${C[i%C.length]}" title="${k} ${w}%">`
-      +(w>7?k:"")+`</div>`});
-  bar+=`</div><div class="leg">`+ks.map((k,i)=>
-    `<span><i style="background:${C[i%C.length]}"></i>${k} ${mix[k].share}% · ${won(mix[k].price)}원</span>`).join("")+`</div>`;
-  const jj=ks.find(k=>k.includes("쫑")||k.includes("순"));
-  if(jj) bar+=`<div class="note" style="margin-top:8px">`
-    +`<b>${jj}</b> ${mix[jj].share}% · ${won(mix[jj].price)}원/kg — 작기 종료 신호. `
-    +`가격 타깃에서 제외돼 있다.</div>`;
+  shown.forEach(([k,v],i)=>{
+    bar+=`<div style="width:${v.share}%;background:${C[i%C.length]}" data-v="${i}">`
+      +(v.share>8?k:"")+`</div>`});
+  bar+=`</div><div class="vleg">`+shown.map(([k,v],i)=>
+    `<span><i style="background:${C[i%C.length]}"></i>${k} <b>${v.share}%</b>`
+    +` <span style="color:var(--muted)">${won(v.price)}원/kg</span></span>`).join("")+`</div>`;
+  const jj=shown.find(([k])=>isJJ(k));
+  bar+=`<div class="note">적상추·청상추는 지역에 따라 갈리고, 쫑상추는 전 지역에 나온다.`
+    +(jj?` <b>${jj[0]} ${jj[1].share}% · ${won(jj[1].price)}원/kg</b> — 작기 종료 무렵 순을 꺾어 낸
+      것이라 <b>가격 타깃에서 제외</b>하고 별도 계열로 관리한다.`:"")
+    +(rest.length?` 1% 미만 ${rest.length}종은 '기타'로 묶었다(${rest.map(r=>r[0]).join(", ")}).`:"")
+    +`</div>`;
   $("#variety").innerHTML=bar;
+  $("#variety").querySelectorAll(".vbar div").forEach(d=>{
+    const [k,v]=shown[+d.dataset.v];
+    d.onmousemove=ev=>showTip(ev,`<div class="th">${k}</div>`
+      +row("물량 비중",v.share+"%")+row("평균가",won(v.price)+" 원/kg"));
+    d.onmouseleave=hideTip;
+  });
 }
 </script>
 </body>
