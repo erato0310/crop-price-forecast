@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>전북 상추 가격 — 시군·읍면 상세</title>
+<style>
+  :root{
+    --bg:#fbfaf8; --card:#fff; --ink:#1c1a17; --dim:#6b655d; --line:#e6e1d8;
+    --accent:#2f6f4e; --hi:#c0392b; --lo:#2874a6; --warn:#b7791f;
+    --r1:#f2e8d5; --r2:#e8cfa0; --r3:#dda15e; --r4:#bc6c25; --r5:#8a4a12;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#16161a; --card:#1e1e24; --ink:#eceae6; --dim:#9a948c; --line:#33323a;
+          --accent:#6fbf8f; --hi:#e8776a; --lo:#6fa8d6;
+          --r1:#3a3428;--r2:#5c4b2c;--r3:#87602f;--r4:#b07a33;--r5:#d99b48;}
+  }
+  :root[data-theme="dark"]{--bg:#16161a;--card:#1e1e24;--ink:#eceae6;--dim:#9a948c;
+    --line:#33323a;--accent:#6fbf8f;--hi:#e8776a;--lo:#6fa8d6;
+    --r1:#3a3428;--r2:#5c4b2c;--r3:#87602f;--r4:#b07a33;--r5:#d99b48;}
+  :root[data-theme="light"]{--bg:#fbfaf8;--card:#fff;--ink:#1c1a17;--dim:#6b655d;
+    --line:#e6e1d8;--accent:#2f6f4e;--hi:#c0392b;--lo:#2874a6;
+    --r1:#f2e8d5;--r2:#e8cfa0;--r3:#dda15e;--r4:#bc6c25;--r5:#8a4a12;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:20px 16px 60px}
+  h1{font-size:22px;margin:0 0 4px}
+  .sub{color:var(--dim);font-size:13px;margin-bottom:18px}
+  .bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+  select,button{font:inherit;padding:7px 11px;border:1px solid var(--line);
+    border-radius:7px;background:var(--card);color:var(--ink)}
+  button{cursor:pointer}
+  button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .grid{display:grid;grid-template-columns:minmax(300px,1fr) minmax(320px,1.25fr);gap:16px}
+  @media(max-width:860px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .card h2{font-size:14px;margin:0 0 10px;color:var(--dim);font-weight:600;
+    letter-spacing:.02em}
+  svg{width:100%;height:auto;display:block}
+  .cty{stroke:var(--card);stroke-width:1.2;cursor:pointer;transition:opacity .12s}
+  .cty:hover{opacity:.75}
+  .cty.sel{stroke:var(--ink);stroke-width:2.4}
+  .clab{font-size:10px;fill:var(--ink);pointer-events:none;text-anchor:middle}
+  .cval{font-size:9px;fill:var(--dim);pointer-events:none;text-anchor:middle}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{padding:6px 8px;text-align:right;border-bottom:1px solid var(--line)}
+  th{color:var(--dim);font-weight:600;font-size:12px}
+  th:first-child,td:first-child{text-align:left}
+  tr.click{cursor:pointer}
+  tr.click:hover td{background:color-mix(in srgb,var(--accent) 8%,transparent)}
+  tr.sel td{background:color-mix(in srgb,var(--accent) 14%,transparent)}
+  tr.thin td{opacity:.5}
+  .u{font-weight:400;font-size:10px;color:var(--dim)}
+  .unitbox{background:color-mix(in srgb,var(--accent) 7%,transparent);
+    border:1px solid var(--line);border-radius:8px;padding:9px 12px;
+    font-size:12.5px;color:var(--ink);margin-bottom:14px;line-height:1.55}
+  .hi{color:var(--hi);font-weight:600}
+  .lo{color:var(--lo);font-weight:600}
+  .tag{display:inline-block;padding:1px 7px;border-radius:99px;font-size:11px;
+    border:1px solid var(--line);color:var(--dim);margin-left:6px}
+  .tag.warn{color:var(--warn);border-color:var(--warn)}
+  .note{font-size:12px;color:var(--dim);margin-top:10px;line-height:1.5}
+  .scroll{overflow-x:auto}
+  .vbar{display:flex;height:20px;border-radius:5px;overflow:hidden;margin:6px 0}
+  .vbar div{font-size:10px;color:#fff;text-align:center;line-height:20px;
+    white-space:nowrap;overflow:hidden}
+  .leg{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--dim);margin-top:4px}
+  .leg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px}
+  .kpi{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:8px}
+  .kpi div{font-size:12px;color:var(--dim)}
+  .kpi b{display:block;font-size:19px;color:var(--ink);font-weight:650}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>전북 상추 가격 <span id="crumb" style="font-weight:400;color:var(--dim)"></span></h1>
+  <div class="sub" id="meta">불러오는 중…</div>
+  <div class="unitbox">
+    <b>단위: 모든 가격은 원/kg</b> — 도매시장 원자료는 <b>상자단가</b>라 상자무게로 나눠 환산했다.
+    같은 거래라도 4kg 상자가 13만원에 낙찰되면 <b>상자단가 130,000원 = 32,500원/kg</b>이다.
+    "상추가 10만원 넘었다"는 기억은 대개 상자단가이므로, 표에 <b>최고 상자단가</b>를 함께 실었다.
+    <span id="boxRec"></span>
+  </div>
+
+  <div class="bar">
+    <span style="color:var(--dim);font-size:13px">기간</span>
+    <button class="rng" data-w="8">8주</button>
+    <button class="rng" data-w="26">6개월</button>
+    <button class="rng on" data-w="53">1년</button>
+    <button class="rng" data-w="157">3년</button>
+    <button class="rng" data-w="0">전체</button>
+    <button id="btnCustom" title="직접 선택">직접</button>
+    <span id="rngLbl" style="color:var(--dim);font-size:12px"></span>
+    <span style="flex:1"></span>
+    <button id="btnBack" style="display:none">◀ 전북 전체</button>
+    <button id="mMode" data-m="avg" class="on">평균</button>
+    <button id="mMode2" data-m="hi">최고</button>
+    <button id="mMode3" data-m="lo">최저</button>
+  </div>
+  <div class="bar" id="customBar" style="display:none">
+    <label>시작 <select id="wkFrom"></select></label>
+    <label>끝 <select id="wkTo"></select></label>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2 id="mapTitle">시군별 가격 지도</h2>
+      <svg id="map" viewBox="0 0 760 640" role="img" aria-label="전북 시군 지도"></svg>
+      <div class="leg" id="mapLeg"></div>
+      <div class="note" id="mapNote"></div>
+    </div>
+
+    <div class="card">
+      <h2 id="tblTitle">시군 순위</h2>
+      <div class="kpi" id="kpi"></div>
+      <div class="scroll"><table id="tbl"></table></div>
+      <div class="note" id="tblNote"></div>
+    </div>
+  </div>
+
+  <div class="grid" style="margin-top:16px">
+    <div class="card">
+      <h2 id="chartTitle">주간 가격 추이 · 예측</h2>
+      <svg id="chart" viewBox="0 0 720 300"></svg>
+      <div class="note" id="chartNote"></div>
+    </div>
+    <div class="card">
+      <h2 id="ltTitle">2027년까지 월별 전망</h2>
+      <svg id="ltChart" viewBox="0 0 720 300"></svg>
+      <div class="note" id="ltNote"></div>
+      <div class="scroll" style="margin-top:8px"><table id="ltTbl"></table></div>
+    </div>
+  </div>
+
+  <div class="grid" style="margin-top:16px">
+    <div class="card">
+      <h2 id="varTitle">품종 구성</h2>
+      <div id="variety"></div>
+      <div class="note">
+        적상추·청상추는 지역에 따라 갈리고, 쫑상추는 전 지역에 나온다.
+        쫑상추는 한 작기가 끝날 무렵 순을 꺾어 내는 것이라 <b>가격 타깃에서는 제외</b>하고
+        별도 계열로 관리한다.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let DATA=null, SEL=null, MODE="avg", WK=[], I0=0, I1=0;
+const $=s=>document.querySelector(s);
+const won=v=>v==null||isNaN(v)?"–":Math.round(v).toLocaleString();
+
+let LT=null;   // 2027 장기전망 (lettuce_forecast_2027.json)
+Promise.all([
+  fetch("data/lettuce_app.json").then(r=>r.json()),
+  fetch("data/lettuce_forecast_2027.json").then(r=>r.json()).catch(()=>null),
+]).then(([d,lt])=>{DATA=d;LT=lt;init()})
+  .catch(e=>{$("#meta").textContent="데이터를 불러오지 못했습니다: "+e});
+
+// 지금 보고 있는 단위의 2027 전망을 꺼낸다
+function longFC(){
+  if(!LT) return null;
+  if(SEL&&window.__eup){
+    const e=LT.counties[SEL]?.eups?.[window.__eup];
+    if(e) return e.forecast;
+  }
+  if(SEL) return LT.counties[SEL]?.forecast||null;
+  return null;
+}
+
+function init(){
+  const m=DATA.meta;
+  const mk=m.markets_surveyed
+    ? `전국 ${m.markets_surveyed}개 공영도매시장 전수 조사`
+      +(m.markets_with_jeonbuk?` (전북산 거래 ${m.markets_with_jeonbuk}곳)`:"")
+    : `전국 ${m.markets}개 공영도매시장`;
+  $("#meta").innerHTML=`${m.period[0]} ~ ${m.period[1]} · ${mk} · `
+    +`${(m.rows/10000).toFixed(0)}만 건 · ${m.target}`;
+  // 전 기간 최고 상자단가를 찾아 단위 설명에 실제 사례로 붙인다
+  let best={v:0};
+  Object.values(DATA.counties).forEach(c=>c.weekly.forEach(w=>{
+    if(w[6]>best.v) best={v:w[6],kg:w[7],wk:w[0],name:c.name}}));
+  if(best.v) $("#boxRec").innerHTML=`<br>실제 최고 기록: <b>${best.name} ${best.wk}주 `
+    +`${won(best.v)}원/${best.kg}kg 상자 = ${won(best.v/best.kg)}원/kg</b>`;
+  const set=new Set();
+  Object.values(DATA.counties).forEach(c=>c.weekly.forEach(w=>set.add(w[0])));
+  WK=[...set].sort();
+  // 450주를 한 목록에 쏟으면 못 고른다 — 연도별 optgroup + 프리셋 버튼
+  const f=$("#wkFrom"), t=$("#wkTo");
+  let gy=null, og=[null,null];
+  WK.forEach((w,i)=>{
+    const y=w.slice(0,4);
+    if(y!==gy){gy=y; og=[f,t].map(sel=>{const o=document.createElement("optgroup");
+      o.label=y+"년"; sel.appendChild(o); return o});}
+    og[0].appendChild(new Option(w,i)); og[1].appendChild(new Option(w,i));
+  });
+  const sync=()=>{f.value=I0;t.value=I1;
+    $("#rngLbl").textContent=`${WK[I0]} ~ ${WK[I1]} (${I1-I0+1}주)`};
+  I0=Math.max(0,WK.length-53); I1=WK.length-1; sync();
+  f.onchange=()=>{I0=+f.value; if(I0>I1)I1=I0; sync(); render()};
+  t.onchange=()=>{I1=+t.value; if(I1<I0)I0=I1; sync(); render()};
+  document.querySelectorAll(".rng").forEach(b=>b.onclick=()=>{
+    const n=+b.dataset.w;
+    I1=WK.length-1; I0=n?Math.max(0,WK.length-n):0;
+    document.querySelectorAll(".rng").forEach(x=>x.classList.toggle("on",x===b));
+    sync(); render();
+  });
+  $("#btnCustom").onclick=()=>{
+    const c=$("#customBar");
+    c.style.display=c.style.display==="none"?"flex":"none";
+    $("#btnCustom").classList.toggle("on",c.style.display!=="none");
+  };
+  ["#mMode","#mMode2","#mMode3"].forEach(id=>$(id).onclick=e=>{
+    MODE=e.target.dataset.m;
+    ["#mMode","#mMode2","#mMode3"].forEach(x=>$(x).classList.toggle("on",$(x).dataset.m===MODE));
+    render();
+  });
+  $("#btnBack").onclick=()=>{SEL=null;render()};
+  render();
+}
+
+// 기간 내 집계 — 평균은 물량가중, 최고/최저는 그 기간의 극값
+// weekly 배열: [주시작일, 평균원/kg, 최저원/kg, 최고원/kg, 물량t, 거래일, 최고상자단가, 상자kg]
+function agg(weekly){
+  const rows=weekly.filter(w=>w[0]>=WK[I0]&&w[0]<=WK[I1]);
+  if(!rows.length) return null;
+  let sp=0,sq=0,hi=-1e9,lo=1e9,hiW="",loW="",q=0,dd=0,bh=0,bkg=0,bhW="";
+  rows.forEach(w=>{sp+=w[1]*w[4]; sq+=w[4]; q+=w[4]; dd+=w[5];
+    if(w[3]>hi){hi=w[3];hiW=w[0]} if(w[2]<lo){lo=w[2];loW=w[0]}
+    if(w[6]>bh){bh=w[6];bkg=w[7];bhW=w[0]}});
+  return {avg:sq?sp/sq:null,hi,lo,hiW,loW,qty:q,ndays:dd,n:rows.length,
+          boxHi:bh,boxKg:bkg,boxW:bhW,rows};
+}
+const pick=a=>a?(MODE==="avg"?a.avg:MODE==="hi"?a.hi:a.lo):null;
+
+function ramp(v,mn,mx){
+  if(v==null) return "transparent";
+  const t=mx>mn?(v-mn)/(mx-mn):0.5;
+  return ["var(--r1)","var(--r2)","var(--r3)","var(--r4)","var(--r5)"]
+    [Math.min(4,Math.floor(t*5))];
+}
+
+function render(){
+  SEL?renderEup():renderCounty();
+  renderChart(); renderLong(); renderVariety();
+}
+
+/* ── 시군 단계 ─────────────────────────────────────── */
+function renderCounty(){
+  $("#btnBack").style.display="none";
+  $("#crumb").textContent="";
+  $("#mapTitle").textContent="시군별 가격 지도 — 클릭하면 읍면 상세";
+  $("#tblTitle").textContent="시군 순위";
+  const vals={};
+  Object.entries(DATA.counties).forEach(([id,c])=>vals[id]=agg(c.weekly));
+  const nums=Object.values(vals).map(pick).filter(v=>v!=null);
+  const mn=Math.min(...nums), mx=Math.max(...nums);
+
+  const g=DATA.geo;
+  let svg="";
+  Object.entries(g.counties).forEach(([id,geo])=>{
+    const a=vals[id], v=pick(a);
+    svg+=`<path class="cty" data-id="${id}" d="${geo.d}" fill="${ramp(v,mn,mx)}"><title>`
+      +`${geo.name}\n평균 ${won(a?.avg)}원/kg\n최고 ${won(a?.hi)} · 최저 ${won(a?.lo)}`
+      +`</title></path>`;
+  });
+  Object.entries(g.counties).forEach(([id,geo])=>{
+    const a=vals[id];
+    svg+=`<text class="clab" x="${geo.cx}" y="${geo.cy}">${geo.name.replace(/[시군]$/,"")}</text>`;
+    if(geo.room>=12&&a) svg+=`<text class="cval" x="${geo.cx}" y="${geo.cy+11}">${won(pick(a))}</text>`;
+  });
+  $("#map").innerHTML=svg;
+  $("#map").querySelectorAll(".cty").forEach(p=>p.onclick=()=>{SEL=p.dataset.id;render()});
+  legend(mn,mx);
+  $("#mapNote").textContent=`${WK[I0]} ~ ${WK[I1]} 기준 ${MODE==="avg"?"주간 평균의 물량가중":MODE==="hi"?"기간 내 최고가":"기간 내 최저가"}. 색이 진할수록 높다.`;
+
+  const sorted=Object.entries(vals).filter(([,a])=>a)
+    .sort((a,b)=>pick(b[1])-pick(a[1]));
+  let h=`<tr><th>시군</th><th>평균<br><span class="u">원/kg</span></th>`
+    +`<th>최고<br><span class="u">원/kg</span></th><th>최저<br><span class="u">원/kg</span></th>`
+    +`<th>최고 상자<br><span class="u">원/상자</span></th>`
+    +`<th>물량<br><span class="u">t</span></th><th>신뢰도</th></tr>`;
+  sorted.forEach(([id,a],i)=>{
+    const c=DATA.counties[id], r=c.reliability;
+    const badge=r.cv_mape==null?"":(r.beats
+      ?`<span class="tag">CV ${r.cv_mape}% ${r.folds}</span>`
+      :`<span class="tag warn">기준 미달</span>`);
+    h+=`<tr class="click" data-id="${id}"><td>${c.name}${badge}</td>`
+      +`<td>${won(a.avg)}</td><td class="hi">${won(a.hi)}</td>`
+      +`<td class="lo">${won(a.lo)}</td>`
+      +`<td>${won(a.boxHi)}<br><span class="u">${a.boxKg}kg 상자</span></td>`
+      +`<td>${a.qty.toFixed(0)}</td>`
+      +`<td style="color:var(--dim)">${i+1}위</td></tr>`;
+  });
+  $("#tbl").innerHTML=h;
+  $("#tbl").querySelectorAll("tr.click").forEach(tr=>tr.onclick=()=>{SEL=tr.dataset.id;render()});
+
+  const all=sorted.map(([,a])=>a);
+  const lab=e=>({label:DATA.counties[e[0]].name, agg:e[1]});
+  $("#kpi").innerHTML=kpiHtml(lab(sorted[0]),lab(sorted[sorted.length-1]),all);
+  $("#tblNote").textContent="행을 누르면 그 시군의 읍면 상세로 들어간다.";
+}
+
+/* ── 읍면 단계 ─────────────────────────────────────── */
+function renderEup(){
+  const c=DATA.counties[SEL];
+  $("#btnBack").style.display="";
+  $("#crumb").textContent=" › "+c.name;
+  $("#mapTitle").textContent=c.name+" 위치";
+  $("#tblTitle").textContent=c.name+" 읍면별 가격";
+
+  const g=DATA.geo;
+  let svg="";
+  Object.entries(g.counties).forEach(([id,geo])=>{
+    svg+=`<path class="cty${id===SEL?" sel":""}" data-id="${id}" d="${geo.d}" `
+      +`fill="${id===SEL?"var(--r4)":"var(--r1)"}" opacity="${id===SEL?1:.45}"></path>`;
+  });
+  svg+=`<text class="clab" x="${g.counties[SEL].cx}" y="${g.counties[SEL].cy}">`
+    +`${c.name}</text>`;
+  $("#map").innerHTML=svg;
+  $("#map").querySelectorAll(".cty").forEach(p=>p.onclick=()=>{SEL=p.dataset.id;render()});
+  $("#mapLeg").innerHTML="";
+  $("#mapNote").textContent="다른 시군을 눌러 바로 이동할 수 있다.";
+
+  const rows=Object.entries(c.eups).map(([n,e])=>[n,e,agg(e.weekly)])
+    .filter(x=>x[2]).sort((a,b)=>pick(b[2])-pick(a[2]));
+  if(!rows.length){
+    $("#tbl").innerHTML=`<tr><td style="color:var(--dim)">이 기간에 읍면 자료가 없다</td></tr>`;
+    $("#kpi").innerHTML=""; $("#tblNote").textContent=""; return;
+  }
+  // 표본이 얇은 읍면은 순위를 왜곡한다 — 거래 1건짜리가 최고가 1위로 올라온다
+  // (실측: 남원 산동면 물량 0.2t, 최고=최저=9,622원). 표에는 남기되 순위·KPI에서
+  // 빼고 표시로 구분한다. 기준은 그 시군 기간물량의 3% 또는 5t 중 작은 쪽.
+  // '읍면 미기재'는 장소가 아니라 출하자가 주소를 시군까지만 적은 묶음이다.
+  // 전북산 물량의 41.7%가 여기 들어가고(익산이 그 3분의 2), 물량 1위로 올라와
+  // 순위를 지배하므로 최고·최저 판정에서 뺀다. 표에는 남겨서 규모는 보이게 한다.
+  const totQ=rows.reduce((s,r)=>s+r[2].qty,0);
+  const thr=Math.min(5,totQ*0.03);
+  const solid=rows.filter(r=>!r[1].unassigned && r[2].qty>=thr && r[2].n>=3);
+  const rank=solid.length?solid:rows.filter(r=>!r[1].unassigned);
+
+  let h=`<tr><th>읍면</th><th>평균<br><span class="u">원/kg</span></th>`
+    +`<th>최고 <span class="u">원/kg</span><br><span class="u">(발생 주)</span></th>`
+    +`<th>최저 <span class="u">원/kg</span><br><span class="u">(발생 주)</span></th>`
+    +`<th>최고 상자<br><span class="u">원/상자</span></th>`
+    +`<th>물량<br><span class="u">t</span></th>`
+    +`<th>다음주 예측<br><span class="u">원/kg</span></th></tr>`;
+  rows.forEach(([n,e,a])=>{
+    const una=!!e.unassigned;
+    const thin=!una && !(a.qty>=thr && a.n>=3);
+    const f=e.forecast&&e.forecast[0], rel=e.reliability;
+    const fc=una?`<span class="tag">순위 제외</span>`
+      : thin?`<span class="tag">표본 부족</span>`
+      : f?(rel.beats?`${won(f.p)}<br><span style="font-size:11px;color:var(--dim)">${won(f.lo)}~${won(f.hi)}</span>`
+        :`<span class="tag warn">신뢰 낮음</span>`):"–";
+    const mark=una?' <span class="tag">주소 시군까지만</span>'
+      : thin?' <span class="tag">표본 ${}</span>'.replace("${}",`${a.qty.toFixed(1)}t·${a.n}주`)
+      :(n===rank[0][0]?' <span class="hi">▲최고</span>'
+        :(n===rank[rank.length-1][0]?' <span class="lo">▼최저</span>':''));
+    h+=`<tr class="click${n===window.__eup?" sel":""}${(thin||una)?" thin":""}" data-e="${n}">`
+      +`<td>${n}${mark}</td><td>${won(a.avg)}</td>`
+      +`<td class="hi">${won(a.hi)}<br><span class="u">${a.hiW}</span></td>`
+      +`<td class="lo">${won(a.lo)}<br><span class="u">${a.loW}</span></td>`
+      +`<td>${won(a.boxHi)}<br><span class="u">${a.boxKg}kg · ${a.boxW}</span></td>`
+      +`<td>${a.qty.toFixed(1)}</td><td>${fc}</td></tr>`;
+  });
+  $("#tbl").innerHTML=h;
+  $("#tbl").querySelectorAll("tr.click").forEach(tr=>tr.onclick=()=>{
+    window.__eup=(window.__eup===tr.dataset.e)?null:tr.dataset.e; render();});
+
+  $("#kpi").innerHTML=kpiHtml({label:rank[0][0], agg:rank[0][2]},
+                              {label:rank[rank.length-1][0], agg:rank[rank.length-1][2]},
+                              rows.map(r=>r[2]));
+  const una=rows.find(r=>r[1].unassigned);
+  const nThin=rows.length-solid.length-(una?1:0);
+  $("#tblNote").innerHTML="읍면을 누르면 아래 차트가 그 읍면으로 바뀐다. "
+    +"최고·최저는 <b>그 기간 안에서 실제로 그 값이 나온 주</b>를 함께 표시한다."
+    +(una?` 시군명과 같은 이름의 행(<b>${una[0]}</b>, 이 시군 물량의 `
+      +`${(una[2].qty/totQ*100).toFixed(0)}%)은 출하자가 산지를 시군까지만 적어 `
+      +`읍면을 알 수 없는 거래다. 실제 거래이므로 표에는 두되 순위에서만 뺐다.`:"")
+    +(nThin>0?` 표본이 얇은 ${nThin}개 읍면(${thr.toFixed(1)}t 미만 또는 3주 미만)도 `
+      +`제외했다 — 거래 한두 건이 최고가로 잡히기 때문이다.`:"");
+}
+
+// top/bot 은 {label, agg} 로 통일해서 받는다. 예전엔 시군은 [id,agg],
+// 읍면은 [name,obj,agg] 로 모양이 달라 시군에서 영문 id가 노출됐다.
+function kpiHtml(top,bot,all){
+  const q=all.reduce((s,a)=>s+a.qty,0);
+  const bx=all.reduce((m,a)=>a.boxHi>(m?.boxHi||0)?a:m,null);
+  return `<div>최고 산지<b class="hi">${top.label} ${won(pick(top.agg))}<span class="u"> 원/kg</span></b></div>`
+    +`<div>최저 산지<b class="lo">${bot.label} ${won(pick(bot.agg))}<span class="u"> 원/kg</span></b></div>`
+    +`<div>기간 최고 상자<b>${won(bx?.boxHi)}<span class="u"> 원/${bx?.boxKg||"?"}kg 상자</span></b></div>`
+    +`<div>기간 물량<b>${q.toFixed(0)}<span class="u"> t</span></b></div>`;
+}
+
+function legend(mn,mx){
+  const s=["var(--r1)","var(--r2)","var(--r3)","var(--r4)","var(--r5)"];
+  $("#mapLeg").innerHTML=s.map((c,i)=>{
+    const a=mn+(mx-mn)*i/5, b=mn+(mx-mn)*(i+1)/5;
+    return `<span><i style="background:${c}"></i>${won(a)}~${won(b)}</span>`;
+  }).join("")+`<span style="color:var(--dim)">원/kg</span>`;
+}
+
+/* ── 차트 ──────────────────────────────────────────── */
+function renderChart(){
+  let unit, title;
+  if(SEL&&window.__eup&&DATA.counties[SEL].eups[window.__eup]){
+    unit=DATA.counties[SEL].eups[window.__eup];
+    // 시군까지만 적힌 행은 이름이 시군명과 같아 '진안군 진안군'이 된다
+    title=window.__eup===DATA.counties[SEL].name
+      ? DATA.counties[SEL].name+" (읍면 미상분)"
+      : DATA.counties[SEL].name+" "+window.__eup;
+  }else if(SEL){ unit=DATA.counties[SEL]; title=DATA.counties[SEL].name; }
+  else{
+    const t=Object.entries(DATA.counties).map(([id,c])=>[id,c,agg(c.weekly)])
+      .filter(x=>x[2]).sort((a,b)=>b[2].qty-a[2].qty)[0];
+    unit=t[1]; title=t[1].name+" (물량 최대)";
+  }
+  $("#chartTitle").textContent=title+" 주간 추이 · 예측";
+  const a=agg(unit.weekly);
+  if(!a){$("#chart").innerHTML="";return}
+  const H=[...a.rows], F=(unit.forecast||[]);
+  const W=720,Ht=300,L=52,R=12,T=14,B=30;
+  const vals=H.flatMap(r=>[r[2],r[3]]).concat(F.flatMap(f=>[f.lo,f.hi]));
+  const mn=Math.min(...vals)*.92, mx=Math.max(...vals)*1.05;
+  const n=H.length+F.length;
+  const X=i=>L+(W-L-R)*(n<2?0:i/(n-1));
+  const Y=v=>T+(Ht-T-B)*(1-(v-mn)/(mx-mn||1));
+  let s="";
+  for(let k=0;k<=4;k++){const v=mn+(mx-mn)*k/4,y=Y(v);
+    s+=`<line x1="${L}" y1="${y}" x2="${W-R}" y2="${y}" stroke="var(--line)"/>`
+      +`<text x="${L-6}" y="${y+4}" text-anchor="end" font-size="10" fill="var(--dim)">${won(v)}</text>`;}
+  // 주간 최저~최고 밴드
+  let band="";
+  H.forEach((r,i)=>{band+=`${i?"L":"M"}${X(i)},${Y(r[3])}`});
+  for(let i=H.length-1;i>=0;i--) band+=`L${X(i)},${Y(H[i][2])}`;
+  s+=`<path d="${band}Z" fill="var(--accent)" opacity=".13"/>`;
+  s+=`<path d="${H.map((r,i)=>`${i?"L":"M"}${X(i)},${Y(r[1])}`).join("")}" `
+    +`fill="none" stroke="var(--accent)" stroke-width="2"/>`;
+  if(F.length){
+    const i0=H.length-1;
+    let fb=`M${X(i0)},${Y(H[i0][1])}`;
+    F.forEach((f,i)=>fb+=`L${X(i0+1+i)},${Y(f.hi)}`);
+    for(let i=F.length-1;i>=0;i--) fb+=`L${X(i0+1+i)},${Y(F[i].lo)}`;
+    fb+=`L${X(i0)},${Y(H[i0][1])}Z`;
+    s+=`<path d="${fb}" fill="var(--warn)" opacity=".16"/>`;
+    s+=`<path d="M${X(i0)},${Y(H[i0][1])}`
+      +F.map((f,i)=>`L${X(i0+1+i)},${Y(f.p)}`).join("")
+      +`" fill="none" stroke="var(--warn)" stroke-width="2" stroke-dasharray="5 3"/>`;
+    F.forEach((f,i)=>{s+=`<circle cx="${X(i0+1+i)}" cy="${Y(f.p)}" r="${f.reliable?3.5:2}" `
+      +`fill="var(--warn)" opacity="${f.reliable?1:.5}"><title>${f.wk}\n`
+      +`${won(f.p)}원 (80% ${won(f.lo)}~${won(f.hi)})`
+      +`${f.reliable?"":"\n※ 2주 이후는 검증되지 않음"}</title></circle>`});
+  }
+  [0,Math.floor(H.length/2),H.length-1].forEach(i=>{if(H[i])
+    s+=`<text x="${X(i)}" y="${Ht-8}" text-anchor="middle" font-size="10" fill="var(--dim)">${H[i][0].slice(2)}</text>`});
+  $("#chart").innerHTML=s;
+  const r=unit.reliability;
+  $("#chartNote").innerHTML=`세로축 <b>원/kg</b>. 연한 띠 = 그 주의 <b>최저~최고</b>, 실선 = 주간 평균. `
+    +`점선 = 예측(80% 구간). `
+    +(r.cv_mape!=null?`검증 MAPE ${r.cv_mape}% / 주차평균 ${r.baseline}% (${r.folds} 승). `:"")
+    +`<b>검증된 지평은 1주뿐</b> — ${DATA.meta.horizon_note}`;
+}
+
+/* ── 2027 장기전망 ─────────────────────────────────── */
+// 주간 차트와 분리한 이유: 이건 **월 단위**이고 근거가 다르다.
+// 1~3개월은 직접예측(모델), 4개월 이후는 계절평균×수준보정.
+// 지평별 실측에서 h>=4부터 모델이 계절평균에 지기 때문이다.
+function renderLong(){
+  const F=longFC();
+  const nm=SEL?(window.__eup&&window.__eup!==DATA.counties[SEL].name
+      ? DATA.counties[SEL].name+" "+window.__eup
+      : DATA.counties[SEL].name)
+    :null;
+  $("#ltTitle").textContent=(nm||"전북")+" 2027년까지 월별 전망";
+  if(!F||!F.length){
+    $("#ltChart").innerHTML="";
+    $("#ltTbl").innerHTML="";
+    $("#ltNote").innerHTML=SEL
+      ? "이 단위는 관측이 36개월 미만이거나 물량이 적어 장기 전망을 내지 않는다."
+      : "<b>지도에서 시군을 선택</b>하면 그 시군의 2027년까지 월별 전망이 나온다.";
+    return;
+  }
+  const W=720,Ht=300,L=54,R=12,T=14,B=34;
+  const vals=F.flatMap(f=>[f.lo,f.hi]);
+  const mn=Math.min(...vals)*.9, mx=Math.max(...vals)*1.05;
+  const X=i=>L+(W-L-R)*(F.length<2?0:i/(F.length-1));
+  const Y=v=>T+(Ht-T-B)*(1-(v-mn)/(mx-mn||1));
+  let s="";
+  for(let k=0;k<=4;k++){const v=mn+(mx-mn)*k/4,y=Y(v);
+    s+=`<line x1="${L}" y1="${y}" x2="${W-R}" y2="${y}" stroke="var(--line)"/>`
+      +`<text x="${L-6}" y="${y+4}" text-anchor="end" font-size="10" fill="var(--dim)">${won(v)}</text>`}
+  // 80% 구간 밴드
+  let band=F.map((f,i)=>`${i?"L":"M"}${X(i)},${Y(f.hi)}`).join("");
+  for(let i=F.length-1;i>=0;i--) band+=`L${X(i)},${Y(F[i].lo)}`;
+  s+=`<path d="${band}Z" fill="var(--warn)" opacity=".14"/>`;
+  // 검증구간(1~3개월)과 그 이후를 선 모양으로 구분
+  const nv=F.filter(f=>f.validated).length;
+  s+=`<path d="${F.slice(0,nv).map((f,i)=>`${i?"L":"M"}${X(i)},${Y(f.p)}`).join("")}" `
+    +`fill="none" stroke="var(--accent)" stroke-width="2.4"/>`;
+  s+=`<path d="${F.slice(nv-1<0?0:nv-1).map((f,i)=>`${i?"L":"M"}${X(nv-1+i)},${Y(f.p)}`).join("")}" `
+    +`fill="none" stroke="var(--warn)" stroke-width="2" stroke-dasharray="5 3"/>`;
+  F.forEach((f,i)=>{s+=`<circle cx="${X(i)}" cy="${Y(f.p)}" r="${f.validated?3.4:2.2}" `
+    +`fill="${f.validated?"var(--accent)":"var(--warn)"}"><title>${f.ym} (${f.h}개월 앞)\n`
+    +`${won(f.p)}원/kg  80% ${won(f.lo)}~${won(f.hi)}\n${f.method_ko}`
+    +`${f.mape!=null?"  실측 오차율 "+f.mape+"%":""}</title></circle>`});
+  F.forEach((f,i)=>{if(f.ym.endsWith("-01")||i===0||i===F.length-1)
+    s+=`<text x="${X(i)}" y="${Ht-10}" text-anchor="middle" font-size="10" fill="var(--dim)">${f.ym}</text>`});
+  $("#ltChart").innerHTML=s;
+
+  const y27=F.filter(f=>f.ym.startsWith("2027"));
+  const pk=y27.length?y27.reduce((a,b)=>b.p>a.p?b:a):null;
+  const bt=y27.length?y27.reduce((a,b)=>b.p<a.p?b:a):null;
+  $("#ltNote").innerHTML=`<b>실선(초록)</b> = 1~3개월 직접예측(모델, 검증됨). `
+    +`<b>점선(주황)</b> = 4개월 이후 계절평균×수준보정. 띠 = 80% 구간.<br>`
+    +`지평별 실측에서 <b>h≥4부터 모델이 계절평균에 진다</b>(h=12: 29.7% vs 23.0%). `
+    +`그래서 먼 구간은 모델을 쓰지 않는다.<br>`
+    +(pk?`2027년 최고 <b class="hi">${pk.ym} ${won(pk.p)}원</b> · `
+        +`최저 <b class="lo">${bt.ym} ${won(bt.p)}원</b>. `:"")
+    +`<b>이건 예측이 아니라 계절 평년값에 최근 수준을 반영한 참고치다</b> — `
+    +`그 해 작황·기상 충격은 반영돼 있지 않다.`;
+
+  let h=`<tr><th>월</th><th>앞</th><th>전망<span class="u"> 원/kg</span></th>`
+    +`<th>80% 구간</th><th>산출 방법</th><th>실측 오차율</th></tr>`;
+  F.filter(f=>f.ym>="2026-11"||f.validated).forEach(f=>{
+    h+=`<tr${f.validated?'':' class="thin"'}><td>${f.ym}</td><td>${f.h}개월</td>`
+      +`<td><b>${won(f.p)}</b></td><td>${won(f.lo)}~${won(f.hi)}</td>`
+      +`<td>${f.method_ko}</td><td>${f.mape!=null?f.mape+"%":"–"}</td></tr>`;
+  });
+  $("#ltTbl").innerHTML=h;
+}
+
+/* ── 품종 ──────────────────────────────────────────── */
+function renderVariety(){
+  let unit,title;
+  if(SEL&&window.__eup&&DATA.counties[SEL].eups[window.__eup]){
+    unit=DATA.counties[SEL].eups[window.__eup];
+    // 시군까지만 적힌 행은 이름이 시군명과 같아 '진안군 진안군'이 된다
+    title=window.__eup===DATA.counties[SEL].name
+      ? DATA.counties[SEL].name+" (읍면 미상분)"
+      : DATA.counties[SEL].name+" "+window.__eup;
+  }else if(SEL){unit=DATA.counties[SEL];title=DATA.counties[SEL].name;}
+  else{unit=null;title="전북 전체";}
+  $("#varTitle").textContent=title+" 품종 구성";
+  let mix;
+  if(unit) mix=unit.variety;
+  else{
+    const t={};
+    Object.values(DATA.counties).forEach(c=>Object.entries(c.variety).forEach(([k,v])=>{
+      t[k]=t[k]||{share:0,price:0,w:0};
+      t[k].share+=v.share*c.qty_t; t[k].price+=v.price*c.qty_t; t[k].w+=c.qty_t;}));
+    const tot=Object.values(t).reduce((s,v)=>s+v.share,0);
+    mix={}; Object.entries(t).sort((a,b)=>b[1].share-a[1].share).forEach(([k,v])=>
+      mix[k]={share:+(v.share/tot*100).toFixed(1),price:Math.round(v.price/v.w)});
+  }
+  const C=["#2f6f4e","#dda15e","#bc6c25","#6b8e23","#8a4a12","#9a948c","#5b7c99"];
+  const ks=Object.keys(mix);
+  let bar=`<div class="vbar">`;
+  ks.forEach((k,i)=>{const w=mix[k].share;
+    bar+=`<div style="width:${w}%;background:${C[i%C.length]}" title="${k} ${w}%">`
+      +(w>7?k:"")+`</div>`});
+  bar+=`</div><div class="leg">`+ks.map((k,i)=>
+    `<span><i style="background:${C[i%C.length]}"></i>${k} ${mix[k].share}% · ${won(mix[k].price)}원</span>`).join("")+`</div>`;
+  const jj=ks.find(k=>k.includes("쫑")||k.includes("순"));
+  if(jj) bar+=`<div class="note" style="margin-top:8px">`
+    +`<b>${jj}</b> ${mix[jj].share}% · ${won(mix[jj].price)}원/kg — 작기 종료 신호. `
+    +`가격 타깃에서 제외돼 있다.</div>`;
+  $("#variety").innerHTML=bar;
+}
+</script>
+</body>
+</html>

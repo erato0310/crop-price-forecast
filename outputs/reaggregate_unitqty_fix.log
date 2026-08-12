@@ -1,0 +1,5 @@
+﻿원시 611108행 재집계 - unit_qty 상한 50kg 적용
+이번 규칙으로 새로 제외된 레코드: 460건
+
+저장 완료(작물x시군별 산지가격): C:\Users\지리산 살래농장\Documents\project 1\crop-price-forecast\data\raw\jeonbuk_origin_top10crops_by_county.csv (8017행)
+저장 완료(상추 시군별, build_dataset용): C:\Users\지리산 살래농장\Documents\project 1\crop-price-forecast\data\raw\jeonbuk_origin_lettuce_by_county.csv (1195행)

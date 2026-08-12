@@ -8,3 +8,6 @@ __pycache__/
 # Office 임시 잠금 파일 (문서를 열어둔 채 커밋하면 딸려 들어옴)
 ~$*
 *.tmp
+
+# 로컬 개발 도구 설정 (launch.json이 이 PC의 .venv 경로를 담고 있어 공유 대상이 아님)
+.claude/
