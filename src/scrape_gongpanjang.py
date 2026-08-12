@@ -104,7 +104,56 @@ def fetch_day(date: dt.date) -> tuple[list[dict], bool]:
             break
         start += 1000
         time.sleep(0.15)
+
+    # [원천 API 버그 방어] 이 API가 특정 날짜에 모든 행을 정확히 2배(때로 4배)로 돌려준다.
+    # 같은 날 동일 조건의 거래가 여러 건인 것은 정상이므로 무조건 dedup하면 안 되고,
+    # "그 날짜의 모든 중복 배수가 짝수"일 때만 부풀림으로 판정해 절반으로 줄인다.
+    # (정상 날짜는 홀수 배수가 대부분 — 자세한 근거는 fix_gongpanjang_dupes.py 참고)
+    rows = _undouble(rows, date)
     return rows, True
+
+
+def aggregate_gpj(raw: pd.DataFrame) -> pd.DataFrame:
+    """상위 10작물 x 시군 월별 집계 (패널 병합용 + 웹앱 표시용).
+
+    price_max_kg는 모델 입력이 아니라 표시용이다 — 물량가중평균만 내보내면
+    "그 달에 얼마까지 받았나"가 사라진다(scrape_jeonbuk_all_crops.aggregate_raw의
+    같은 주석 참고). 소량 특품 거래라 예측 대상은 아니지만 농가가 제일 궁금해하는 숫자다."""
+    raw = raw.copy()
+    raw["date"] = pd.to_datetime(raw["date"], format="mixed")
+    raw["ym"] = raw["date"].dt.to_period("M")
+    top = raw[raw["crop"].isin(TOP10_CROPS)]
+    rows = []
+    for (ym, crop, county), grp in top.groupby(["ym", "crop", "county"]):
+        imax = grp["price_per_kg"].idxmax() if grp["price_per_kg"].notna().any() else None
+        rows.append({
+            "ym": ym, "crop": crop, "crop_id": CROP_NAME_TO_ID.get(crop, crop),
+            "county": county, "price_avg_kg": _wavg(grp),
+            "price_max_kg": grp["price_per_kg"].max(),
+            "price_min_kg": grp["price_per_kg"].min(),
+            # 공판장은 cost(정산금액)/danq(단위중량)가 원본 — 조합원이 받아본 금액 그대로
+            "price_max_unit": grp.loc[imax, "cost"] if imax is not None else float("nan"),
+            "price_max_unit_qty": grp.loc[imax, "danq"] if imax is not None else float("nan"),
+            "qty_total_kg": grp["qty_kg"].sum(), "n_obs": len(grp),
+        })
+    return pd.DataFrame(rows)
+
+
+def _undouble(rows: list[dict], date: dt.date) -> list[dict]:
+    if not rows:
+        return rows
+    df = pd.DataFrame(rows)
+    cols = list(df.columns)
+    n_round = 0
+    while len(df) and (df.groupby(cols).size() % 2 == 1).sum() == 0:
+        df = df.groupby(cols, sort=False).apply(
+            lambda x: x.iloc[: max(1, len(x) // 2)], include_groups=False
+        ).reset_index()[cols]
+        n_round += 1
+    if n_round:
+        print(f"    * {date}: API가 {2 ** n_round}배로 부풀려 보냄 → "
+              f"{len(rows)}건에서 {len(df)}건으로 보정", flush=True)
+    return df.to_dict("records")
 
 
 def _wavg(d: pd.DataFrame) -> float:
@@ -165,15 +214,7 @@ def main():
     # 상위 10작물 × 시군 월별 집계 (패널 병합용)
     raw["date"] = pd.to_datetime(raw["date"])
     raw["ym"] = raw["date"].dt.to_period("M")
-    top = raw[raw["crop"].isin(TOP10_CROPS)]
-    agg_rows = []
-    for (ym, crop, county), grp in top.groupby(["ym", "crop", "county"]):
-        agg_rows.append({
-            "ym": ym, "crop": crop, "crop_id": CROP_NAME_TO_ID.get(crop, crop),
-            "county": county, "price_avg_kg": _wavg(grp),
-            "qty_total_kg": grp["qty_kg"].sum(), "n_obs": len(grp),
-        })
-    agg = pd.DataFrame(agg_rows)
+    agg = aggregate_gpj(raw)
     agg.to_csv(AGG_PATH, index=False, encoding="utf-8-sig")
     print(f"저장: {AGG_PATH} ({len(agg)}행)")
     if not agg.empty:

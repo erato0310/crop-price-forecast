@@ -47,9 +47,20 @@ function aggregate(cropId, countyId, s, e) {
   for (const d of c.fc) take(miOf(d[0]), d[1], true, d[4]);
   if (!n) return null;
 
+  // 위 min/max는 '월평균의 최저/최고'다. 농가가 정말 궁금해하는 "얼마까지 받았나"는
+  // 개별 거래의 최고가라 별도로 본다 — 남원 상추 2026-07은 월평균 5,494원/kg인데
+  // 실거래 최고는 15,500원/kg(2kg 31,000원)이었다. 소량 특품이라 평균에는 안 드러난다.
+  let peak = null;   // [원/kg, 원본 단가, 포장 kg, ym]
+  for (const d of (c.peak || [])) {
+    const mi = miOf(d[0]);
+    if (mi < s || mi > e) continue;
+    if (!peak || d[1] > peak[0]) peak = [d[1], d[2], d[3], d[0]];
+  }
+
   const lastActualMi = miOf(c.hist[c.hist.length - 1][0]);
   return {
     cropId, countyId, min, max, avg: sum / n, n, nActual: nA, nForecast: nF,
+    peak, peakVal: peak ? peak[0] : 0,   // peakVal은 표 정렬용
     spikeMax, cvMape: c.cv_mape,
     stale: lastActualMi < miOf(DATA.meta.last_actual_ym),
     lastActualMi, src: c.src,
@@ -214,7 +225,6 @@ function renderNotice() {
   const el = $("notice");
   const msgs = [];
   const stale = rows.filter((r) => r.stale);
-  const gpj = rows.filter((r) => r.src === "gpj");
   const far = state.end - miOf(DATA.meta.last_actual_ym);
 
   if (stale.length) {
@@ -222,11 +232,6 @@ function renderNotice() {
       `${stale.length}곳 있습니다.</strong> ` +
       `${stale.slice(0, 4).map((r) => `${r.label}(${ymKo(r.lastActualMi)}까지)`).join(", ")}` +
       `${stale.length > 4 ? " 외" : ""} — 이후 예측은 실제 시세를 반영하지 못할 수 있습니다.</div>`);
-  }
-  if (gpj.length) {
-    msgs.push(`<div><strong>산지공판장 정산가격을 쓴 항목이 있습니다</strong> ` +
-      `(${gpj.map((r) => r.label).join(", ")}). 도매시장 표본이 부족한 경우로, ` +
-      `가격 수준이 다른 항목과 직접 비교되지 않습니다.</div>`);
   }
   if (far > 12) {
     msgs.push(`<div><strong>마지막 실측에서 1년 넘게 떨어진 기간이 포함돼 있습니다.</strong> ` +
@@ -237,12 +242,12 @@ function renderNotice() {
 }
 
 /* ── 지도 ─────────────────────────────────────── */
-/* 색 척도는 도매시장(origin) 기준 행으로만 만든다.
-   산지공판장(gpj) 정산가는 거래 단위가 달라 도매시장 가격과 같은 축에 놓을 수 없다 —
-   한 척도에 섞으면 "저 시군이 제일 싸다"는 틀린 인상을 준다. gpj는 빗금으로 따로 표시. */
+/* [2026-08 단위 통일] 도매시장(origin)·산지공판장(gpj) 둘 다 원/kg이 되어 같은 색 척도에
+   올린다. 예전엔 origin이 '상자당 단가'라 gpj를 척도에서 빼고 빗금으로 그렸었다
+   (섞어 놓으니 "군산이 제일 싸다"는 틀린 인상을 줬음) — 그 예외 처리는 걷어냈다. */
 function colorScale() {
   const colors = RAMP.map(cssVar);
-  const vals = rows.filter((r) => r.src === "origin").map((r) => r.avg);
+  const vals = rows.map((r) => r.avg);
   if (!vals.length) {
     return { colorOf: () => cssVar("--ramp-none"), lo: 0, hi: 0, colors, empty: true };
   }
@@ -259,14 +264,7 @@ function colorScale() {
 function renderMap() {
   const svg = $("map");
   const scale = colorScale();
-  const parts = [
-    // gpj(공판장 기준) 시군 표시용 빗금 — 색이 아니라 무늬로 구분해 색맹·흑백 인쇄에서도 읽힌다
-    `<defs><pattern id="gpjHatch" width="7" height="7" patternTransform="rotate(45)"
-        patternUnits="userSpaceOnUse">
-        <rect width="7" height="7" fill="${cssVar("--ramp-none")}"/>
-        <line x1="0" y1="0" x2="0" y2="7" stroke="${cssVar("--text-muted")}" stroke-width="2.6"/>
-      </pattern></defs>`,
-  ];
+  const parts = [];
 
   for (const [cid, geo] of Object.entries(GEO.counties)) {
     let fill, selected = false, r = null, noData = false;
@@ -275,16 +273,14 @@ function renderMap() {
       noData = !r;
       // 데이터 없음은 램프의 어느 끝과도 닮지 않게 '빈 면'으로 둔다.
       // (다크모드에서 회색 채움은 램프의 최저값 색과 구별이 잘 안 됐다)
-      fill = !r ? cssVar("--plane")
-           : r.src === "gpj" ? "url(#gpjHatch)"
-           : scale.colorOf(r.avg);
+      fill = !r ? cssVar("--plane") : scale.colorOf(r.avg);
       selected = state.detail && state.detail.county === cid;
     } else {
       selected = cid === state.county;
       fill = selected ? cssVar("--series-1") : cssVar("--ramp-none");
     }
     const title = state.mode === "crop"
-      ? (r ? `${geo.name} 평균 ${won(r.avg)}원${r.src === "gpj" ? " (공판장 기준 — 다른 시군과 비교 불가)" : ""}`
+      ? (r ? `${geo.name} 평균 ${won(r.avg)}원/kg${r.src === "gpj" ? " (산지공판장 정산가)" : ""}`
            : `${geo.name} 데이터 없음`)
       : geo.name;
     parts.push(
@@ -341,13 +337,10 @@ function renderLegend(scale) {
   if (state.mode !== "crop" || !rows.length) { el.innerHTML = ""; return; }
   const steps = scale.colors.map((c) => `<span class="step" style="background:${c}"></span>`).join("");
   const missing = DATA.counties.length - rows.length;
-  const nGpj = rows.filter((r) => r.src === "gpj").length;
   el.innerHTML =
     (scale.empty ? "" :
-      `<span class="cap">${won(scale.lo)}원</span><span class="steps">${steps}</span>` +
-      `<span class="cap">${won(scale.hi)}원</span>`) +
-    (nGpj > 0
-      ? `<span class="none-key"><span class="none-swatch hatch"></span>공판장 기준 ${nGpj}곳 (비교 불가)</span>` : "") +
+      `<span class="cap">${won(scale.lo)}원/kg</span><span class="steps">${steps}</span>` +
+      `<span class="cap">${won(scale.hi)}원/kg</span>`) +
     (missing > 0
       ? `<span class="none-key"><span class="none-swatch"></span>데이터 없음 ${missing}곳</span>` : "");
 }
@@ -355,8 +348,11 @@ function renderLegend(scale) {
 /* ── 결과표 ───────────────────────────────────── */
 function renderTable() {
   const first = state.mode === "crop" ? "시군" : "작물";
+  // "월평균"과 "실거래 최고"를 명확히 갈라 놓는다. 예전 헤더는 그냥 최저/평균/최고라
+  // 월평균의 최고인지 실제 최고가인지 구분이 안 됐다(농가는 후자를 기대한다).
   const cols = [
-    ["label", first], ["min", "최저"], ["avg", "평균"], ["max", "최고"], ["kind", "자료"],
+    ["label", first], ["min", "월평균 최저"], ["avg", "월평균"], ["max", "월평균 최고"],
+    ["peakVal", "실거래 최고"], ["kind", "자료"],
   ];
   $("summaryHead").innerHTML = cols.map(([k, t]) => {
     const sorted = state.sort.key === k;
@@ -367,7 +363,7 @@ function renderTable() {
   const scale = colorScale();
   if (!rows.length) {
     $("summaryBody").innerHTML =
-      `<tr><td class="empty-row" colspan="5">선택한 기간에 데이터가 있는 조합이 없습니다. 기간을 넓혀 보세요.</td></tr>`;
+      `<tr><td class="empty-row" colspan="6">선택한 기간에 데이터가 있는 조합이 없습니다. 기간을 넓혀 보세요.</td></tr>`;
   } else {
     $("summaryBody").innerHTML = rows.map((r) => {
       const k = kindOf(r);
@@ -377,8 +373,14 @@ function renderTable() {
       const sw = state.mode === "crop"
         ? `<span class="swatch-cell" style="background:${scale.colorOf(r.avg)}"></span>` : "";
       return `<tr data-key="${r.key}" class="${sel ? "selected" : ""}">
-        <td>${sw}${r.label}${r.stale ? ' <span class="pill mixed">자료 오래됨</span>' : ""}</td>
+        <td>${sw}${r.label}${r.stale ? ' <span class="pill mixed">자료 오래됨</span>' : ""}${
+          r.src === "gpj" ? ' <span class="pill mixed">공판장</span>' : ""}</td>
         <td>${won(r.min)}</td><td>${won(r.avg)}</td><td>${won(r.max)}</td>
+        <td>${r.peak
+              ? `<b>${won(r.peak[0])}</b>${r.peak[1]
+                  ? ` <span class="unit-note">(${r.peak[2]}kg ${won(r.peak[1])}원, ${ymKo(miOf(r.peak[3]))})</span>`
+                  : ""}`
+              : '<span class="unit-note">실측 없음</span>'}</td>
         <td><span class="pill ${k.cls}">${k.label}</span></td>
       </tr>`;
     }).join("");
@@ -420,8 +422,12 @@ function renderDetail() {
   const agg = aggregate(crop, county, state.start, state.end);
   $("detailTitle").textContent = `${countyName(county)} ${cropName(crop)} — 월별 상세`;
   $("detailDesc").innerHTML = agg
-    ? `선택 기간(${ymKo(state.start)}~${ymKo(state.end)}) 최저 <b>${won(agg.min)}</b> · ` +
-      `평균 <b>${won(agg.avg)}</b> · 최고 <b>${won(agg.max)}</b>원` +
+    ? `선택 기간(${ymKo(state.start)}~${ymKo(state.end)}) 월평균 <b>${won(agg.avg)}</b>원/kg ` +
+      `(최저 ${won(agg.min)} ~ 최고 ${won(agg.max)})` +
+      (agg.peak
+        ? ` · <b>실거래 최고 ${won(agg.peak[0])}원/kg</b>` +
+          (agg.peak[1] ? ` — ${ymKo(miOf(agg.peak[3]))} ${agg.peak[2]}kg 단위 ${won(agg.peak[1])}원` : "")
+        : "") +
       (agg.nForecast ? ` · 기간 내 최고 폭등확률 ${(agg.spikeMax * 100).toFixed(0)}%` : "")
     : "선택 기간에는 이 조합의 데이터가 없습니다.";
 
@@ -439,8 +445,10 @@ function pathWithGaps(points) {
 }
 
 let chartPoints = [];
+let peakByYm = {};   // ym -> [원/kg, 원본 단가, 포장 kg] (실측 구간만)
 
 function drawChart(c) {
+  peakByYm = Object.fromEntries((c.peak || []).map((d) => [d[0], d.slice(1)]));
   const svg = $("chart");
   const { w, h, ml, mr, mt, mb } = CHART;
   const plotW = w - ml - mr, plotH = h - mt - mb;
@@ -542,10 +550,16 @@ function bindHover() {
     dot.setAttribute("cx", best.sx); dot.setAttribute("cy", best.sy); dot.setAttribute("opacity", "1");
     tip.innerHTML = `<div class="t-ym">${ymKo(miOf(best.ym))}${best.isFc ? " (예측)" : ""}</div>` +
       (best.isFc
-        ? `<div class="t-row"><span>예측</span><b>${won(best.d[1])}원</b></div>
+        ? `<div class="t-row"><span>예측</span><b>${won(best.d[1])}원/kg</b></div>
            <div class="t-row"><span>범위</span><b>${won(best.d[2])}~${won(best.d[3])}</b></div>
            <div class="t-row"><span>폭등확률</span><b>${(best.d[4] * 100).toFixed(0)}%</b></div>`
-        : `<div class="t-row"><span>실제</span><b>${won(best.d[1])}원</b></div>`);
+        : `<div class="t-row"><span>월평균</span><b>${won(best.d[1])}원/kg</b></div>` +
+          (peakByYm[best.ym]
+            ? `<div class="t-row"><span>실거래 최고</span><b>${won(peakByYm[best.ym][0])}원/kg</b></div>` +
+              (peakByYm[best.ym][1]
+                ? `<div class="t-row"><span>└ 원본</span><b>${peakByYm[best.ym][2]}kg ${won(peakByYm[best.ym][1])}원</b></div>`
+                : "")
+            : ""));
     tip.classList.add("show");
     const left = (best.sx / CHART.w) * rect.width;
     tip.style.left = Math.min(Math.max(left + 14, 0), rect.width - tip.offsetWidth) + "px";

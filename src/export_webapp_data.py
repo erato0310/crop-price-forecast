@@ -39,6 +39,10 @@ CROP_ORDER = ["sweetpotato", "tomato", "peach", "cherrytomato", "lettuce",
               "cucumber", "melon", "grape", "greenonion", "watermelon"]
 
 
+ORIGIN_AGG = ROOT / "data/raw/jeonbuk_origin_top10crops_by_county.csv"
+GPJ_AGG = ROOT / "data/raw/gongpanjang_top10crops_by_county.csv"
+
+
 def _hist_series(panel: pd.DataFrame, crop_id: str, county_id: str,
                  target_source: str) -> list:
     prefix = "origin" if target_source == "origin" else "gpj"
@@ -49,6 +53,33 @@ def _hist_series(panel: pd.DataFrame, crop_id: str, county_id: str,
     return [[ym, int(round(v))] for ym, v in zip(s["ym"], s[col])]
 
 
+def _peak_lookup() -> dict:
+    """(source, crop_id, county_id, ym) -> [실거래 최고 원/kg, 원본 단가, 포장 kg].
+
+    월평균만 보여주면 "그 달에 얼마까지 받았나"가 사라진다 — 남원 상추 2026-07은
+    평균 5,494원/kg인데 실제로는 15,500원/kg(2kg 31,000원) 거래가 있었다.
+    원본 단가(price_max_unit)까지 같이 넘기는 건, 농가가 공판장에서 기억하는 금액이
+    kg 단가가 아니라 상자 단가이기 때문이다."""
+    out: dict = {}
+    for src, path in (("origin", ORIGIN_AGG), ("gpj", GPJ_AGG)):
+        if not path.exists():
+            continue
+        d = pd.read_csv(path)
+        if "price_max_kg" not in d.columns:
+            continue
+        for r in d.itertuples():
+            if pd.isna(r.price_max_kg):
+                continue
+            unit = getattr(r, "price_max_unit", float("nan"))
+            uq = getattr(r, "price_max_unit_qty", float("nan"))
+            out[(src, r.crop_id, COUNTY_NAME_TO_ID.get(r.county, r.county), str(r.ym))] = [
+                int(round(float(r.price_max_kg))),
+                None if pd.isna(unit) else int(round(float(unit))),
+                None if pd.isna(uq) else round(float(uq), 1),
+            ]
+    return out
+
+
 def main() -> None:
     panel = pd.read_csv(ROOT / "data/processed/monthly_panel.csv")
     cv = pd.read_csv(ROOT / "outputs/crop_county_cv_summary.csv")
@@ -56,7 +87,11 @@ def main() -> None:
     m2025 = pd.read_csv(ROOT / "outputs/crop_county_predictions/crop_county_metrics_2025.csv")
     m2026 = pd.read_csv(ROOT / "outputs/crop_county_predictions/crop_county_metrics_2026.csv")
 
+    peaks = _peak_lookup()
     usable = cv[(~cv["skipped"]) & (cv["model_mape"] < EXCLUDE_MAPE)]
+    # 제외 조합은 CV를 다시 돌릴 때마다 바뀔 수 있으므로 안내 문구도 결과에서 만든다
+    # (예전엔 "수박x부안, 대파x김제"로 하드코딩돼 있어 재실행 뒤 거짓말이 될 뻔했다).
+    excluded = cv[(~cv["skipped"]) & (cv["model_mape"] >= EXCLUDE_MAPE)]
     m25 = m2025.set_index(["crop_id", "county_id"])
     m26 = m2026.set_index(["crop_id", "county_id"])
 
@@ -72,9 +107,16 @@ def main() -> None:
         if not hist:
             continue
 
+        # [ym, 실거래 최고 원/kg, 원본 단가, 포장 kg] — 실측 구간만. 예측 구간에는 없다
+        # (최고가는 소량 특품 거래라 모델이 예측하는 대상이 아니다).
+        src_key = r["target_source"]
+        peak = [[ym, *peaks[(src_key, crop_id, county_id, ym)]]
+                for ym, _ in hist if (src_key, crop_id, county_id, ym) in peaks]
+
         entry = {
             "src": r["target_source"],            # origin=도매시장 산지가, gpj=산지공판장 정산가
             "n_obs": int(r["n_obs"]),
+            "peak": peak,
             "cv_mape": round(float(r["model_mape"]), 1),
             "cv_base_mape": round(float(r["baseline_mape"]), 1),
             "hist": hist,
@@ -106,13 +148,19 @@ def main() -> None:
     } for _, r in region.sort_values("suit_or_better_pct", ascending=False).iterrows()]
 
     last_actual = max(h[-1][0] for h in (c["hist"] for c in combos.values()) if h)
+    excluded_names = [f"{CROP_ID_TO_NAME.get(r['crop_id'], r['crop_id'])}×"
+                      f"{COUNTY_ID_TO_NAME.get(r['county_id'], r['county_id'])}"
+                      for _, r in excluded.iterrows()]
     payload = {
         "meta": {
             "generated": date.today().isoformat(),
             "last_actual_ym": last_actual,
             "n_combos": len(combos),
-            "excluded_note": "검증 오차 100% 이상인 조합(수박×부안, 대파×김제)은 "
-                             "데이터 품질 문제로 예측에서 제외했습니다.",
+            "price_unit": "won_per_kg",
+            "excluded_note": (
+                f"검증 오차 {EXCLUDE_MAPE:.0f}% 이상인 조합({', '.join(excluded_names)})은 "
+                "데이터 품질 문제로 예측에서 제외했습니다." if excluded_names else
+                f"검증 오차 {EXCLUDE_MAPE:.0f}% 이상으로 제외된 조합은 없습니다."),
         },
         "crops": [{"id": c, "name": CROP_ID_TO_NAME[c]}
                   for c in CROP_ORDER if c in crops_present],

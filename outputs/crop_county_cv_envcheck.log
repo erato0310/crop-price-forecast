@@ -1,0 +1,195 @@
+﻿[2/140] cherrytomato   x gimje      관측103개월  베이스라인= 22.4%  모델= 21.7%  (alpha=2, blend=0.6)
+[3/140] cherrytomato   x gochang    관측 90개월  베이스라인= 22.8%  모델= 24.0%  (alpha=100, blend=0.6)
+[4/140] cherrytomato   x gunsan     관측 57개월  베이스라인= 25.4%  모델= 39.1%  (alpha=100, blend=0.6)
+[5/140] cherrytomato   x iksan      관측103개월  베이스라인= 25.7%  모델= 23.4%  (alpha=10, blend=0.5)
+[6/140] cherrytomato   x imsil      관측 80개월  베이스라인= 31.3%  모델= 32.7%  (alpha=100, blend=0.6)
+[8/140] cherrytomato   x jeongeup   관측 99개월  베이스라인= 35.2%  모델= 35.5%  (alpha=5, blend=0.6)
+[9/140] cherrytomato   x jeonju     관측102개월  베이스라인= 21.5%  모델= 21.8%  (alpha=10, blend=0.6)
+[10/140] cherrytomato   x jinan      관측 54개월  베이스라인= 44.0%  모델= 59.9%  (alpha=2, blend=0.6)
+[12/140] cherrytomato   x namwon     관측104개월  베이스라인= 24.8%  모델= 22.1%  (alpha=30, blend=0.4)
+[13/140] cherrytomato   x sunchang   관측 81개월  베이스라인= 28.3%  모델= 26.2%  (alpha=2, blend=0.6)
+[14/140] cherrytomato   x wanju      관측 81개월  베이스라인= 22.6%  모델= 26.7%  (alpha=5, blend=0.6)
+[16/140] cucumber       x gimje      관측103개월  베이스라인= 30.4%  모델= 28.3%  (alpha=30, blend=0.6) [+gpj피처]
+[17/140] cucumber       x gochang    관측 50개월  베이스라인= 53.0%  모델= 65.7%  (alpha=10, blend=0.6)
+[18/140] cucumber       x gunsan     관측 70개월  베이스라인= 29.3%  모델= 27.4%  (alpha=5, blend=0.4) [gpj타깃]
+[19/140] cucumber       x iksan      관측 98개월  베이스라인= 25.0%  모델= 22.5%  (alpha=5, blend=0.6)
+[20/140] cucumber       x imsil      관측104개월  베이스라인= 24.5%  모델= 21.5%  (alpha=3, blend=0.3)
+[21/140] cucumber       x jangsu     관측 81개월  베이스라인= 30.9%  모델= 30.0%  (alpha=100, blend=0.6)
+[22/140] cucumber       x jeongeup   관측102개월  베이스라인= 24.0%  모델= 23.9%  (alpha=5, blend=0.6)
+[23/140] cucumber       x jeonju     관측102개월  베이스라인= 26.5%  모델= 24.6%  (alpha=20, blend=0.6)
+[24/140] cucumber       x jinan      관측103개월  베이스라인= 25.2%  모델= 23.3%  (alpha=2, blend=0.5)
+[25/140] cucumber       x muju       관측 42개월  베이스라인= 66.2%  모델= 67.2%  (alpha=30, blend=0.6)
+[26/140] cucumber       x namwon     관측101개월  베이스라인= 23.1%  모델= 19.2%  (alpha=2, blend=0.4)
+[27/140] cucumber       x sunchang   관측 51개월  베이스라인= 60.5%  모델= 58.1%  (alpha=100, blend=0.5)
+[28/140] cucumber       x wanju      관측 87개월  베이스라인= 33.9%  모델= 30.2%  (alpha=2, blend=0.6)
+[30/140] grape          x gimje      관측 45개월  베이스라인= 26.4%  모델= 28.8%  (alpha=100, blend=0.6)
+[33/140] grape          x iksan      관측 81개월  베이스라인= 49.1%  모델= 36.0%  (alpha=100, blend=0.0)
+[36/140] grape          x jeongeup   관측 74개월  베이스라인= 40.8%  모델= 36.0%  (alpha=5, blend=0.5)
+[37/140] grape          x jeonju     관측 91개월  베이스라인= 53.4%  모델= 33.2%  (alpha=50, blend=0.0) [+gpj피처]
+[39/140] grape          x muju       관측 56개월  베이스라인= 42.7%  모델= 23.7%  (alpha=100, blend=0.0)
+[40/140] grape          x namwon     관측 61개월  베이스라인= 35.1%  모델= 28.2%  (alpha=100, blend=0.0)
+[42/140] grape          x wanju      관측 61개월  베이스라인= 41.9%  모델= 45.3%  (alpha=2, blend=0.6)
+[43/140] greenonion     x buan       관측 86개월  베이스라인= 61.0%  모델= 52.0%  (alpha=50, blend=0.4)
+[44/140] greenonion     x gimje      관측 68개월  베이스라인=135.2%  모델=122.4%  (alpha=10, blend=0.2)
+[45/140] greenonion     x gochang    관측 83개월  베이스라인= 54.2%  모델= 38.2%  (alpha=2, blend=0.3)
+[46/140] greenonion     x gunsan     관측 68개월  베이스라인= 37.7%  모델= 30.7%  (alpha=20, blend=0.0)
+[47/140] greenonion     x iksan      관측104개월  베이스라인= 41.7%  모델= 26.2%  (alpha=20, blend=0.0)
+[49/140] greenonion     x jangsu     관측 82개월  베이스라인= 32.2%  모델= 29.9%  (alpha=5, blend=0.6)
+[50/140] greenonion     x jeongeup   관측 96개월  베이스라인= 30.8%  모델= 28.3%  (alpha=3, blend=0.5)
+[51/140] greenonion     x jeonju     관측104개월  베이스라인= 48.8%  모델= 29.4%  (alpha=3, blend=0.2) [+gpj피처]
+[54/140] greenonion     x namwon     관측 54개월  베이스라인= 60.0%  모델= 67.9%  (alpha=100, blend=0.6) [+gpj피처]
+[56/140] greenonion     x wanju      관측104개월  베이스라인= 44.1%  모델= 37.4%  (alpha=2, blend=0.2)
+[57/140] lettuce        x buan       관측 70개월  베이스라인= 33.1%  모델= 29.9%  (alpha=5, blend=0.6)
+[58/140] lettuce        x gimje      관측104개월  베이스라인= 39.1%  모델= 32.9%  (alpha=2, blend=0.5) [+gpj피처]
+[59/140] lettuce        x gochang    관측 80개월  베이스라인= 40.9%  모델= 43.4%  (alpha=30, blend=0.6)
+[60/140] lettuce        x gunsan     관측 69개월  베이스라인= 35.8%  모델= 30.0%  (alpha=10, blend=0.4) [gpj타깃]
+[61/140] lettuce        x iksan      관측104개월  베이스라인= 28.0%  모델= 23.2%  (alpha=30, blend=0.3)
+[62/140] lettuce        x imsil      관측 42개월  베이스라인= 57.3%  모델= 58.4%  (alpha=100, blend=0.6)
+[63/140] lettuce        x jangsu     관측104개월  베이스라인= 25.6%  모델= 23.1%  (alpha=30, blend=0.4)
+[64/140] lettuce        x jeongeup   관측103개월  베이스라인= 54.9%  모델= 61.6%  (alpha=100, blend=0.6)
+[65/140] lettuce        x jeonju     관측104개월  베이스라인= 33.5%  모델= 29.7%  (alpha=10, blend=0.3)
+[66/140] lettuce        x jinan      관측 98개월  베이스라인= 30.9%  모델= 29.1%  (alpha=100, blend=0.6)
+[67/140] lettuce        x muju       관측 65개월  베이스라인= 66.6%  모델= 51.6%  (alpha=100, blend=0.3)
+[68/140] lettuce        x namwon     관측104개월  베이스라인= 27.6%  모델= 23.6%  (alpha=2, blend=0.4) [+gpj피처]
+[69/140] lettuce        x sunchang   관측104개월  베이스라인= 31.4%  모델= 28.8%  (alpha=50, blend=0.3)
+[70/140] lettuce        x wanju      관측104개월  베이스라인= 27.0%  모델= 24.3%  (alpha=20, blend=0.4)
+[73/140] melon          x gochang    관측 59개월  베이스라인= 25.2%  모델= 24.1%  (alpha=100, blend=0.6)
+[75/140] melon          x iksan      관측 63개월  베이스라인= 27.6%  모델= 29.5%  (alpha=100, blend=0.6)
+[78/140] melon          x jeongeup   관측 57개월  베이스라인= 35.4%  모델= 43.6%  (alpha=30, blend=0.6)
+[79/140] melon          x jeonju     관측 43개월  베이스라인= 25.4%  모델= 28.1%  (alpha=5, blend=0.6)
+[82/140] melon          x namwon     관측 42개월  베이스라인= 27.3%  모델= 28.5%  (alpha=20, blend=0.6)
+[86/140] peach          x gimje      관측 41개월  베이스라인= 29.8%  모델= 31.5%  (alpha=20, blend=0.6)
+[89/140] peach          x iksan      관측 46개월  베이스라인= 38.5%  모델= 46.4%  (alpha=100, blend=0.6)
+[92/140] peach          x jeongeup   관측 43개월  베이스라인= 34.0%  모델= 36.9%  (alpha=100, blend=0.6)
+[93/140] peach          x jeonju     관측 47개월  베이스라인= 19.5%  모델= 22.7%  (alpha=2, blend=0.6)
+[95/140] peach          x muju       관측 41개월  베이스라인= 28.3%  모델= 30.1%  (alpha=100, blend=0.6)
+[96/140] peach          x namwon     관측 42개월  베이스라인= 17.0%  모델= 14.7%  (alpha=100, blend=0.4)
+[100/140] sweetpotato    x gimje      관측104개월  베이스라인= 23.5%  모델= 12.1%  (alpha=10, blend=0.0)
+[101/140] sweetpotato    x gochang    관측104개월  베이스라인= 20.0%  모델= 12.2%  (alpha=2, blend=0.2)
+[102/140] sweetpotato    x gunsan     관측 60개월  베이스라인= 27.5%  모델= 23.7%  (alpha=10, blend=0.4) [gpj타깃]
+[103/140] sweetpotato    x iksan      관측104개월  베이스라인= 22.7%  모델= 16.1%  (alpha=100, blend=0.2)
+[106/140] sweetpotato    x jeongeup   관측 94개월  베이스라인= 26.2%  모델= 23.1%  (alpha=100, blend=0.4)
+[107/140] sweetpotato    x jeonju     관측 81개월  베이스라인= 36.7%  모델= 29.9%  (alpha=100, blend=0.0)
+[108/140] sweetpotato    x jinan      관측 76개월  베이스라인= 35.2%  모델= 34.5%  (alpha=2, blend=0.6)
+[110/140] sweetpotato    x namwon     관측 45개월  베이스라인= 41.6%  모델= 31.2%  (alpha=10, blend=0.1)
+[112/140] sweetpotato    x wanju      관측 87개월  베이스라인= 23.3%  모델= 16.4%  (alpha=10, blend=0.2)
+[113/140] tomato         x buan       관측 69개월  베이스라인= 28.4%  모델= 29.8%  (alpha=5, blend=0.6)
+[114/140] tomato         x gimje      관측 94개월  베이스라인= 28.8%  모델= 25.5%  (alpha=10, blend=0.5)
+[116/140] tomato         x gunsan     관측 63개월  베이스라인= 33.6%  모델= 29.7%  (alpha=20, blend=0.6) [gpj타깃]
+[117/140] tomato         x iksan      관측 96개월  베이스라인= 39.6%  모델= 32.6%  (alpha=100, blend=0.0)
+[118/140] tomato         x imsil      관측 85개월  베이스라인= 25.9%  모델= 26.0%  (alpha=100, blend=0.6) [+gpj피처]
+[119/140] tomato         x jangsu     관측104개월  베이스라인= 24.0%  모델= 20.7%  (alpha=5, blend=0.4)
+[120/140] tomato         x jeongeup   관측 91개월  베이스라인= 30.2%  모델= 34.3%  (alpha=100, blend=0.6)
+[121/140] tomato         x jeonju     관측103개월  베이스라인= 23.1%  모델= 20.8%  (alpha=30, blend=0.6) [+gpj피처]
+[122/140] tomato         x jinan      관측 90개월  베이스라인= 24.1%  모델= 26.4%  (alpha=2, blend=0.6)
+[123/140] tomato         x muju       관측 88개월  베이스라인= 32.2%  모델= 26.2%  (alpha=20, blend=0.1)
+[124/140] tomato         x namwon     관측 99개월  베이스라인= 29.2%  모델= 27.5%  (alpha=20, blend=0.6)
+[126/140] tomato         x wanju      관측 78개월  베이스라인= 22.8%  모델= 22.1%  (alpha=10, blend=0.6)
+[127/140] watermelon     x buan       관측 53개월  베이스라인=248.9%  모델=188.4%  (alpha=10, blend=0.1)
+[129/140] watermelon     x gochang    관측102개월  베이스라인= 32.4%  모델= 32.5%  (alpha=100, blend=0.6)
+[131/140] watermelon     x iksan      관측 89개월  베이스라인= 27.2%  모델= 24.7%  (alpha=50, blend=0.4) [+gpj피처]
+[134/140] watermelon     x jeongeup   관측 64개월  베이스라인= 46.4%  모델= 69.8%  (alpha=2, blend=0.6)
+[135/140] watermelon     x jeonju     관측 60개월  베이스라인= 28.2%  모델= 24.2%  (alpha=100, blend=0.4)
+[140/140] watermelon     x wanju      관측 47개월  베이스라인= 30.5%  모델= 31.7%  (alpha=100, blend=0.6)
+
+얇은 표본 조합 중 작물 컨센서스 파라미터 채택: 7개
+
+==========================================================================================
+유효 조합 93개 / 전체 140개 (나머지는 40개월 미만이라 스킵)
+==========================================================================================
+     crop_id county_id  n_obs  skipped target_source  params_source  baseline_mape  best_alpha  best_blend_w use_gpj_feature feature_variant  model_mape  n_folds  consensus_alpha  consensus_blend_w  consensus_mape  model_mape_own
+ sweetpotato     gimje    104    False        origin            own      23.491654        10.0           0.0           False                   12.130704      6.0              NaN                NaN             NaN             NaN
+ sweetpotato   gochang    104    False        origin            own      19.979778         2.0           0.2           False                   12.227694      6.0              NaN                NaN             NaN             NaN
+       peach    namwon     42    False        origin            own      16.972303       100.0           0.4           False                   14.742120      6.0              NaN                NaN             NaN             NaN
+ sweetpotato     iksan    104    False        origin            own      22.746352       100.0           0.2           False                   16.118398      6.0              NaN                NaN             NaN             NaN
+ sweetpotato     wanju     87    False        origin            own      23.333346        10.0           0.2           False                   16.418750      6.0              NaN                NaN             NaN             NaN
+    cucumber    namwon    101    False        origin            own      23.132309         2.0           0.4           False                   19.199861      6.0              NaN                NaN             NaN             NaN
+      tomato    jangsu    104    False        origin            own      24.048392         5.0           0.4           False                   20.705385      6.0              NaN                NaN             NaN             NaN
+      tomato    jeonju    103    False        origin            own      23.149822        30.0           0.6            True                   20.832790      6.0              NaN                NaN             NaN             NaN
+    cucumber     imsil    104    False        origin            own      24.546861         3.0           0.3           False                   21.543675      6.0              NaN                NaN             NaN             NaN
+cherrytomato     gimje    103    False        origin            own      22.448962         2.0           0.6           False                   21.672935      6.0              NaN                NaN             NaN             NaN
+cherrytomato    jeonju    102    False        origin            own      21.468696        10.0           0.6           False                   21.823771      6.0              NaN                NaN             NaN             NaN
+      tomato     wanju     78    False        origin            own      22.772598        10.0           0.6           False                   22.054940      6.0              NaN                NaN             NaN             NaN
+cherrytomato    namwon    104    False        origin            own      24.792523        30.0           0.4           False                   22.084989      6.0              NaN                NaN             NaN             NaN
+    cucumber     iksan     98    False        origin            own      24.987621         5.0           0.6           False                   22.475075      6.0              NaN                NaN             NaN             NaN
+       peach    jeonju     47    False        origin            own      19.499325         2.0           0.6           False                   22.662568      6.0              NaN                NaN             NaN             NaN
+     lettuce    jangsu    104    False        origin            own      25.608071        30.0           0.4           False                   23.120362      6.0              NaN                NaN             NaN             NaN
+ sweetpotato  jeongeup     94    False        origin            own      26.215229       100.0           0.4           False                   23.133290      6.0              NaN                NaN             NaN             NaN
+     lettuce     iksan    104    False        origin            own      28.002932        30.0           0.3           False                   23.158636      6.0              NaN                NaN             NaN             NaN
+    cucumber     jinan    103    False        origin            own      25.218701         2.0           0.5           False                   23.291982      6.0              NaN                NaN             NaN             NaN
+cherrytomato     iksan    103    False        origin            own      25.692509        10.0           0.5           False                   23.433423      6.0              NaN                NaN             NaN             NaN
+     lettuce    namwon    104    False        origin            own      27.613922         2.0           0.4            True   leafy_weather   23.597017      6.0              NaN                NaN             NaN             NaN
+ sweetpotato    gunsan     60    False           gpj            own      27.512872        10.0           0.4           False                   23.731977      5.0              NaN                NaN             NaN             NaN
+       grape      muju     56    False        origin crop_consensus      42.731439        50.0           0.0           False                   23.799039      6.0             50.0                0.0       23.799039       23.662267
+    cucumber  jeongeup    102    False        origin            own      23.960201         5.0           0.6           False                   23.949235      6.0              NaN                NaN             NaN             NaN
+cherrytomato   gochang     90    False        origin            own      22.768683       100.0           0.6           False                   24.016265      6.0              NaN                NaN             NaN             NaN
+       melon   gochang     59    False        origin            own      25.199662       100.0           0.6           False                   24.079043      6.0              NaN                NaN             NaN             NaN
+  watermelon    jeonju     60    False        origin            own      28.160972       100.0           0.4           False                   24.187725      6.0              NaN                NaN             NaN             NaN
+     lettuce     wanju    104    False        origin            own      26.957855        20.0           0.4           False                   24.341698      6.0              NaN                NaN             NaN             NaN
+    cucumber    jeonju    102    False        origin            own      26.527235        20.0           0.6           False                   24.610763      6.0              NaN                NaN             NaN             NaN
+  watermelon     iksan     89    False        origin            own      27.193751        50.0           0.4            True                   24.675466      6.0              NaN                NaN             NaN             NaN
+      tomato     gimje     94    False        origin            own      28.769305        10.0           0.5           False                   25.467167      6.0              NaN                NaN             NaN             NaN
+      tomato     imsil     85    False        origin            own      25.895040       100.0           0.6            True                   25.979423      6.0              NaN                NaN             NaN             NaN
+  greenonion     iksan    104    False        origin            own      41.747427        20.0           0.0           False   leafy_weather   26.161053      6.0              NaN                NaN             NaN             NaN
+      tomato      muju     88    False        origin            own      32.167360        20.0           0.1           False                   26.164153      6.0              NaN                NaN             NaN             NaN
+cherrytomato  sunchang     81    False        origin            own      28.343884         2.0           0.6           False                   26.201842      6.0              NaN                NaN             NaN             NaN
+      tomato     jinan     90    False        origin            own      24.111072         2.0           0.6           False                   26.433241      6.0              NaN                NaN             NaN             NaN
+cherrytomato     wanju     81    False        origin            own      22.558915         5.0           0.6           False                   26.729959      6.0              NaN                NaN             NaN             NaN
+    cucumber    gunsan     70    False           gpj            own      29.268712         5.0           0.4           False                   27.412320      5.0              NaN                NaN             NaN             NaN
+      tomato    namwon     99    False        origin            own      29.221252        20.0           0.6           False                   27.471840      6.0              NaN                NaN             NaN             NaN
+       melon    jeonju     43    False        origin            own      25.445035         5.0           0.6           False                   28.055027      6.0              NaN                NaN             NaN             NaN
+       grape    namwon     61    False        origin            own      35.050367       100.0           0.0           False                   28.238942      6.0              NaN                NaN             NaN             NaN
+  greenonion  jeongeup     96    False        origin            own      30.800607         3.0           0.5           False                   28.295591      6.0              NaN                NaN             NaN             NaN
+    cucumber     gimje    103    False        origin            own      30.435256        30.0           0.6            True                   28.319297      6.0              NaN                NaN             NaN             NaN
+       melon    namwon     42    False        origin            own      27.326041        20.0           0.6           False                   28.480743      6.0              NaN                NaN             NaN             NaN
+       grape     gimje     45    False        origin            own      26.412836       100.0           0.6           False                   28.768113      6.0             50.0                0.0       33.261178             NaN
+     lettuce  sunchang    104    False        origin            own      31.443161        50.0           0.3           False                   28.807550      6.0              NaN                NaN             NaN             NaN
+     lettuce     jinan     98    False        origin            own      30.890428       100.0           0.6           False                   29.134953      6.0              NaN                NaN             NaN             NaN
+  greenonion    jeonju    104    False        origin            own      48.774995         3.0           0.2            True                   29.448376      6.0              NaN                NaN             NaN             NaN
+       melon     iksan     63    False        origin            own      27.622806       100.0           0.6           False                   29.485310      6.0              NaN                NaN             NaN             NaN
+     lettuce    jeonju    104    False        origin            own      33.487307        10.0           0.3           False                   29.741921      6.0              NaN                NaN             NaN             NaN
+      tomato    gunsan     63    False           gpj            own      33.576696        20.0           0.6           False                   29.748751      5.0              NaN                NaN             NaN             NaN
+      tomato      buan     69    False        origin            own      28.382943         5.0           0.6           False                   29.793889      6.0              NaN                NaN             NaN             NaN
+  greenonion    jangsu     82    False        origin            own      32.162466         5.0           0.6           False                   29.916875      6.0              NaN                NaN             NaN             NaN
+ sweetpotato    jeonju     81    False        origin            own      36.665984       100.0           0.0           False   storable_long   29.917777      6.0              NaN                NaN             NaN             NaN
+     lettuce      buan     70    False        origin            own      33.103133         5.0           0.6           False                   29.919417      6.0              NaN                NaN             NaN             NaN
+     lettuce    gunsan     69    False           gpj            own      35.814380        10.0           0.4           False   leafy_weather   29.952975      5.0              NaN                NaN             NaN             NaN
+    cucumber    jangsu     81    False        origin            own      30.935157       100.0           0.6           False                   30.039943      6.0              NaN                NaN             NaN             NaN
+       peach      muju     41    False        origin            own      28.311127       100.0           0.6           False                   30.080315      6.0              NaN                NaN             NaN             NaN
+    cucumber     wanju     87    False        origin            own      33.897981         2.0           0.6           False                   30.174466      6.0              NaN                NaN             NaN             NaN
+  greenonion    gunsan     68    False        origin            own      37.675478        20.0           0.0           False                   30.688223      5.0              NaN                NaN             NaN             NaN
+ sweetpotato    namwon     45    False        origin crop_consensus      41.572574        10.0           0.2           False                   31.328376      6.0             10.0                0.2       31.328376       31.226394
+       peach     gimje     41    False        origin            own      29.845319        20.0           0.6           False                   31.494952      6.0              NaN                NaN             NaN             NaN
+  watermelon     wanju     47    False        origin            own      30.528327       100.0           0.6           False                   31.682464      6.0              NaN                NaN             NaN             NaN
+  watermelon   gochang    102    False        origin            own      32.376198       100.0           0.6           False                   32.521720      6.0              NaN                NaN             NaN             NaN
+      tomato     iksan     96    False        origin            own      39.634499       100.0           0.0           False                   32.570265      6.0              NaN                NaN             NaN             NaN
+cherrytomato     imsil     80    False        origin            own      31.303845       100.0           0.6           False                   32.672619      6.0              NaN                NaN             NaN             NaN
+     lettuce     gimje    104    False        origin            own      39.146004         2.0           0.5            True                   32.862207      6.0              NaN                NaN             NaN             NaN
+       grape    jeonju     91    False        origin            own      53.424397        50.0           0.0            True                   33.244644      6.0              NaN                NaN             NaN             NaN
+      tomato  jeongeup     91    False        origin            own      30.185479       100.0           0.6           False                   34.251630      6.0              NaN                NaN             NaN             NaN
+ sweetpotato     jinan     76    False        origin            own      35.237483         2.0           0.6           False                   34.509658      6.0              NaN                NaN             NaN             NaN
+cherrytomato  jeongeup     99    False        origin            own      35.196976         5.0           0.6           False                   35.498107      6.0              NaN                NaN             NaN             NaN
+       grape     iksan     81    False        origin            own      49.081934       100.0           0.0           False                   36.010114      6.0              NaN                NaN             NaN             NaN
+       grape  jeongeup     74    False        origin            own      40.841780         5.0           0.5           False                   36.019034      6.0              NaN                NaN             NaN             NaN
+       peach  jeongeup     43    False        origin            own      34.021921       100.0           0.6           False                   36.948306      6.0              NaN                NaN             NaN             NaN
+  greenonion     wanju    104    False        origin            own      44.062695         2.0           0.2           False   leafy_weather   37.384808      6.0              NaN                NaN             NaN             NaN
+  greenonion   gochang     83    False        origin            own      54.164401         2.0           0.3           False                   38.236770      6.0              NaN                NaN             NaN             NaN
+cherrytomato    gunsan     57    False        origin crop_consensus      25.408950        10.0           0.6           False                   40.455112      5.0             10.0                0.6       40.455112       39.081695
+     lettuce   gochang     80    False        origin            own      40.925832        30.0           0.6           False   leafy_weather   43.424218      6.0              NaN                NaN             NaN             NaN
+       melon  jeongeup     57    False        origin            own      35.366439        30.0           0.6           False                   43.565601      6.0              NaN                NaN             NaN             NaN
+       grape     wanju     61    False        origin            own      41.933527         2.0           0.6           False                   45.286119      5.0              NaN                NaN             NaN             NaN
+       peach     iksan     46    False        origin            own      38.519543       100.0           0.6           False                   46.410409      6.0              NaN                NaN             NaN             NaN
+     lettuce      muju     65    False        origin            own      66.645218       100.0           0.3           False                   51.560352      6.0              NaN                NaN             NaN             NaN
+  greenonion      buan     86    False        origin            own      60.989277        50.0           0.4           False                   51.984825      6.0              NaN                NaN             NaN             NaN
+     lettuce     imsil     42    False        origin            own      57.338459       100.0           0.6           False                   58.370344      4.0             30.0                0.4       79.690745             NaN
+    cucumber  sunchang     51    False        origin crop_consensus      60.501326         5.0           0.6           False                   58.609758      6.0              5.0                0.6       58.609758       58.053023
+cherrytomato     jinan     54    False        origin crop_consensus      43.971251        10.0           0.6           False                   60.562218      5.0             10.0                0.6       60.562218       59.860855
+     lettuce  jeongeup    103    False        origin            own      54.869078       100.0           0.6           False   leafy_weather   61.579716      6.0              NaN                NaN             NaN             NaN
+    cucumber   gochang     50    False        origin crop_consensus      53.023827         5.0           0.6           False                   65.800696      6.0              5.0                0.6       65.800696       65.703143
+  greenonion    namwon     54    False        origin            own      60.035875       100.0           0.6            True   leafy_weather   67.916676      6.0              3.0                0.3       95.985267             NaN
+    cucumber      muju     42    False        origin crop_consensus      66.224815         5.0           0.6           False                   69.198027      6.0              5.0                0.6       69.198027       67.218936
+  watermelon  jeongeup     64    False        origin            own      46.380140         2.0           0.6           False                   69.781588      6.0              NaN                NaN             NaN             NaN
+  greenonion     gimje     68    False        origin            own     135.205862        10.0           0.2           False                  122.417530      6.0              NaN                NaN             NaN             NaN
+  watermelon      buan     53    False        origin            own     248.879063        10.0           0.1           False                  188.391357      6.0              NaN                NaN             NaN             NaN
+
+저장 완료: ../outputs/crop_county_cv_summary.csv

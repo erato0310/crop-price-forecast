@@ -205,11 +205,6 @@ svg.map .cvalue {
   width: 13px; height: 13px; border-radius: 3px; background: var(--plane);
   border: 1px dashed var(--text-muted);
 }
-.legend-scale .none-swatch.hatch {
-  border: 1px solid var(--border);
-  background: repeating-linear-gradient(45deg,
-    var(--text-muted) 0 2px, var(--ramp-none) 2px 5px);
-}
 
 /* ── 표 ─────────────────────────────────────── */
 .table-wrap { overflow-x: auto; }
@@ -233,6 +228,9 @@ td .swatch-cell {
   margin-right: 7px; vertical-align: -1px; border: 1px solid var(--border);
 }
 .empty-row { color: var(--text-muted); text-align: center; padding: 22px 0; }
+/* 실거래 최고가 옆의 "(2kg 31,000원, 2026년 7월)" 같은 원본 단가 주석 —
+   농가가 공판장에서 본 금액과 대조할 수 있게 작게 붙인다. */
+.unit-note { color: var(--text-muted); font-size: 11.5px; font-weight: 400; white-space: nowrap; }
 
 .pill { display: inline-block; padding: 1px 7px; border-radius: 99px; font-size: 11.5px; font-weight: 600; }
 .pill.actual { background: color-mix(in srgb, var(--status-good) 15%, transparent); color: var(--success-text); }

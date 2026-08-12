@@ -63,6 +63,39 @@ JEONBUK_ORIGIN_HISTORY_PATH = Path(__file__).resolve().parent.parent / "data" / 
 # price_avg_origin_{crop_id}_{county_id} 형태(예: price_avg_origin_watermelon_namwon).
 ALL_CROPS_ORIGIN_PATH = Path(__file__).resolve().parent.parent / "data" / "raw" / "jeonbuk_origin_top10crops_by_county.csv"
 
+# [2026-08-11] 한 달의 "그 시군 가격"으로 인정할 최소 거래 건수.
+# 거래 1건으로 만든 월평균은 시장가격이 아니라 잡음이다 — 진안 토마토의 2020-02·03월이
+# 각각 1건짜리라 11,333·16,000원/kg(두터운 달 중앙값 2,374원/kg의 5~7배)로 잡혔고,
+# 이게 lag 피처를 오염시켜 CV MAPE를 26% -> 135%로 터뜨렸다. 익산 복숭아도 1건짜리 달이
+# 500원 ~ 22,500원으로 널뛴다. 버리는 비용은 작다: n_obs_kg<2인 달은 집계 행의 7.7%지만
+# **거래물량으로는 0.16%**뿐이다.
+#
+# 값은 CV로 정했다(tune_min_obs.py, 로그 outputs/min_obs_threshold_cv.log).
+# 주의: 임계값을 올리면 어려운 조합이 유효 목록에서 빠져 중앙 MAPE가 자동으로 좋아진다 —
+# 그래서 모든 임계값에서 살아남은 공통 70개 조합으로 비교해야 한다:
+#     임계값   유효조합   공통70개 중앙MAPE   MAPE>=100%
+#       1        93          26.36%             3개
+#       2        88          25.44%             1개
+#       3        76          24.45%             0개
+#       5        70          24.45%             0개
+# 3~5는 정확도가 같은 수준에서 포화되는데 조합을 12~18개 더 잃는다. 1건짜리 달만
+# 걷어내는 2가 "월평균이라 부를 수 있는 최소 조건"이라는 근거도 가장 분명해서 2를 채택.
+# 정확도를 더 원하면 3으로 올리면 되지만 웹앱에 노출할 작물x시군이 88 -> 76으로 준다.
+MIN_OBS_PER_MONTH = 2
+
+
+def _drop_thin_months(long: pd.DataFrame, label: str) -> pd.DataFrame:
+    """거래 건수가 MIN_OBS_PER_MONTH 미만인 (작물x시군x월) 행 제거.
+    n_obs_kg(=kg 단가가 실제로 나온 건수)가 있으면 그걸 쓴다 — n_obs는 unit_qty 불량으로
+    kg 환산에서 빠진 행까지 세기 때문에 표본 두께를 과대평가한다."""
+    if MIN_OBS_PER_MONTH <= 1 or long.empty:
+        return long
+    col = "n_obs_kg" if "n_obs_kg" in long.columns else "n_obs"
+    before = len(long)
+    long = long[long[col] >= MIN_OBS_PER_MONTH]
+    print(f"  [{label}] 표본 얇은 달 제거: {before} -> {len(long)}행 ({col} >= {MIN_OBS_PER_MONTH})")
+    return long
+
 
 def _month_range(start: str, end: str) -> pd.PeriodIndex:
     return pd.period_range(start=start, end=end, freq="M")
@@ -174,30 +207,58 @@ COUNTY_NAME_TO_ID = {
 
 
 def build_jeonbuk_origin_history() -> pd.DataFrame:
-    """long(ym,county,price_avg,qty_total,n_obs) -> wide(ym, price_avg_origin_{county_id}, ...)
+    """long(ym,county,price_avg_kg,qty_total_kg,n_obs) -> wide(ym, price_avg_origin_{county_id}, ...)
     — 산지(생산지) 기준 전북 시군별 상추 가격. 시장 기준(build_jeonbuk_region_history)과
-    헷갈리지 않게 컬럼명에 origin_을 넣는다."""
+    헷갈리지 않게 컬럼명에 origin_을 넣는다.
+
+    [2026-08 단위 통일] build_all_crops_origin_history()와 같은 이유로 **원/kg** 기준으로
+    바꿨다(상세 근거는 그쪽 docstring). 이 파일은 scrape_jeonbuk_all_crops.py가 상추만
+    떼어 재생성하므로 컬럼 구성도 top10 집계 파일과 동일하다."""
     if not JEONBUK_ORIGIN_HISTORY_PATH.exists():
         return pd.DataFrame(columns=["ym"])
     long = pd.read_csv(JEONBUK_ORIGIN_HISTORY_PATH, encoding="utf-8-sig")
+    if "price_avg_kg" not in long.columns:
+        raise SystemExit(
+            f"{JEONBUK_ORIGIN_HISTORY_PATH.name}에 price_avg_kg가 없습니다 — "
+            "scrape_jeonbuk_all_crops.py를 kg 필드 추가 버전으로 다시 돌려야 합니다.")
+    long = _drop_thin_months(long, "상추 산지")
     long["ym"] = pd.PeriodIndex(long["ym"], freq="M")
     long["county_id"] = long["county"].map(COUNTY_NAME_TO_ID).fillna(long["county"])
-    wide = long.pivot(index="ym", columns="county_id", values=["price_avg", "qty_total", "n_obs"])
-    wide.columns = [f"{metric}_origin_{county}" for metric, county in wide.columns]
+    wide = long.pivot(index="ym", columns="county_id",
+                      values=["price_avg_kg", "qty_total_kg", "n_obs"])
+    # 하류(county_cv/county_predict/forecast_future)는 price_avg_origin_* 이름을 그대로
+    # 쓰므로 이름은 유지하고 내용만 kg 기준으로 바꾼다.
+    rename = {"price_avg_kg": "price_avg", "qty_total_kg": "qty_total", "n_obs": "n_obs"}
+    wide.columns = [f"{rename[metric]}_origin_{county}" for metric, county in wide.columns]
     return wide.reset_index()
 
 
 def build_all_crops_origin_history() -> pd.DataFrame:
-    """long(ym,crop_id,county,price_avg,qty_total,n_obs) -> wide(ym,
-    price_avg_origin_{crop_id}_{county_id}, ...) — 상추 외 상위 10개 작물."""
+    """long(ym,crop_id,county,price_avg_kg,qty_total_kg,...) -> wide(ym,
+    price_avg_origin_{crop_id}_{county_id}, ...) — 상추 외 상위 10개 작물.
+
+    [2026-08 단위 통일] 가격을 **원/kg**으로 바꿨다. katSale의 avgprc는 '거래 단위(상자)당'
+    단가라 같은 작물이라도 3kg/12kg 상자가 섞이면 단가가 몇 배씩 널뛴다(수박 상자단가
+    변동폭 35배 → kg 환산 11배, 대파 18배 → 6배로 실측 확인). 산지공판장(gpj)도 원래
+    원/kg이라 이제 두 소스의 단위가 같아졌다 — 웹앱에서 나란히 비교해도 된다.
+    price_avg(상자당)는 과거 결과와 대조하려고 스크래퍼가 계속 남기지만 여기선 안 쓴다."""
     if not ALL_CROPS_ORIGIN_PATH.exists():
         return pd.DataFrame(columns=["ym"])
     long = pd.read_csv(ALL_CROPS_ORIGIN_PATH, encoding="utf-8-sig")
+    if "price_avg_kg" not in long.columns:
+        raise SystemExit(
+            f"{ALL_CROPS_ORIGIN_PATH.name}에 price_avg_kg가 없습니다 — "
+            "scrape_jeonbuk_all_crops.py를 kg 필드 추가 버전으로 다시 돌려야 합니다.")
+    long = _drop_thin_months(long, "전작물 산지")
     long["ym"] = pd.PeriodIndex(long["ym"], freq="M")
     long["county_id"] = long["county"].map(COUNTY_NAME_TO_ID).fillna(long["county"])
     long["key"] = long["crop_id"] + "_" + long["county_id"]
-    wide = long.pivot(index="ym", columns="key", values=["price_avg", "qty_total", "n_obs"])
-    wide.columns = [f"{metric}_origin_{key}" for metric, key in wide.columns]
+    wide = long.pivot(index="ym", columns="key",
+                      values=["price_avg_kg", "qty_total_kg", "n_obs"])
+    # 하류(피처·CV·웹앱)는 price_avg_origin_* 이름을 그대로 쓰므로 이름은 유지하고
+    # 내용만 kg 기준으로 바꾼다.
+    rename = {"price_avg_kg": "price_avg", "qty_total_kg": "qty_total", "n_obs": "n_obs"}
+    wide.columns = [f"{rename[metric]}_origin_{key}" for metric, key in wide.columns]
     return wide.reset_index()
 
 
