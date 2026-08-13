@@ -1,0 +1,785 @@
+<title>전북 상추 가격예측 — 진행 보고서</title>
+<style>
+:root{
+  color-scheme: light;
+  --paper:#f7f8f5; --card:#ffffff; --sunk:#f0f2ed;
+  --ink:#17201b; --ink-2:#3f4a43; --muted:#6b756d;
+  --rule:#dde2da; --rule-2:#c6cec3;
+  --accent:#2c6b4f; --accent-soft:#e6efe8;
+  --ok:#1e6b3a; --ok-bg:#e7f1e9;
+  --no:#9a3b2e; --no-bg:#f7e9e6;
+  --hmm:#8a6a16; --hmm-bg:#f6efdd;
+  --shadow:0 1px 2px rgba(23,32,27,.05), 0 10px 30px -18px rgba(23,32,27,.3);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --paper:#111310; --card:#191c17; --sunk:#1f231d;
+    --ink:#e9ede7; --ink-2:#bcc4bb; --muted:#8d968c;
+    --rule:#2a2e27; --rule-2:#3b4138;
+    --accent:#7cc49a; --accent-soft:#1c2620;
+    --ok:#6fc08a; --ok-bg:#18251c;
+    --no:#e08a78; --no-bg:#2a1d19;
+    --hmm:#d5ab4f; --hmm-bg:#282112;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -18px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --paper:#111310; --card:#191c17; --sunk:#1f231d;
+  --ink:#e9ede7; --ink-2:#bcc4bb; --muted:#8d968c;
+  --rule:#2a2e27; --rule-2:#3b4138;
+  --accent:#7cc49a; --accent-soft:#1c2620;
+  --ok:#6fc08a; --ok-bg:#18251c;
+  --no:#e08a78; --no-bg:#2a1d19;
+  --hmm:#d5ab4f; --hmm-bg:#282112;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -18px rgba(0,0,0,.8);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font:16px/1.75 system-ui,-apple-system,"Segoe UI","Malgun Gothic","Apple SD Gothic Neo",sans-serif;
+  word-break:keep-all; overflow-wrap:break-word;
+  -webkit-font-smoothing:antialiased;
+}
+.serif{font-family:"Noto Serif KR","Nanum Myeongjo",Batang,"Times New Roman",serif}
+.mono{font-family:"Cascadia Mono",Consolas,"D2Coding",ui-monospace,monospace;
+  font-variant-numeric:tabular-nums}
+
+.page{max-width:1180px;margin:0 auto;padding:0 24px 96px;
+  display:grid;grid-template-columns:1fr;gap:0}
+@media(min-width:1080px){
+  .page{grid-template-columns:212px minmax(0,1fr);gap:52px;padding-top:8px}
+  .toc{position:sticky;top:0;align-self:start;padding-top:72px;max-height:100vh;
+    overflow-y:auto}
+}
+.toc{display:none}
+@media(min-width:1080px){.toc{display:block}}
+.toc ol{list-style:none;margin:0;padding:0;font-size:13px;line-height:1.5}
+.toc li{margin-bottom:9px}
+.toc a{color:var(--muted);text-decoration:none;display:flex;gap:8px}
+.toc a:hover,.toc a:focus-visible{color:var(--accent)}
+.toc .n{color:var(--rule-2);flex:none;font-variant-numeric:tabular-nums}
+.toc .lbl{font-size:11px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--rule-2);font-weight:700;margin:0 0 14px}
+
+header.head{padding:72px 0 30px;border-bottom:2px solid var(--ink)}
+.eyebrow{font-size:12px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--accent);font-weight:700;margin:0 0 14px}
+h1{font-size:clamp(30px,4.2vw,45px);line-height:1.18;margin:0 0 16px;
+  letter-spacing:-.02em;font-weight:700;text-wrap:balance}
+.sub{font-size:17px;color:var(--ink-2);margin:0;max-width:62ch;line-height:1.6}
+.meta{display:flex;flex-wrap:wrap;gap:6px 26px;margin-top:26px;
+  font-size:13px;color:var(--muted)}
+.meta b{color:var(--ink);font-weight:600}
+
+section{padding-top:52px;scroll-margin-top:16px}
+h2{font-size:25px;margin:0 0 6px;letter-spacing:-.01em;line-height:1.3;
+  font-weight:700;text-wrap:balance}
+h2 .num{color:var(--accent);font-weight:700;margin-right:12px;
+  font-variant-numeric:tabular-nums}
+.lede{color:var(--ink-2);margin:0 0 24px;max-width:66ch;font-size:15.5px}
+h3{font-size:17px;margin:32px 0 8px;font-weight:680;letter-spacing:-.005em}
+h4{font-size:14.5px;margin:22px 0 6px;font-weight:680;color:var(--ink-2)}
+p{margin:0 0 14px;max-width:68ch}
+ul,ol{max-width:68ch;padding-left:22px;margin:0 0 14px}
+li{margin-bottom:6px}
+strong{font-weight:680}
+a{color:var(--accent)}
+code{font-family:"Cascadia Mono",Consolas,ui-monospace,monospace;font-size:.88em;
+  background:var(--sunk);padding:1px 5px;border-radius:4px;word-break:break-all}
+
+.chip{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;
+  border-radius:99px;font-size:11.5px;font-weight:700;letter-spacing:.01em;
+  white-space:nowrap;vertical-align:2px}
+.chip.ok{background:var(--ok-bg);color:var(--ok)}
+.chip.no{background:var(--no-bg);color:var(--no)}
+.chip.hmm{background:var(--hmm-bg);color:var(--hmm)}
+.chip::before{content:"";width:6px;height:6px;border-radius:99px;background:currentColor}
+
+.wrap-x{overflow-x:auto;margin:18px 0 8px;
+  border:1px solid var(--rule);border-radius:10px;background:var(--card)}
+table{width:100%;border-collapse:collapse;font-size:13.5px;
+  font-variant-numeric:tabular-nums;min-width:520px}
+th,td{padding:9px 13px;text-align:right;border-bottom:1px solid var(--rule);
+  vertical-align:top}
+th{font-size:11.5px;letter-spacing:.03em;color:var(--muted);font-weight:700;
+  text-transform:uppercase;background:var(--sunk);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+tbody tr:last-child td{border-bottom:0}
+td .u{font-size:11px;color:var(--muted)}
+.win{color:var(--ok);font-weight:680}
+.lose{color:var(--no)}
+
+.callout{border-left:3px solid var(--accent);background:var(--accent-soft);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin:20px 0;font-size:14.5px}
+.callout p:last-child{margin-bottom:0}
+.callout .t{font-weight:700;margin-bottom:4px;color:var(--accent)}
+
+.warn{border-left:3px solid var(--hmm);background:var(--hmm-bg);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin:20px 0;font-size:14.5px}
+.warn .t{font-weight:700;margin-bottom:4px;color:var(--hmm)}
+.warn p:last-child{margin-bottom:0}
+
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:14px;margin:20px 0}
+.box{border:1px solid var(--rule);border-radius:11px;padding:15px 17px;
+  background:var(--card);box-shadow:var(--shadow)}
+.box h4{margin:0 0 6px;font-size:14px;color:var(--ink)}
+.box p{font-size:13.5px;color:var(--ink-2);margin:0}
+
+.stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:12px;margin:22px 0}
+.stat .s{border:1px solid var(--rule);border-radius:11px;padding:13px 15px;
+  background:var(--card)}
+.stat .k{font-size:11.5px;color:var(--muted);display:block;margin-bottom:3px}
+.stat .v{font-size:23px;font-weight:700;letter-spacing:-.02em;display:block;
+  line-height:1.2;font-variant-numeric:tabular-nums}
+.stat .n{font-size:11.5px;color:var(--muted)}
+
+.fig{margin:22px 0;border:1px solid var(--rule);border-radius:11px;
+  background:var(--card);padding:18px;overflow-x:auto}
+.fig figcaption{font-size:12.5px;color:var(--muted);margin-top:12px;
+  line-height:1.55;max-width:70ch}
+svg{display:block;max-width:100%;height:auto}
+
+.steps{list-style:none;padding:0;counter-reset:s;max-width:100%}
+.steps>li{counter-increment:s;position:relative;padding-left:44px;
+  margin-bottom:20px}
+.steps>li::before{content:counter(s);position:absolute;left:0;top:1px;
+  width:28px;height:28px;border-radius:99px;background:var(--accent-soft);
+  color:var(--accent);font-size:13px;font-weight:700;display:grid;
+  place-items:center;font-variant-numeric:tabular-nums}
+.steps h4{margin:0 0 3px;font-size:15.5px;color:var(--ink)}
+.steps p{margin:0;font-size:14.5px;color:var(--ink-2)}
+
+footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);
+  font-size:13px;color:var(--muted)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+</style>
+
+<div class="page">
+<nav class="toc" aria-label="목차">
+  <p class="lbl">목차</p>
+  <ol>
+    <li><a href="#s1"><span class="n">1</span><span>요약</span></a></li>
+    <li><a href="#s2"><span class="n">2</span><span>진행 경위</span></a></li>
+    <li><a href="#s3"><span class="n">3</span><span>자료 구축</span></a></li>
+    <li><a href="#s4"><span class="n">4</span><span>발견하고 고친 문제</span></a></li>
+    <li><a href="#s5"><span class="n">5</span><span>분석 기법과 모델</span></a></li>
+    <li><a href="#s6"><span class="n">6</span><span>검정 결과 전체</span></a></li>
+    <li><a href="#s7"><span class="n">7</span><span>출하처 선택 지원</span></a></li>
+    <li><a href="#s8"><span class="n">8</span><span>활용 방안</span></a></li>
+    <li><a href="#s9"><span class="n">9</span><span>한계</span></a></li>
+    <li><a href="#s10"><span class="n">10</span><span>재현 방법</span></a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="head">
+  <p class="eyebrow">공공데이터 기반 농산물 가격예측</p>
+  <h1 class="serif">전라북도 상추 산지가격 예측 및<br>출하처 선택 지원 시스템</h1>
+  <p class="sub">전국 32개 공영도매시장 전 거래일 전수 자료(216만 건)로 시군·읍면 단위 가격을
+    예측하고, 언제 어느 도매시장으로 내는 것이 유리한지를 검정했다.
+    <strong>채택된 가설보다 기각된 가설이 많으며, 그 목록 자체가 이 연구의 산출물이다.</strong></p>
+  <div class="meta">
+    <span>작성 <b>2026-08-13</b></span>
+    <span>자료 기간 <b>2018-01-02 ~ 2026-08-13</b></span>
+    <span>공개 <b>erato0310.github.io/crop-price-forecast</b></span>
+  </div>
+</header>
+
+<!-- 1 -->
+<section id="s1">
+  <h2><span class="num">1</span>요약</h2>
+  <p class="lede">대상을 상추 하나로 좁히고, 표본 조사를 전수 조사로 바꾼 뒤,
+    1,500회 이상의 교차검증으로 가설을 걸렀다.</p>
+
+  <div class="stat">
+    <div class="s"><span class="k">수집 레코드</span><span class="v">216만</span>
+      <span class="n">건 · 32개 시장 전수</span></div>
+    <div class="s"><span class="k">월간 예측 오차</span><span class="v">23.0%</span>
+      <span class="n">대조군 25.5%</span></div>
+    <div class="s"><span class="k">주간 예측 오차</span><span class="v">21.5%</span>
+      <span class="n">대조군 31.2%</span></div>
+    <div class="s"><span class="k">80% 구간 적중</span><span class="v">81.9%</span>
+      <span class="n">명목 80%</span></div>
+    <div class="s"><span class="k">출하처 선택 이득</span><span class="v">+10.0%</span>
+      <span class="n">관행 대비</span></div>
+  </div>
+
+  <h3>채택된 것</h3>
+  <ul>
+    <li><strong>월간 1개월 예측</strong> <span class="chip ok">채택</span> — 계절항 + 가격시차,
+      Ridge 회귀에 Duan 스미어링. 작목 선택·재배 계획용.</li>
+    <li><strong>주간 1주 예측</strong> <span class="chip ok">채택</span> — 광(光) 변수 추가,
+      Ridge·GBM 앙상블. 출하 시기 결정용.</li>
+    <li><strong>80% 예측구간</strong> <span class="chip ok">채택</span> — 실제 적중률 81.9%로
+      명목값과 일치. <strong>점예측보다 이쪽이 실질 성과다.</strong></li>
+    <li><strong>여름·가을 급등기 기술통계</strong> <span class="chip ok">채택</span> —
+      9년 중 9년 발생, 시작 중앙값 7월 27일, 지속 7주, 최고가 상반기 대비 4.9배.</li>
+    <li><strong>출하처 선택 지원</strong> <span class="chip ok">채택</span> —
+      같은 주·같은 품종 기준으로 관행 대비 +10.0% [+8.0, +12.0].</li>
+  </ul>
+
+  <h3>기각되거나 판정불가인 것</h3>
+  <ul>
+    <li><strong>급등 시작 시기 예측</strong> <span class="chip hmm">판정불가</span> —
+      달력(주차 기후값)이 아는 것 이상을 더한다는 증거 없음.</li>
+    <li><strong>급등월 수준 예측</strong> <span class="chip no">기각</span> —
+      편향 −30.9%. 어떤 교정으로도 −23% 밑으로 내려가지 않으며, 낮추면 평시가 무너진다.</li>
+    <li><strong>2주 이상 주간 예측</strong> <span class="chip no">기각</span> —
+      주차평균 대비 개선폭이 1주 +7.65%p → 2주 +1.50%p → 4주 +0.32%p로 소멸.</li>
+    <li><strong>4개월 이상 월간 모델</strong> <span class="chip no">기각</span> —
+      계절평균에 패배(12개월: 모델 29.7% vs 계절평균 23.0%).</li>
+    <li><strong>대부분의 기상 변수</strong> <span class="chip no">기각</span> —
+      광 변수 외에는 대조군을 이기지 못함.</li>
+  </ul>
+</section>
+
+<!-- 2 -->
+<section id="s2">
+  <h2><span class="num">2</span>진행 경위</h2>
+  <p class="lede">처음부터 지금 구조였던 것이 아니다. 세 번의 방향 전환이 있었고,
+    각각은 검정 실패에서 나왔다.</p>
+
+  <ol class="steps">
+    <li>
+      <h4>10개 작물 · 월 3일 표본으로 출발</h4>
+      <p>전북 14개 시군 × 10개 작물을 매월 3일씩 표본 조사했다. 작물마다 자료량과
+        계절성이 달라 어느 하나도 제대로 검정되지 않았고, 표본일 선택이 만드는
+        오차가 모델 오차와 뒤섞였다.</p>
+    </li>
+    <li>
+      <h4>상추 단일 작목으로 축소</h4>
+      <p>물량과 자료 밀도가 가장 큰 상추만 남겼다. 대상을 좁히자 API 파라미터를
+        다시 조사할 여유가 생겼고, 품목 서버측 필터(<code>gds_mclsf_nm</code>)와
+        날짜 범위 조회를 발견했다. <strong>전 거래일 전수 수집이 기존 3일 표본보다
+        요청 수가 적다</strong>는 결론이 나왔다(11,000 → 2,100 요청).</p>
+    </li>
+    <li>
+      <h4>전수 수집 후 재검정 — 그리고 과장의 발견</h4>
+      <p>전수 수집으로 오차가 2.10%p 줄었으나, 교차 실험(학습만 3일 표본, 평가는
+        전일자 참값)을 돌리자 실제 예측력 손해는 <strong>0.13%p</strong>뿐이었다.
+        나머지는 <strong>평가 대상이던 타깃 자체가 부정확했던 것</strong>이다.
+        "전수 수집으로 정확도가 좋아졌다"가 아니라 "정확도를 제대로 측정할 수 있게
+        됐다"가 옳은 서술이다.</p>
+    </li>
+    <li>
+      <h4>문제 재정의 — 점예측에서 확률·구간으로</h4>
+      <p>오차 분해 결과 잔차의 대부분이 급등월에 몰려 있고, 그 달은 전월·전년동월이
+        실제와 2~3배 어긋났다. 시차 정보로는 원리적으로 도달할 수 없다는 뜻이다.
+        못 맞히는 것을 억지로 맞히는 대신 <strong>맞힐 수 있는 형태로 질문을 바꿨다</strong>
+        — 폭등 확률, 방향, 예측구간.</p>
+    </li>
+    <li>
+      <h4>공간 해상도 확장과 의사결정 지원</h4>
+      <p>산지 표기에 읍면까지 들어 있음을 확인해 시군 → 읍면으로 내려갔고,
+        도착 시장 정보를 이용해 <strong>출하처 선택 문제</strong>를 새로 정의했다(7절).</p>
+    </li>
+  </ol>
+</section>
+
+<!-- 3 -->
+<section id="s3">
+  <h2><span class="num">3</span>자료 구축</h2>
+  <p class="lede">공공데이터포털 도매시장 경매 자료를 전 거래일 전수로 수집했다.</p>
+
+  <div class="wrap-x">
+  <table>
+    <thead><tr><th>자료</th><th>규모</th><th>내용</th></tr></thead>
+    <tbody>
+      <tr><td><code>lettuce_daily_raw.csv</code></td><td>216만 행<br><span class="u">281MB</span></td>
+        <td>전국 32개 공영도매시장 전 거래일 전수. 전북산 47.6만 건</td></tr>
+      <tr><td><code>daily_weather_lettuce.csv</code></td><td>38,157 행</td>
+        <td>전북 ASOS 9지점 × 11필드</td></tr>
+      <tr><td><code>daily_weather_aws.csv</code></td><td>31,371 행</td>
+        <td>전북 AWS 8지점(기온·강수)</td></tr>
+      <tr><td><code>daily_weather_competitors.csv</code></td><td>110,262 행</td>
+        <td>경쟁 7개 시도 26지점</td></tr>
+      <tr><td><code>jeonbuk_eup_geo.json</code></td><td>241 구역</td>
+        <td>통계청 2018 읍면동 경계(시군과 동일 투영)</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>자료원 결정 — 도매시장만 사용</h3>
+  <p>산지공판장 자료는 <strong>쓰지 않았다.</strong> 공판장 물량은 결국 도매시장으로
+    넘어가 다시 경매되므로, 둘을 합치면 같은 상추를 두 번 세게 된다. 이 판단은
+    실측으로도 뒷받침된다 — 춘천시장 산지 구성의 60%가 '서울 송파구 가락동
+    농수산물시장'으로 찍혀 있었다. 가락에서 경매된 물량이 지방 시장으로 넘어가
+    재경매된 것이다. 산지명이 시장·공판장으로 기록된 레코드를 별도로 걸러낸다.</p>
+
+  <figure class="fig">
+    <svg viewBox="0 0 720 158" role="img" aria-label="자료 처리 흐름도">
+      <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="4"
+        orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs>
+      <g fill="none" stroke="currentColor" stroke-width="1.4" color="var(--rule-2)"
+         marker-end="url(#ar)">
+        <path d="M132,42 H176"/><path d="M300,42 H344"/><path d="M468,42 H512"/>
+        <path d="M226,64 V104 H176"/><path d="M394,64 V104 H344"/>
+      </g>
+      <g font-size="12" font-family="system-ui" text-anchor="middle">
+        <g>
+          <rect x="8" y="22" width="124" height="40" rx="8" fill="var(--sunk)"
+            stroke="var(--rule)"/>
+          <text x="70" y="40" fill="var(--ink)" font-weight="600">공공데이터 API</text>
+          <text x="70" y="55" fill="var(--muted)" font-size="10.5">katSale · ASOS</text>
+        </g>
+        <g>
+          <rect x="176" y="22" width="124" height="40" rx="8" fill="var(--sunk)"
+            stroke="var(--rule)"/>
+          <text x="238" y="40" fill="var(--ink)" font-weight="600">전수 수집</text>
+          <text x="238" y="55" fill="var(--muted)" font-size="10.5">216만 행</text>
+        </g>
+        <g>
+          <rect x="344" y="22" width="124" height="40" rx="8" fill="var(--sunk)"
+            stroke="var(--rule)"/>
+          <text x="406" y="40" fill="var(--ink)" font-weight="600">kg 환산·집계</text>
+          <text x="406" y="55" fill="var(--muted)" font-size="10.5">시군 · 읍면 · 주간</text>
+        </g>
+        <g>
+          <rect x="512" y="22" width="200" height="40" rx="8" fill="var(--accent-soft)"
+            stroke="var(--accent)"/>
+          <text x="612" y="40" fill="var(--accent)" font-weight="700">모델 · 웹앱</text>
+          <text x="612" y="55" fill="var(--muted)" font-size="10.5">예측 · 구간 · 출하처</text>
+        </g>
+        <g>
+          <rect x="176" y="86" width="124" height="36" rx="8" fill="none"
+            stroke="var(--rule)" stroke-dasharray="3 3"/>
+          <text x="238" y="108" fill="var(--muted)" font-size="11">수집 검수</text>
+        </g>
+        <g>
+          <rect x="344" y="86" width="124" height="36" rx="8" fill="none"
+            stroke="var(--rule)" stroke-dasharray="3 3"/>
+          <text x="406" y="108" fill="var(--muted)" font-size="11">목록 감사</text>
+        </g>
+      </g>
+    </svg>
+    <figcaption>수집과 집계 각 단계에 감사 스크립트를 붙였다. 점선 상자는 검증 단계로,
+      코드에 하드코딩된 목록(시장·품종)을 실제 자료와 대조해 누락을 잡는다.</figcaption>
+  </figure>
+</section>
+
+<!-- 4 -->
+<section id="s4">
+  <h2><span class="num">4</span>발견하고 고친 문제</h2>
+  <p class="lede">이 절이 보고서에서 가장 중요하다. 아래 문제들은 모두
+    <strong>결과를 유의미하게 왜곡하고 있었고</strong>, 검정 절차를 만들지 않았다면
+    발견되지 않았을 것이다.</p>
+
+  <h3>4.1 물량이 4배로 부풀려져 있었다</h3>
+  <p>API 응답의 <code>unit_tot_qty</code>는 <strong>이미 kg 총량</strong>인데, 여기에
+    상자 무게 <code>unit_qty</code>를 한 번 더 곱하고 있었다. 원본 레코드로 검산하면
+    드러난다.</p>
+  <div class="wrap-x">
+  <table>
+    <thead><tr><th>필드</th><th>값</th><th>검산</th></tr></thead>
+    <tbody>
+      <tr><td>avgprc (상자단가)</td><td>13,800</td><td class="u">totprc ÷ avgprc = 60상자</td></tr>
+      <tr><td>unit_qty (상자무게)</td><td>4.0</td><td class="u">60상자 × 4kg = 240kg</td></tr>
+      <tr><td>unit_tot_qty</td><td>240.0</td><td class="u">= unit_tot_qty ✓</td></tr>
+      <tr><td>totprc</td><td>828,000</td><td class="u">totprc ÷ 240 = 3,450원/kg ✓</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>물량가중 평균가를 쓰기 때문에 이 오류는 <strong>가중치를 통해 가격 추정치까지
+    오염시킨다.</strong> 상추 라인은 수정했다. 10작물 라인은 아직 미수정이며,
+    그 때문에 공개 웹앱에서 10작물 화면을 내렸다.</p>
+
+  <h3>4.2 시장 2곳이 누락돼 있었다 <span class="chip no">방법론 오류</span></h3>
+  <p>시장 코드 접두를 추측해 훑고 "전수 탐색"이라고 보고했었다. 실제로는 안산·구미가
+    빠져 30개로 착각하고 있었다. <strong>목록을 추측으로 만든 것이 원인이다.</strong>
+    시장코드 없이 날짜만으로 조회해 자료가 스스로 목록을 말하게 하자 32개가 나왔다.</p>
+
+  <h3>4.3 품종 5종이 빠져 있었다 <span class="chip no">같은 오류의 재발</span></h3>
+  <p>눈에 보이는 품종을 손으로 적었다가 5종(물량 2.17%)을 놓쳤다.
+    <strong>포함 목록 대신 배제 목록 방식</strong>으로 바꿨다 — 뺄 것만 명시하고
+    나머지는 전부 포함한다. 같은 실수를 두 번 했기 때문에
+    <code>audit_hardcoded_lists.py</code>를 만들어 코드에 박힌 목록과 자료를
+    자동 대조한다.</p>
+
+  <div class="callout">
+    <div class="t">여기서 세운 원칙</div>
+    <p>목록은 추측하지 말고 열거한다. 열거가 불가능해 사람 판단이 들어간 3곳
+      (경쟁산지 지점 선택, 시군-지점 대체, 재배형태 추론)은 감사 출력에 명시한다.</p>
+  </div>
+
+  <h3>4.4 성능 주장에 대조군이 없었다</h3>
+  <p>이전 기록에 "폭등 예측 AUC 0.908"이 있었다. 그러나 계절평균만으로도 0.889가
+    나온다. <strong>대조군 없이 제시하면 계절성 효과를 모델 성능으로 오인한다.</strong>
+    이후 모든 주장에 대조군을 의무화했고, 급등 상태 예측에서는 대조군을 둘
+    (주차 기후값, 지속성) 두었다 — 지속성을 빼면 "이번 주가 3배면 다음 주도 2배"라는
+    당연한 예측을 실력으로 오인하기 때문이다.</p>
+
+  <h3>4.5 '폭등'의 정의가 농가의 경험과 어긋나 있었다</h3>
+  <p>기존 폭등 정의는 <strong>그 달 평년의 1.3배 초과</strong>다. 계절 효과를 일부러
+    빼는 정의라, 9월처럼 원래 비싼 달은 크게 올라도 '정상'으로 분류된다.</p>
+  <div class="warn">
+    <div class="t">2025년 9월 실측</div>
+    <p>가격 <strong>9,154원/kg</strong> &lt; 기준선 10,954원 → <strong>폭등 아님</strong>으로 분류.
+      그러나 그 해 상반기 보통값은 2,495원이었다. 농가가 겪은 것은 3.7배 상승이다.</p>
+  </div>
+  <p>정의를 다시 세웠다 — <strong>그 해 1~6월 중앙값의 2배 초과</strong>. 기준가를
+    상반기로 잡은 데는 두 가지 이유가 있다. 연중앙값을 쓰면 급등기 자신이 중앙값을
+    끌어올려 자기참조가 되고, 무엇보다 <strong>6월 말이면 확정되는 값이라 예측에도
+    그대로 쓸 수 있다.</strong></p>
+
+  <h3>4.6 표본이 얇은 읍면이 순위를 지배했다</h3>
+  <p>남원 산동면은 물량 0.2t·1주 거래인데 9,622원으로 표의 맨 위에 올라왔다.
+    반면 지표는 아영면(5,965원)을 최고 산지라고 표시해, <strong>같은 화면의 두 요소가
+    서로 다른 말을 하고 있었다.</strong> 기준(시군 기간물량의 3% 또는 5t 중 작은 쪽,
+    3주 이상)에 미달하는 읍면을 순위·색척도에서 제외하고 표 하단으로 내렸다.</p>
+
+  <h3>4.7 라벨을 지어내지 않는다</h3>
+  <p>전북산 물량의 약 42%는 출하자가 주소를 시군까지만 적었다(익산이 그 3분의 2).
+    이를 '(미상)'이나 '읍면 미기재'로 바꾸지 않고 <strong>시군명 그대로</strong> 둔다.
+    읍면 경계 지도를 붙일 때도 마찬가지로, 지도 이름과 출하 기록이 이어지지 않는
+    구역은 억지로 잇지 않고 빗금으로 표시한 뒤 그 비율을 화면에 적었다.</p>
+  <div class="wrap-x">
+  <table>
+    <thead><tr><th>읍면 라벨 63개의 내역</th><th>개수</th><th>물량 비중</th></tr></thead>
+    <tbody>
+      <tr><td>지도와 이름 일치 → 폴리곤 표시</td><td>40</td><td class="win">48.4%</td></tr>
+      <tr><td>주소를 시군까지만 적음</td><td>12</td><td>37.4%</td></tr>
+      <tr><td>법정동/행정동 불일치, 우체국사서함 등</td><td>11</td><td>14.2%</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- 5 -->
+<section id="s5">
+  <h2><span class="num">5</span>분석 기법과 모델</h2>
+  <p class="lede">복잡한 모델을 쓰지 않았다. 표본이 91개월(여름은 8회)뿐이라,
+    모델 복잡도를 올릴 여지가 없다는 것이 검정의 결론이었다.</p>
+
+  <h3>5.1 채택 모델</h3>
+  <div class="grid2">
+    <div class="box">
+      <h4>월간 h=1개월</h4>
+      <p><strong>구성</strong> 계절항(month sin/cos) + 가격시차(lag1, lag12, roll3)<br>
+        <strong>모형</strong> log(가격) ~ Ridge → exp → Duan 스미어링 → 계절평균과 블렌딩<br>
+        <strong>용도</strong> 작목 선택·재배 계획</p>
+    </div>
+    <div class="box">
+      <h4>주간 h=1주</h4>
+      <p><strong>구성</strong> 주차 계절항 + 가격시차 + 광(dark_days, sun_hours 4주 누적)<br>
+        <strong>모형</strong> Ridge + GBM 단순 평균 앙상블<br>
+        <strong>용도</strong> 출하 시기 결정</p>
+    </div>
+  </div>
+
+  <h4>왜 Ridge인가</h4>
+  <p>변수 간 상관이 높고(가격 시차끼리, 기상 변수끼리) 표본이 적다. OLS는 이런
+    조건에서 계수가 불안정해진다. Ridge의 L2 벌점은 계수를 축소해 분산을 낮추며,
+    <strong>변수를 0으로 만들지 않으므로</strong> 어떤 변수가 얼마나 기여하는지
+    해석이 유지된다(Lasso와 대비). 정칙화 강도는 walk-forward 안에서만 선택한다.</p>
+
+  <h4>왜 로그 변환과 Duan 스미어링인가</h4>
+  <p>농산물 가격은 오른쪽으로 길게 늘어진 분포이고 분산이 수준에 비례한다. 로그를
+    취하면 이 두 성질이 완화된다. 다만 <strong>로그 공간에서 예측한 뒤 지수로 되돌리면
+    체계적으로 과소추정된다</strong>(Jensen 부등식). Duan(1983) 스미어링은 잔차의
+    지수평균을 곱해 이 편향을 비모수적으로 교정한다. 실측 편향이 −11.1% → −7.7%로
+    줄었고 MAPE와 RMSLE가 동시에 개선됐다.</p>
+
+  <h4>왜 GBM을 주간에만 쓰는가</h4>
+  <p>월간 표본은 91개월이라 트리 기반 모형이 과적합한다. 주간은 445주로 표본이 5배
+    많고, 광 변수와 가격의 관계가 비선형(누적 일조가 임계 이하로 떨어질 때만 반응)이라
+    트리가 이득을 본다. 단독으로 쓰지 않고 Ridge와 평균하는 이유는 분산 축소다.</p>
+
+  <h3>5.2 검정 설계</h3>
+  <ol>
+    <li><strong>Walk-forward 교차검증</strong> — 연도 단위로 학습/평가를 나눈다. 미래
+      연도가 학습에 섞이면 안 된다. 무작위 K-fold는 시계열에서 누출을 일으킨다.</li>
+    <li><strong>대조군 의무</strong> — 계절평균(월간) 또는 주차평균(주간)과 반드시 함께
+      제시한다. 상태 예측에는 지속성 대조군을 추가한다.</li>
+    <li><strong>블록 부트스트랩</strong> — 신뢰구간은 <strong>연도 단위로 재표집</strong>한다.
+      주 단위로 뽑으면 이웃 주가 강하게 상관돼 구간이 실제보다 좁아진다.
+      95% 구간이 0을 포함하면 <strong>판정불가</strong>로 적고 개선이라 하지 않는다.</li>
+    <li><strong>독립 홀드아웃</strong> — 2026년은 교차검증에 쓰지 않는다. CV에서 고른
+      것을 홀드아웃 성적으로 다시 고르지 않는다.</li>
+  </ol>
+
+  <h3>5.3 점예측을 넘어선 산출물</h3>
+  <p>급등월의 잔차가 원리적으로 줄지 않는다는 진단에서, 질문 자체를 바꿨다.</p>
+  <div class="wrap-x">
+  <table>
+    <thead><tr><th>산출물</th><th>지표</th><th>모델</th><th>대조군</th><th>판정</th></tr></thead>
+    <tbody>
+      <tr><td>80% 예측구간</td><td>적중률</td><td class="win">81.9%</td><td>명목 80%</td>
+        <td><span class="chip ok">채택</span></td></tr>
+      <tr><td>폭등 확률(평년 1.3배)</td><td>AUC</td><td class="win">0.729</td>
+        <td>계절평균 0.605</td><td><span class="chip ok">채택</span></td></tr>
+      <tr><td>급등 상태 h=1주</td><td>AUC</td><td class="win">0.950</td>
+        <td>지속성 0.857</td><td><span class="chip ok">채택</span></td></tr>
+      <tr><td>급등 시작 시기</td><td>AUC</td><td>1.000</td>
+        <td>주차 기후값 0.855</td><td><span class="chip hmm">판정불가</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="warn">
+    <div class="t">AUC 1.000을 성과로 보고하지 않은 이유</div>
+    <p>급등 시작 예측의 표본은 fold당 8~12주에 양성 4주뿐이다. 줄 세울 대상이 몇 개
+      없어서 나온 값이지 실력이 아니다. 부트스트랩 구간이 <span class="mono">[+0.000, +0.289]</span>로
+      0을 포함하며, 급등 1~4주 전 가격수준이 그 외 주와 심하게 겹친다
+      (양성 최소 0.69배 vs 음성 최대 1.83배). 단순 규칙 "1.5배 초과 시 4주 내 시작"은
+      20건 중 4건만 맞고 16건을 놓친다.</p>
+  </div>
+</section>
+
+<!-- 6 -->
+<section id="s6">
+  <h2><span class="num">6</span>검정 결과 전체</h2>
+  <p class="lede">주요 검정을 한 표에 모았다. 대조군 열이 비어 있는 주장은 이 프로젝트에
+    존재하지 않는다.</p>
+
+  <div class="wrap-x">
+  <table>
+    <thead><tr><th>가설 / 과제</th><th>모델</th><th>대조군</th><th>차이 (95% 구간)</th>
+      <th>판정</th></tr></thead>
+    <tbody>
+      <tr><td>월간 h=1 · 가격시차</td><td>23.28%</td><td>25.45%</td><td>−2.17%p</td>
+        <td><span class="chip ok">채택</span></td></tr>
+      <tr><td>월간 h=1 · +스미어링</td><td class="win">23.03%</td><td>23.28%</td><td>−0.25%p</td>
+        <td><span class="chip ok">채택</span></td></tr>
+      <tr><td>월간 홀드아웃 2026</td><td class="win">11.17%</td><td>12.67%</td><td>−1.50%p</td>
+        <td><span class="chip ok">채택</span></td></tr>
+      <tr><td>주간 h=1 · 광 + 앙상블</td><td class="win">21.50%</td><td>31.17%</td>
+        <td>6/6 fold 전승</td><td><span class="chip ok">채택</span></td></tr>
+      <tr><td>주간 광 변수 단독 기여</td><td>—</td><td>—</td><td>−0.52%p [−0.95, −0.10]</td>
+        <td><span class="chip ok">채택</span></td></tr>
+      <tr><td>주간 h=2</td><td>—</td><td>주차평균</td><td>+1.50%p</td>
+        <td><span class="chip no">기각</span></td></tr>
+      <tr><td>주간 h=4</td><td>—</td><td>주차평균</td><td>+0.32%p</td>
+        <td><span class="chip no">기각</span></td></tr>
+      <tr><td>월간 h≥4</td><td>29.7%</td><td>23.0%</td><td>+6.7%p</td>
+        <td><span class="chip no">기각</span></td></tr>
+      <tr><td>급등 상태 h=1주 (vs 기후값)</td><td>0.950</td><td>0.834</td>
+        <td>+0.115 [+0.069, +0.169]</td><td><span class="chip ok">채택</span></td></tr>
+      <tr><td>급등 상태 h=1주 (vs 지속성)</td><td>0.950</td><td>0.857</td>
+        <td>+0.093 [+0.056, +0.128]</td><td><span class="chip ok">채택</span></td></tr>
+      <tr><td>급등 <em>시작</em> 시기</td><td>1.000</td><td>0.855</td>
+        <td>+0.145 [+0.000, +0.289]</td><td><span class="chip hmm">판정불가</span></td></tr>
+      <tr><td>출하처 선택 (vs 관행)</td><td>1.0620</td><td>0.9617</td>
+        <td>+10.03% [+8.01, +11.98]</td><td><span class="chip ok">채택</span></td></tr>
+      <tr><td>급등월 수준 예측</td><td colspan="2">편향 −30.9%, 교정 한계 −23%</td>
+        <td>평시 붕괴</td><td><span class="chip no">기각</span></td></tr>
+      <tr><td>토양적성도 기반 지역추천</td><td colspan="2">전북 상추 면적의 6.5%만 설명</td>
+        <td>—</td><td><span class="chip no">기각</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- 7 -->
+<section id="s7">
+  <h2><span class="num">7</span>출하처 선택 지원</h2>
+  <p class="lede">"어느 도매시장에 내는 것이 유리한가"는 이 자료로 답할 수 있는 질문이다.
+    다만 <strong>시장별 평균가를 그대로 비교하면 틀린다.</strong></p>
+
+  <h3>7.1 왜 평균 비교가 성립하지 않는가</h3>
+  <p>시장별 평균가에는 최소 세 가지가 섞여 있다.</p>
+  <ul>
+    <li><strong>품종</strong> — 남원 기준 부산엄궁행은 포기찹 74%, 광주서부행은 청상추 85%다.</li>
+    <li><strong>시기</strong> — 비싼 철에 많이 보낸 시장은 평균이 저절로 올라간다.</li>
+    <li><strong>등급</strong> — 시장마다 표기가 달라 직접 통제하기 어렵다.</li>
+  </ul>
+
+  <h3>7.2 대응짝 설계</h3>
+  <p><strong>같은 산지 · 같은 주 · 같은 품종</strong> 안에서만 시장끼리 비교했다. 같은 밭에서
+    같은 주에 딴 같은 품종이 서로 다른 시장으로 갈 때 어디가 더 받았는지를 보는 것이다.
+    셀 안에 시장이 2곳 이상일 때만 사용하고, 각 시장의 값을 셀 평균으로 나눠 상대값으로
+    바꾼 뒤 평균했다. 비교 가능한 셀은 <strong>13,909개</strong>(레코드 53,815건)다.</p>
+
+  <h3>7.3 검정 — 과거로 고른 1등이 다음 해에도 통하는가</h3>
+  <p>과거 자료로 순위를 매기는 것은 누구나 한다. 그 순위가 <strong>다음 해에 쓸모가
+    있어야</strong> 추천이 성립한다. 연도 walk-forward로 확인했고, 대조군은
+    <strong>그 해 물량이 가장 많던 시장</strong>(=관행대로 보내던 곳)이다.</p>
+
+  <div class="wrap-x">
+  <table>
+    <thead><tr><th>전략</th><th>얻은 상대값</th><th>해석</th></tr></thead>
+    <tbody>
+      <tr><td>과거 1등 시장을 선택</td><td class="win">1.0620</td>
+        <td class="u">그 주 평균보다 6.2% 높게 받음</td></tr>
+      <tr><td>관행(물량 최다 시장) 유지</td><td class="lose">0.9617</td>
+        <td class="u">그 주 평균보다 3.8% 낮게 받음</td></tr>
+      <tr><td>그 해 실제 1등(사후에만 앎)</td><td>1.1073</td>
+        <td class="u">달성 가능한 상한</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout">
+    <div class="t">결과</div>
+    <p>추천 − 관행 = <strong>+10.03%</strong>, 95% 구간 <span class="mono">[+8.01, +11.98]</span> →
+      <span class="chip ok">개선</span><br>
+      과거 1등이 그 해에도 1등이었던 비율은 <strong>58.3%</strong>다(시장 7곳 기준
+      무작위 선택이면 약 14%). 표본은 연도 × 시군 36건.</p>
+  </div>
+
+  <h3>7.4 시기에 따라 유리한 시장이 바뀌는가 — 시군마다 다르다</h3>
+  <p>이 질문의 답은 하나가 아니다. 두 유형이 뚜렷이 갈린다.</p>
+
+  <div class="grid2">
+    <div class="box">
+      <h4>고정형 — 남원시</h4>
+      <p>12개월 중 11개월 대구북부가 1위(+6.9% ~ +47.8%). 달별 1위가 2가지뿐이다.
+        <strong>시기와 무관하게 한 시장이 우세하다.</strong></p>
+    </div>
+    <div class="box">
+      <h4>전환형 — 완주군</h4>
+      <p>달별 1위가 5가지로 바뀐다. 1·2·3·6·12월 대전오정, 4·7·9월 서울가락,
+        5·10월 인천삼산, 8월 대전노은, 11월 수원.
+        <strong>시기별 안내가 실질적 의미를 갖는다.</strong></p>
+    </div>
+  </div>
+
+  <div class="wrap-x">
+  <table>
+    <thead><tr><th>시군</th><th>비교된 시장</th><th>가장 잘 받는 곳</th>
+      <th>최저 대비 차이</th></tr></thead>
+    <tbody>
+      <tr><td>정읍시</td><td>3</td><td>정읍</td><td class="win">90.5%</td></tr>
+      <tr><td>장수군</td><td>10</td><td>서울가락</td><td class="win">88.6%</td></tr>
+      <tr><td>진안군</td><td>7</td><td>부산엄궁</td><td class="win">57.6%</td></tr>
+      <tr><td>익산시</td><td>17</td><td>부산엄궁</td><td>48.7%</td></tr>
+      <tr><td>남원시</td><td>11</td><td>대구북부</td><td>45.3%</td></tr>
+      <tr><td>전주시</td><td>7</td><td>대전오정</td><td>42.7%</td></tr>
+      <tr><td>완주군</td><td>9</td><td>서울가락</td><td>36.4%</td></tr>
+      <tr><td>김제시</td><td>5</td><td>대전노은</td><td>34.7%</td></tr>
+      <tr><td>무주군</td><td>4</td><td>대전오정</td><td>29.8%</td></tr>
+      <tr><td>고창군</td><td>3</td><td>광주각화</td><td>23.3%</td></tr>
+      <tr><td>임실군</td><td>5</td><td>순천</td><td>17.4%</td></tr>
+      <tr><td>부안군</td><td>3</td><td>인천남촌</td><td>11.7%</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>7.5 이 결과를 어디까지 믿을 수 있는가</h3>
+  <div class="warn">
+    <div class="t">통제하지 못한 것</div>
+    <p><strong>등급 선택 편의.</strong> 대응짝 설계는 품종과 시기를 통제하지만 등급은 통제하지
+      못한다. 농가가 상품(上品)만 특정 시장으로 보낸다면, 그 시장의 우위는 시장의 성질이
+      아니라 <strong>보내는 물건이 다르기 때문</strong>일 수 있다. 남원 → 대구북부는 물량
+      비중이 8.2%로 작아 이 우려가 특히 크다.</p>
+    <p><strong>운송비 미반영.</strong> 상대값은 경락가 기준이다. 남원에서 서울가락은
+      광주보다 운임이 크다. 실제 순수취는 운임을 뺀 값이어야 한다.</p>
+    <p><strong>시장 충격.</strong> 다수가 추천을 따라 한 시장으로 몰리면 그 우위는 줄어든다.
+      이 검정은 소수가 따를 때의 이득만 말해 준다.</p>
+  </div>
+  <p>따라서 현 단계의 정직한 위치는 <strong>"의사결정 보조"이지 "지시"가 아니다.</strong>
+    시스템은 "같은 주에 같은 품종을 낸 다른 농가와 비교했을 때 이 시장이 평균보다
+    몇 % 더 받았다"를 제시하고, 운임과 등급은 농가가 판단하도록 남긴다.</p>
+</section>
+
+<!-- 8 -->
+<section id="s8">
+  <h2><span class="num">8</span>활용 방안</h2>
+  <p class="lede">시간 지평이 다르면 쓰임이 다르다. 하나의 화면에 섞지 않고 용도별로
+    분리했다.</p>
+
+  <div class="wrap-x">
+  <table>
+    <thead><tr><th>의사결정</th><th>지평</th><th>제공하는 것</th><th>근거의 강도</th></tr></thead>
+    <tbody>
+      <tr><td>작목 선택 · 재배 계획</td><td>1~3개월</td>
+        <td>월별 전망 + 80% 구간</td><td><span class="chip ok">검증됨</span></td></tr>
+      <tr><td>출하 시기 조절</td><td>1주</td>
+        <td>주간 예측 + 구간</td><td><span class="chip ok">검증됨</span></td></tr>
+      <tr><td>출하처 선택</td><td>상시</td>
+        <td>같은 품종·같은 주 기준 시장별 상대값</td><td><span class="chip ok">검증됨</span></td></tr>
+      <tr><td>급등기 대비</td><td>계절</td>
+        <td>예년 시작 시기·지속·배율</td><td><span class="chip hmm">기술통계만</span></td></tr>
+      <tr><td>중장기 작부 구상</td><td>4개월~</td>
+        <td>계절평년 × 수준보정 참고치</td><td><span class="chip hmm">참고치</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>8.1 어시스턴트로서의 동작</h3>
+  <p>현재 웹앱은 조회 도구다. 이를 대화형 보조로 확장할 때 시스템이 답할 수 있는
+    질문과 답할 수 없는 질문은 다음과 같이 갈린다.</p>
+
+  <div class="grid2">
+    <div class="box">
+      <h4>답할 수 있다</h4>
+      <p>"진안에서 이번 주 청상추를 내는데 어디가 나을까" — 같은 주·같은 품종 대응짝
+        기준으로 시장별 상대값과 표본 수를 제시.<br><br>
+        "지금 값이 어느 수준인가" — 상반기 보통값 대비 배율, 급등기 진행 여부와 경과 주수.<br><br>
+        "다음 주 얼마쯤 할까" — 점예측과 80% 구간, 그리고 이 구간의 실제 적중률.</p>
+    </div>
+    <div class="box">
+      <h4>답할 수 없다 — 그렇게 말해야 한다</h4>
+      <p>"올해 급등기가 언제 시작할까" — 달력 이상의 정보 없음.<br><br>
+        "다음 달 얼마까지 오를까" — 급등월 수준은 원리적으로 못 맞힘.<br><br>
+        "내년 9월에 얼마 받을까" — 4개월 이상은 계절평년 참고치이며 그해 작황·기상
+        충격이 반영되지 않음.</p>
+    </div>
+  </div>
+
+  <p>웹앱에는 이 구분을 화면에 그대로 적었다. 예: 주간 차트에는 "믿을 만한 건 다음 한
+    주까지입니다. 2주 뒤부터는 예년 값만 보는 것과 별 차이가 없어집니다",
+    급등기 카드에는 "주의 — 언제 시작할지는 맞히지 못합니다".</p>
+
+  <h3>8.2 확장 경로</h3>
+  <ol>
+    <li><strong>운임 반영</strong> — 산지·시장 간 거리와 운송 단가를 넣으면 상대값을
+      순수취 기준으로 바꿀 수 있다. 현재 가장 큰 미충족 요소다.</li>
+    <li><strong>등급 정규화</strong> — 시장별 등급 표기를 대응시키면 7.5의 선택 편의를
+      상당 부분 제거할 수 있다.</li>
+    <li><strong>타 작목 이식</strong> — 파이프라인과 검정 절차는 작목에 독립적이다.
+      단, 작목마다 재검정해야 한다.</li>
+  </ol>
+</section>
+
+<!-- 9 -->
+<section id="s9">
+  <h2><span class="num">9</span>한계</h2>
+  <ul>
+    <li><strong>표본.</strong> 가격은 2018년부터로 모델링 유효 표본이 91개월이고
+      여름은 8회뿐이다. 기상 변수 기각이 "효과 없음"인지 "표본 부족"인지 완전히
+      가릴 수 없다.</li>
+    <li><strong>10월은 예측 불가에 가깝다.</strong> 변동계수 51.9%로 12개월 중 1위이며
+      연도별 1,851 ~ 10,924원(5.9배). leave-one-out 계절평균 오차가 73.3%다.
+      추석 이동(9↔10월, 부호 반대), 급락 전환, 경기 가을작기 진입이 겹친다.</li>
+    <li><strong>산지는 경작지 주소가 아니다.</strong> 공동출하·법인 출하는 사무소 주소로
+      기록된다(기관·공동출하 3.4%).</li>
+    <li><strong>구조 변화가 진행 중이다.</strong> 남원 산간 비중이 5%(2018) → 28%(2026)로
+      늘었고, 운봉읍은 2023년 0t에서 2026년 1,193t으로 급증했다. 2018~2021 자료만
+      보면 "남원은 저지대 작목"으로 오판한다.</li>
+    <li><strong>2020년은 이상치다.</strong> 코로나 첫해로 2020년 10월 1,851원은 8년 최저다.</li>
+  </ul>
+</section>
+
+<!-- 10 -->
+<section id="s10">
+  <h2><span class="num">10</span>재현 방법</h2>
+  <p class="lede">모든 수치는 저장소의 스크립트로 재현된다. 원자료는 용량 때문에
+    저장소에 포함하지 않으며, 수집 스크립트가 API에서 다시 받는다.</p>
+  <div class="wrap-x">
+  <table>
+    <thead><tr><th>스크립트</th><th>산출</th></tr></thead>
+    <tbody>
+      <tr><td><code>scrape_lettuce_daily.py</code></td><td>전 거래일 전수 수집(약 2,100요청 / 70분)</td></tr>
+      <tr><td><code>audit_lettuce_daily.py</code></td><td>수집 검수</td></tr>
+      <tr><td><code>audit_hardcoded_lists.py</code></td><td>코드에 박힌 목록과 자료 대조</td></tr>
+      <tr><td><code>lettuce_cv.py</code> / <code>lettuce_weekly.py</code></td><td>월간·주간 교차검증</td></tr>
+      <tr><td><code>lettuce_probabilistic.py</code></td><td>폭등 확률 · 방향 · 예측구간</td></tr>
+      <tr><td><code>analyze_autumn_surge.py</code></td><td>급등기 정의·검정·웹앱 자료</td></tr>
+      <tr><td><code>analyze_market_choice.py</code></td><td>출하처 선택 대응짝 검정(7절)</td></tr>
+      <tr><td><code>export_destinations.py</code></td><td>시장별·품종별 출하 구성</td></tr>
+      <tr><td><code>build_geo.py</code></td><td>시군·읍면 경계(동일 투영)</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<footer>
+  <p>전라북도 상추 산지가격 예측 및 출하처 선택 지원 시스템 · 2026-08-13 ·
+    공개 웹앱 erato0310.github.io/crop-price-forecast</p>
+</footer>
+</main>
+</div>
