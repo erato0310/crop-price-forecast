@@ -106,6 +106,7 @@ details.unit[open]>summary::after{content:"접기"}
 }
 .bar .lbl{color:var(--muted);font-size:11.5px;font-weight:600;
   letter-spacing:.04em;padding:0 4px 0 6px}
+.pair{display:flex;align-items:center;gap:2px}
 .seg{display:flex;background:var(--card-2);border-radius:9px;padding:2px;gap:2px}
 .seg button{
   font:inherit;font-size:13px;padding:5px 11px;border:0;border-radius:7px;
@@ -163,6 +164,14 @@ svg.map{width:100%;height:auto;display:block;border-radius:10px;
 .cval{font-size:var(--valF,9.5px);fill:var(--ink-2);pointer-events:none;text-anchor:middle;
   font-variant-numeric:tabular-nums;paint-order:stroke;stroke:var(--card);
   stroke-width:var(--labS,2.5px)}
+/* 램프의 짙은 쪽 칸 위에서는 글자를 뒤집는다. 라이트 화면에서는 값이 높을수록
+   칸이 어둡고, 어두운 화면에서는 반대로 밝다 — 그래서 뒤집는 방향도 테마마다 다르다. */
+.clab.flip,.cval.flip{fill:var(--flipInk);stroke:var(--flipHalo)}
+:root{--flipInk:#fffdf7;--flipHalo:#143a28}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--flipInk:#12241a;--flipHalo:#a8dcbb}
+}
+:root[data-theme="dark"]{--flipInk:#12241a;--flipHalo:#a8dcbb}
 .leg{display:flex;gap:3px;flex-wrap:wrap;font-size:11px;color:var(--muted);
   margin-top:10px;align-items:center;font-variant-numeric:tabular-nums}
 .leg .sw{width:26px;height:9px;border-radius:2px;display:block}
@@ -269,12 +278,15 @@ svg.chart{width:100%;height:auto;display:block;overflow:visible}
     <span class="rnglbl" id="rngLbl"></span>
     <span class="grow"></span>
     <button class="btn" id="btnBack" style="display:none">◀ 전북 전체</button>
-    <span class="lbl">값</span>
-    <div class="seg" id="modeSeg">
-      <button data-m="avg" class="on">평균</button>
-      <button data-m="hi">최고</button>
-      <button data-m="lo">최저</button>
-    </div>
+    <!-- 라벨과 버튼을 한 덩이로 묶는다. 안 그러면 줄바꿈 때 '값'만 앞줄 끝에 남는다. -->
+    <span class="pair">
+      <span class="lbl">값</span>
+      <span class="seg" id="modeSeg">
+        <button data-m="avg" class="on">평균</button>
+        <button data-m="hi">최고</button>
+        <button data-m="lo">최저</button>
+      </span>
+    </span>
   </div>
   <div class="bar" id="customBar" style="display:none">
     <span class="lbl">구간</span>
@@ -472,11 +484,18 @@ function agg(weekly){
 }
 const pick=a=>a?(MODE==="avg"?a.avg:MODE==="hi"?a.hi:a.lo):null;
 const RAMP=["var(--g1)","var(--g2)","var(--g3)","var(--g4)","var(--g5)"];
-function ramp(v,mn,mx){
-  if(v==null) return "url(#nodataHatch)";
+// 값이 램프의 몇 번째 칸인지. 자료가 없으면 -1.
+function rampIdx(v,mn,mx){
+  if(v==null) return -1;
   const t=mx>mn?(v-mn)/(mx-mn):0.5;
-  return RAMP[Math.min(4,Math.floor(t*5))];
+  return Math.min(4,Math.floor(t*5));
 }
+function ramp(v,mn,mx){
+  const i=rampIdx(v,mn,mx);
+  return i<0?"url(#nodataHatch)":RAMP[i];
+}
+// 짙은 두 칸(3·4) 위에서는 글자색을 뒤집어야 읽힌다
+const flipCls=(v,mn,mx)=>rampIdx(v,mn,mx)>=3?" flip":"";
 const MODEWORD=()=>MODE==="avg"?"평균":MODE==="hi"?"최고":"최저";
 
 function render(){
@@ -556,11 +575,11 @@ function renderCounty(){
       +` stroke="var(--card)" stroke-width="1.4" vector-effect="non-scaling-stroke"/>`;
   });
   Object.entries(g.counties).forEach(([id,geo])=>{
-    const a=vals[id];
-    svg+=`<text class="clab" x="${geo.cx}" y="${geo.cy}">`
+    const a=vals[id], fl=flipCls(pick(a),mn,mx);
+    svg+=`<text class="clab${fl}" x="${geo.cx}" y="${geo.cy}">`
       +`${geo.name.replace(/[시군]$/,"")}</text>`;
     // dy는 em으로 준다 — 글자 크기가 확대배율을 따라 바뀌므로 간격도 같이 따라와야 한다
-    if(geo.room>=12&&a) svg+=`<text class="cval" x="${geo.cx}" y="${geo.cy}" dy="1.25em">`
+    if(geo.room>=12&&a) svg+=`<text class="cval${fl}" x="${geo.cx}" y="${geo.cy}" dy="1.25em">`
       +`${won(pick(a))}</text>`;
   });
   $("#mapG").innerHTML=svg;
@@ -578,7 +597,10 @@ function renderCounty(){
   legend(mn,mx,false);
   $("#mapNote").innerHTML=`${WK[I0]} ~ ${WK[I1]} 기준 `
     +(MODE==="avg"?"<b>주간 평균의 물량가중</b>":`기간 내 <b>${MODEWORD()}가</b>`)
-    +`. 색이 진할수록 높다. <b>시군을 누르면 읍면까지 확대된다.</b>`;
+    // "진할수록 높다"고 쓰면 안 된다 — 어두운 화면에서는 높은 쪽이 오히려 밝다.
+    // 범례 순서를 기준으로 말하면 두 화면에서 다 맞는다.
+    +`. 색은 아래 범례를 따른다 — <b>오른쪽으로 갈수록 높다</b>. `
+    +`<b>시군을 누르면 읍면까지 확대된다.</b>`;
 
   const sorted=Object.entries(vals).filter(([,a])=>a)
     .sort((a,b)=>pick(b[1])-pick(a[1]));
@@ -638,7 +660,8 @@ function renderEup(){
   const solid=byVal.filter(r=>!r[1].unassigned&&!isThin(...r));
   const rank=solid.length?solid:byVal.filter(r=>!r[1].unassigned);
 
-  drawEupMap(c,byName,rows,rank);
+  const thinNames=new Set(rows.filter(r=>!r[1].unassigned&&isThin(...r)).map(r=>r[0]));
+  drawEupMap(c,byName,rows,new Set(solid.map(r=>r[0])),thinNames);
 
   if(!rows.length){
     $("#tbl").innerHTML=`<tr><td class="sub2">이 기간에 읍면 자료가 없다</td></tr>`;
@@ -700,10 +723,15 @@ function renderEup(){
 
 /* 읍면 지도. 지도에는 그 시군의 **모든** 읍면을 그리고, 가격자료가 있는 곳만
    색을 입힌다. 자료가 없는 읍면은 빗금으로 두어 "값이 낮은 곳"과 구분한다. */
-function drawEupMap(c,byName,rows,rank){
+function drawEupMap(c,byName,rows,solidNames,thinNames){
   const g=DATA.geo;
-  const vals=Object.values(byName).map(pick).filter(v=>v!=null);
-  const mn=vals.length?Math.min(...vals):0, mx=vals.length?Math.max(...vals):1;
+  // 색 척도는 **표본이 충분한 읍면만으로** 잡는다. 거래 한두 건짜리를 넣으면
+  // 그 한 곳이 척도를 다 먹어서 진짜 산지들이 전부 옅은 쪽으로 몰린다
+  // (실측: 남원 산동면 0.2t·1주 9,622원). 표·지표에서 뺀 것과 같은 기준이다.
+  const solidVals=[...solidNames].map(n=>pick(byName[n])).filter(v=>v!=null);
+  const allVals=Object.values(byName).map(pick).filter(v=>v!=null);
+  const base=solidVals.length?solidVals:allVals;
+  const mn=base.length?Math.min(...base):0, mx=base.length?Math.max(...base):1;
 
   loadEupGeo().then(eg=>{
     if(SEL!==null&&DATA.counties[SEL]!==c) return;      // 그 사이 다른 시군으로 갔다
@@ -722,9 +750,13 @@ function drawEupMap(c,byName,rows,rank){
         +` stroke-width="1.6" vector-effect="non-scaling-stroke"/>`;
     }
     names.forEach(n=>{
-      const a=byName[n], v=pick(a);
+      const a=byName[n], v=pick(a), thin=thinNames.has(n);
+      // 표본이 얇은 읍면도 값은 보여주되 척도 밖의 값이라 흐리고 점선으로 둘러
+      // "이건 잠정치"임을 색만이 아닌 방법으로도 알린다.
       svg+=`<path class="eup" data-e="${n}" d="${eups[n].d}" fill="${ramp(v,mn,mx)}"`
-        +` stroke="var(--card)" stroke-width="1.1" vector-effect="non-scaling-stroke"/>`;
+        +(thin?` opacity=".5" stroke="var(--ink-2)" stroke-dasharray="3 2"`
+              :` stroke="var(--card)"`)
+        +` stroke-width="1.1" vector-effect="non-scaling-stroke"/>`;
     });
     // 선택한 읍면 테두리를 위에 한 번 더 — 아래 도형에 가리지 않게
     if(EUP&&eups[EUP]) svg+=`<path d="${eups[EUP].d}" fill="none" stroke="var(--ink)"`
@@ -736,9 +768,10 @@ function drawEupMap(c,byName,rows,rank){
     names.forEach(n=>{
       const e=eups[n], a=byName[n];
       if(e.room<7) return;
-      svg+=`<text class="clab" x="${e.cx}" y="${e.cy}">`
+      const fl=flipCls(pick(a),mn,mx);
+      svg+=`<text class="clab${fl}" x="${e.cx}" y="${e.cy}">`
         +`${n.replace(/(읍|면|동)$/,"")}</text>`;
-      if(e.room>=11&&a) svg+=`<text class="cval" x="${e.cx}" y="${e.cy}" dy="1.25em">`
+      if(e.room>=11&&a) svg+=`<text class="cval${fl}" x="${e.cx}" y="${e.cy}" dy="1.25em">`
         +`${won(pick(a))}</text>`;
     });
     $("#mapG").innerHTML=svg;
@@ -756,6 +789,8 @@ function drawEupMap(c,byName,rows,rank){
       p.onmousemove=ev=>showTip(ev, a
         ? `<div class="th">${n}</div>`+row(MODEWORD(),won(pick(a))+" 원/kg")
           +row("물량",ton(a.qty,1)+" t")+row("거래",a.n+"주")
+          +(thinNames.has(n)?`<div class="r" style="color:var(--warn)">`
+            +`△ 표본이 얇아 순위·색 척도에서 뺐다</div>`:"")
         : `<div class="th">${n}</div><div class="r">이 기간 상추 출하 없음</div>`);
       p.onmouseleave=hideTip;
     });
@@ -765,8 +800,11 @@ function drawEupMap(c,byName,rows,rank){
   const nHave=rows.filter(r=>!r[1].unassigned).length;
   const q=rows.reduce((s,r)=>s+r[2].qty,0)||1;
   const qUna=rows.filter(r=>r[1].unassigned).reduce((s,r)=>s+r[2].qty,0);
-  $("#mapNote").innerHTML=`${c.name}의 읍면 경계. 색이 진할수록 ${MODEWORD()}가 높다. `
+  $("#mapNote").innerHTML=`${c.name}의 읍면 경계. `
+    +`범례 오른쪽으로 갈수록 ${MODEWORD()}가 높다. `
     +`<b>빗금</b>은 이 기간 상추 출하가 없거나 지도 이름과 이어지지 않은 구역이다.`
+    +(thinNames.size?` <b>점선으로 흐린 ${thinNames.size}곳</b>은 표본이 얇아 `
+      +`색 척도에서 뺐다 — 거래 한두 건이 척도를 다 먹으면 진짜 산지가 옅게 보인다.`:"")
     +(qUna>0?` 이 시군 물량의 <b>${(qUna/q*100).toFixed(0)}%</b>는 출하자가 산지를 `
       +`시군까지만 적어 지도에 올릴 수 없다.`:"")
     +` 자료가 있는 읍면 ${nHave}곳.`;
@@ -879,7 +917,10 @@ function renderChart(){
   $("#chartNote").innerHTML=`세로축 <b>원/kg</b>. 띠 = 그 주의 <b>최저~최고</b>, `
     +`실선 = 주간 평균, 점선 = 예측(80% 구간). `
     +(r.cv_mape!=null?`검증 MAPE <b>${r.cv_mape}%</b> / 주차평균 ${r.baseline}% (${r.folds} 승). `:"")
-    +`<b>검증된 지평은 1주뿐</b> — ${DATA.meta.horizon_note}`;
+    // horizon_note가 이미 "검증된 지평은 1주뿐."으로 시작한다. 앞에 같은 말을
+    // 또 붙이면 두 번 나온다 — 겹치는 앞부분을 떼고 잇는다.
+    +`<b>검증된 지평은 1주뿐</b> — `
+    +DATA.meta.horizon_note.replace(/^검증된 지평은 1주뿐[.·]?\s*/,"");
 }
 
 /* ── 2027 장기전망 ─────────────────────────────────────
@@ -893,12 +934,16 @@ function renderLong(){
       ? DATA.counties[SEL].name+" "+EUP : DATA.counties[SEL].name):null;
   $("#ltTitle").textContent=(nm||"전북")+" 2027년까지 월별 전망";
   if(!F||!F.length){
-    $("#ltChart").innerHTML=""; $("#ltTbl").innerHTML="";
+    // 빈 차트라도 SVG는 viewBox 높이만큼 자리를 차지한다. 접어서 카드가
+    // 안내문 한 줄 높이로 줄게 한다.
+    $("#ltChart").innerHTML=""; $("#ltChart").style.display="none";
+    $("#ltTbl").innerHTML="";
     $("#ltNote").innerHTML=SEL
       ? "이 단위는 관측이 36개월 미만이거나 물량이 적어 장기 전망을 내지 않는다."
       : "<b>지도에서 시군을 선택</b>하면 그 시군의 2027년까지 월별 전망이 나온다.";
     return;
   }
+  $("#ltChart").style.display="";
   const W=720,Ht=300,L=56,R=14,T=16,B=34;
   const vals=F.flatMap(f=>[f.lo,f.hi]);
   const mn=Math.min(...vals)*.9, mx=Math.max(...vals)*1.06;
@@ -990,15 +1035,20 @@ function renderVariety(){
   }
   const keep=[], fold=[];
   const isJJ=k=>k.includes("쫑");
+  // 자료에 이미 '기타' 항목이 있다. 접은 것을 따로 세우면 '기타'가 둘이 되므로
+  // 원래 '기타'까지 같은 덩이에 넣는다.
+  const isEtc=k=>k==="기타"||k.startsWith("기타 ");
   Object.entries(mix).sort((a,b)=>b[1].share-a[1].share).forEach(([k,v])=>{
-    (v.share>=1||isJJ(k)?keep:fold).push([k,v]);
+    ((v.share>=1&&!isEtc(k))||isJJ(k)?keep:fold).push([k,v]);
   });
   const shown=keep.slice(0,7);
   const rest=keep.slice(7).concat(fold);
+  const named=rest.filter(r=>!isEtc(r[0]));
   if(rest.length){
     const sh=rest.reduce((s,r)=>s+r[1].share,0);
     const pr=rest.reduce((s,r)=>s+r[1].price*r[1].share,0)/(sh||1);
-    shown.push([`기타 ${rest.length}종`,{share:+sh.toFixed(1),price:Math.round(pr)}]);
+    // 범례에는 '기타'로만 둔다. 무엇이 들어갔는지는 아래 설명에 다 적는다.
+    shown.push(["기타",{share:+sh.toFixed(1),price:Math.round(pr)}]);
   }
   const C=["var(--s1)","var(--s2)","var(--s3)","var(--s4)","var(--s5)","var(--s6)",
            "var(--s7)","var(--muted)"];
@@ -1013,7 +1063,7 @@ function renderVariety(){
   bar+=`<div class="note">적상추·청상추는 지역에 따라 갈리고, 쫑상추는 전 지역에 나온다.`
     +(jj?` <b>${jj[0]} ${jj[1].share}% · ${won(jj[1].price)}원/kg</b> — 작기 종료 무렵 순을 꺾어 낸
       것이라 <b>가격 타깃에서 제외</b>하고 별도 계열로 관리한다.`:"")
-    +(rest.length?` 1% 미만 ${rest.length}종은 '기타'로 묶었다(${rest.map(r=>r[0]).join(", ")}).`:"")
+    +(named.length?` 1% 미만 ${named.length}종은 '기타'에 넣었다(${named.map(r=>r[0]).join(", ")}).`:"")
     +`</div>`;
   $("#variety").innerHTML=bar;
   $("#variety").querySelectorAll(".vbar div").forEach(d=>{
