@@ -107,7 +107,14 @@ $P forecast_2027.py                          # 2027 전망 생성
 $P export_lettuce_webapp.py                  # 웹앱 JSON 생성 (~10분)
 
 $P analyze_autumn_surge.py                   # 여름·가을 급등기 (기술통계+검정+export)
+$P export_destinations.py                    # 출하처 도매시장·품종 (기간별)
 $P build_geo.py                              # 시군·읍면 경계 (원본은 data/raw)
+```
+
+웹앱이 읽는 파일은 5개다. `export_lettuce_webapp.py`만 10분 걸리고 나머지는 1~2분.
+```
+lettuce_app.json 1.2MB · lettuce_destinations.json 333KB · lettuce_forecast_2027.json 194KB
+jeonbuk_eup_geo.json 172KB(드릴다운 때만) · lettuce_surge.json 18KB
 ```
 
 예약 작업 `lettuce_daily_resume`가 매일 00:10에 수집을 이어받는다(완주 상태면 즉시 종료).

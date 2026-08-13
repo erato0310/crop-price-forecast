@@ -242,6 +242,26 @@ b.hi,b.lo{font-weight:650}
 .tip .r{display:flex;gap:10px;justify-content:space-between;color:var(--ink-2)}
 .tip .r b{color:var(--ink);font-weight:600}
 
+/* 출하처 — 한 줄에 시장 하나. 막대는 비중 하나만 나타내므로 색을 나누지 않는다. */
+.drow{display:grid;grid-template-columns:5.2em 1fr 9.6em 3.4em;gap:8px;align-items:center;
+  padding:5px 0;border-bottom:1px solid var(--line);font-size:13px}
+.drow:last-of-type{border-bottom:0}
+.drow .dn{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.drow .dbar{background:var(--card-2);border-radius:4px;height:16px;position:relative}
+.drow .dbar i{position:absolute;inset:0 auto 0 0;background:var(--accent);
+  border-radius:4px;display:block}
+/* 숫자는 막대 위에 얹지 않는다 — 채워진 부분과 빈 부분을 걸치면 어느 쪽에서도
+   대비가 안 맞는다. 칸을 따로 준다. */
+.drow .dd{text-align:right;font-size:11.5px;color:var(--muted);white-space:nowrap;
+  font-variant-numeric:tabular-nums}
+.drow .dp{text-align:right;font-weight:660;font-variant-numeric:tabular-nums}
+.drow.rest .dbar i{background:var(--muted);opacity:.55}
+@media(max-width:560px){
+  .drow{grid-template-columns:1fr auto;gap:3px 8px}
+  .drow .dn{grid-column:1} .drow .dp{grid-column:2}
+  .drow .dbar{grid-column:1/3;order:3} .drow .dd{grid-column:1/3;order:4;text-align:left}
+}
+
 /* 품종 */
 .vbar{display:flex;height:26px;border-radius:7px;overflow:hidden;
   margin:2px 0 10px;gap:2px}
@@ -356,9 +376,15 @@ svg.chart{width:100%;height:auto;display:block;overflow:visible}
     <div class="note" id="sgNote"></div>
   </div>
 
-  <div class="card mt">
-    <h2 id="varTitle">어떤 품종을 얼마나 내나</h2>
-    <div id="variety"></div>
+  <div class="grid g-half mt">
+    <div class="card">
+      <h2 id="dstTitle">어느 도매시장으로 나가나</h2>
+      <div id="dst"></div>
+    </div>
+    <div class="card">
+      <h2 id="varTitle">어떤 품종을 얼마나 내나</h2>
+      <div id="variety"></div>
+    </div>
   </div>
 </div>
 
@@ -366,7 +392,11 @@ svg.chart{width:100%;height:auto;display:block;overflow:visible}
 
 <script>
 "use strict";
-let DATA=null, LT=null, SG=null, EUPGEO=null, SEL=null, EUP=null, MODE="avg", WK=[], I0=0, I1=0;
+let DATA=null, LT=null, SG=null, DST=null, EUPGEO=null, SEL=null, EUP=null;
+let MODE="avg", WK=[], I0=0, I1=0;
+// 지금 눌린 기간 버튼(주 수). 직접 지정하면 null — 출하처·품종은 미리 계산해 둔
+// 창으로만 낼 수 있어서, 그때는 '전체'를 보여 주고 화면에 그렇게 적는다.
+let RNG="53";
 const $=s=>document.querySelector(s);
 const won=v=>v==null||isNaN(v)?"–":Math.round(v).toLocaleString("ko-KR");
 // 물량은 천단위 구분을 붙인다. 예전엔 toFixed 만 써서 21821t 처럼 읽기 어려웠다.
@@ -422,7 +452,8 @@ Promise.all([
   fetch("data/lettuce_app.json").then(r=>r.json()),
   fetch("data/lettuce_forecast_2027.json").then(r=>r.json()).catch(()=>null),
   fetch("data/lettuce_surge.json").then(r=>r.json()).catch(()=>null),
-]).then(([d,lt,sg])=>{DATA=d;LT=lt;SG=sg;init()})
+  fetch("data/lettuce_destinations.json").then(r=>r.json()).catch(()=>null),
+]).then(([d,lt,sg,ds])=>{DATA=d;LT=lt;SG=sg;DST=ds;init()})
  .catch(e=>{$("#meta").textContent="데이터를 불러오지 못했습니다: "+e});
 
 // 읍면 경계는 드릴다운할 때만 쓴다 — 첫 화면을 169KB 무겁게 할 이유가 없다
@@ -471,11 +502,13 @@ function init(){
   const sync=()=>{f.value=I0;t.value=I1;
     $("#rngLbl").textContent=`${WK[I0]} ~ ${WK[I1]} · ${I1-I0+1}주`};
   I0=Math.max(0,WK.length-53); I1=WK.length-1; sync();
-  f.onchange=()=>{I0=+f.value; if(I0>I1)I1=I0; sync(); render()};
-  t.onchange=()=>{I1=+t.value; if(I1<I0)I0=I1; sync(); render()};
+  const dropPreset=()=>{RNG=null;
+    document.querySelectorAll(".rng").forEach(x=>x.classList.remove("on"))};
+  f.onchange=()=>{I0=+f.value; if(I0>I1)I1=I0; dropPreset(); sync(); render()};
+  t.onchange=()=>{I1=+t.value; if(I1<I0)I0=I1; dropPreset(); sync(); render()};
   document.querySelectorAll(".rng").forEach(b=>b.onclick=()=>{
     const n=+b.dataset.w;
-    I1=WK.length-1; I0=n?Math.max(0,WK.length-n):0;
+    I1=WK.length-1; I0=n?Math.max(0,WK.length-n):0; RNG=b.dataset.w;
     document.querySelectorAll(".rng").forEach(x=>x.classList.toggle("on",x===b));
     sync(); render();
   });
@@ -546,7 +579,63 @@ const MODEWORD=()=>MODE==="avg"?"평균":MODE==="hi"?"최고":"최저";
 
 function render(){
   SEL?renderEup():renderCounty();
-  renderChart(); renderLong(); renderSurge(); renderVariety();
+  renderChart(); renderLong(); renderSurge(); renderDest(); renderVariety();
+}
+
+/* ── 출하처·품종 ────────────────────────────────────────
+   둘 다 기간 버튼과 같은 창으로 미리 계산해 뒀다(export_destinations.py).
+   예전 품종 카드는 기간을 무시하고 전 기간 고정이라, 위쪽 표와 다른 기간을
+   말하고 있었다. 여기서 같이 맞춘다. */
+const RNGWORD={"8":"최근 8주","26":"최근 6개월","53":"최근 1년","157":"최근 3년","0":"전 기간"};
+// 물량이 있는데 반올림해서 "0%"라고 적으면 안 판 것처럼 보인다
+const pct=v=>v>0&&v<0.1?"0.1% 미만":v+"%";
+function dstUnit(){
+  if(!DST) return [null,null];
+  const key=(RNG&&DST.meta.horizons.includes(RNG))?RNG:"0";
+  let u=DST.jeonbuk;
+  if(SEL){
+    const c=DST.counties[DATA.counties[SEL].name];
+    if(!c) return [null,key];
+    u=(EUP&&c.eups[EUP])?c.eups[EUP]:c.self;
+  }
+  return [u?u[key]||null:null,key];
+}
+function unitLabel(){
+  if(SEL&&EUP) return EUP===DATA.counties[SEL].name
+    ? DATA.counties[SEL].name+" (읍면 모르는 물량)" : DATA.counties[SEL].name+" "+EUP;
+  if(SEL) return DATA.counties[SEL].name;
+  return "전북 전체";
+}
+function periodNote(key){
+  return (RNG&&DST.meta.horizons.includes(RNG))
+    ? `<b>${RNGWORD[key]}</b> 기준입니다.`
+    : `기간을 직접 고르셨는데, 이 두 칸은 미리 계산해 둔 기간으로만 낼 수 있어 `
+      +`<b>전 기간</b>으로 보여 드립니다.`;
+}
+
+function renderDest(){
+  $("#dstTitle").textContent=unitLabel()+" — 어느 도매시장으로 나가나";
+  const [u,key]=dstUnit();
+  if(!u||!u.markets.length){
+    $("#dst").innerHTML=`<div class="note">이 기간에 이 지역에서 나간 물량이 없습니다.</div>`;
+    return;
+  }
+  const mx=Math.max(...u.markets.map(m=>m.share));
+  let h="";
+  u.markets.forEach(m=>{
+    const rest=m.rest?` title="${m.rest.join(', ')}"`:"";
+    h+=`<div class="drow${m.rest?" rest":""}"${rest}>`
+      +`<span class="dn">${m.name}</span>`
+      +`<span class="dbar"><i style="width:${(m.share/mx*100).toFixed(1)}%"></i></span>`
+      +`<span class="dd">${ton(m.t,1)}톤${m.price?` · 1kg ${won(m.price)}원`:""}</span>`
+      +`<b class="dp">${pct(m.share)}</b></div>`;
+  });
+  const top=u.markets[0];
+  h+=`<div class="note">${periodNote(key)} 이 지역에서 나간 <b>${ton(u.t,1)}톤</b> 가운데 `
+    +`<b>${top.name}</b>으로 간 것이 <b>${pct(top.share)}</b>로 가장 많습니다. `
+    +`막대 옆 숫자는 그 시장으로 간 물량과 거기서 받은 1kg 평균값입니다.<br>`
+    +`<b>주의 —</b> ${DST.meta.caveat_ko}</div>`;
+  $("#dst").innerHTML=h;
 }
 
 /* ── 지도 확대 ─────────────────────────────────────────
@@ -1156,64 +1245,39 @@ function renderSurge(){
    범주 색은 8개가 한계다. 1% 미만은 '기타 n종'으로 접되 몇 종을 접었는지
    밝힌다. 쫑상추는 작기 종료 신호라 아무리 작아도 따로 세운다. */
 function renderVariety(){
-  let unit,title;
-  if(SEL&&EUP&&DATA.counties[SEL].eups[EUP]){
-    unit=DATA.counties[SEL].eups[EUP];
-    title=EUP===DATA.counties[SEL].name?DATA.counties[SEL].name+" (읍면 미상분)"
-      :DATA.counties[SEL].name+" "+EUP;
-  }else if(SEL){unit=DATA.counties[SEL];title=DATA.counties[SEL].name;}
-  else{unit=null;title="전북 전체";}
-  $("#varTitle").textContent=title+" — 어떤 품종을 얼마나 내나";
-  let mix;
-  if(unit) mix=unit.variety;
-  else{
-    const t={};
-    Object.values(DATA.counties).forEach(c=>Object.entries(c.variety).forEach(([k,v])=>{
-      t[k]=t[k]||{share:0,price:0,w:0};
-      t[k].share+=v.share*c.qty_t; t[k].price+=v.price*c.qty_t; t[k].w+=c.qty_t;}));
-    const tot=Object.values(t).reduce((s,v)=>s+v.share,0);
-    mix={}; Object.entries(t).sort((a,b)=>b[1].share-a[1].share).forEach(([k,v])=>
-      mix[k]={share:+(v.share/tot*100).toFixed(1),price:Math.round(v.price/v.w)});
+  $("#varTitle").textContent=unitLabel()+" — 어떤 품종을 얼마나 내나";
+  const [u,key]=dstUnit();
+  if(!u||!u.varieties.length){
+    $("#variety").innerHTML=`<div class="note">이 기간에 이 지역에서 나간 물량이 없습니다.</div>`;
+    return;
   }
-  const keep=[], fold=[];
-  const isJJ=k=>k.includes("쫑");
-  // 자료에 이미 '기타' 항목이 있다. 접은 것을 따로 세우면 '기타'가 둘이 되므로
-  // 원래 '기타'까지 같은 덩이에 넣는다.
-  const isEtc=k=>k==="기타"||k.startsWith("기타 ");
-  Object.entries(mix).sort((a,b)=>b[1].share-a[1].share).forEach(([k,v])=>{
-    ((v.share>=1&&!isEtc(k))||isJJ(k)?keep:fold).push([k,v]);
-  });
-  const shown=keep.slice(0,7);
-  const rest=keep.slice(7).concat(fold);
-  const named=rest.filter(r=>!isEtc(r[0]));
-  if(rest.length){
-    const sh=rest.reduce((s,r)=>s+r[1].share,0);
-    const pr=rest.reduce((s,r)=>s+r[1].price*r[1].share,0)/(sh||1);
-    // 범례에는 '기타'로만 둔다. 무엇이 들어갔는지는 아래 설명에 다 적는다.
-    shown.push(["기타",{share:+sh.toFixed(1),price:Math.round(pr)}]);
-  }
+  // 상위 7종 + '그 밖'까지 이미 묶여서 온다. 색은 8칸을 넘지 않는다.
+  const V=u.varieties;
   const C=["var(--s1)","var(--s2)","var(--s3)","var(--s4)","var(--s5)","var(--s6)",
            "var(--s7)","var(--muted)"];
   let bar=`<div class="vbar">`;
-  shown.forEach(([k,v],i)=>{
+  V.forEach((v,i)=>{
     bar+=`<div style="width:${v.share}%;background:${C[i%C.length]}" data-v="${i}">`
-      +(v.share>8?k:"")+`</div>`});
-  bar+=`</div><div class="vleg">`+shown.map(([k,v],i)=>
-    `<span><i style="background:${C[i%C.length]}"></i>${k} <b>${v.share}%</b>`
-    +` <span style="color:var(--muted)">${won(v.price)}원/kg</span></span>`).join("")+`</div>`;
-  const jj=shown.find(([k])=>isJJ(k));
-  bar+=`<div class="note">막대 길이는 <b>물량 비중</b>이고, 옆의 값은 그 품종의 1kg 평균값입니다. `
-    +`적상추·청상추는 지역마다 갈리고, 쫑상추는 어디서나 나옵니다.`
-    +(jj?` <b>${jj[0]}는 ${jj[1].share}%에 1kg ${won(jj[1].price)}원</b>인데, `
+      +(v.share>8?v.name:"")+`</div>`});
+  bar+=`</div><div class="vleg">`+V.map((v,i)=>
+    `<span><i style="background:${C[i%C.length]}"></i>${v.name} <b>${pct(v.share)}</b>`
+    +` <span style="color:var(--muted)">1kg ${won(v.price)}원</span></span>`).join("")+`</div>`;
+  const jj=V.find(v=>v.name.includes("쫑"));
+  const rest=V.find(v=>v.rest);
+  bar+=`<div class="note">${periodNote(key)} 막대 길이는 <b>물량 비중</b>, 옆의 값은 `
+    +`그 품종이 받은 1kg 평균값입니다. 적상추·청상추는 지역마다 갈리고, `
+    +`쫑상추는 어디서나 나옵니다.`
+    +(jj?` <b>${jj.name}는 ${pct(jj.share)}에 1kg ${won(jj.price)}원</b>인데, `
       +`한 작기가 끝날 무렵 순을 꺾어 내는 것이라 값이 낮습니다. `
       +`그래서 <b>위쪽 가격에는 넣지 않고</b> 따로 셉니다.`:"")
-    +(named.length?` 1%가 안 되는 ${named.length}종은 '기타'로 묶었습니다(${named.map(r=>r[0]).join(", ")}).`:"")
+    +(rest?` 물량이 적은 ${rest.rest.length}종은 '그 밖'으로 묶었습니다(${rest.rest.join(", ")}).`:"")
     +`</div>`;
   $("#variety").innerHTML=bar;
   $("#variety").querySelectorAll(".vbar div").forEach(d=>{
-    const [k,v]=shown[+d.dataset.v];
-    d.onmousemove=ev=>showTip(ev,`<div class="th">${k}</div>`
-      +row("물량 비중",v.share+"%")+row("평균가",won(v.price)+" 원/kg"));
+    const v=V[+d.dataset.v];
+    d.onmousemove=ev=>showTip(ev,`<div class="th">${v.name}</div>`
+      +row("물량 비중",pct(v.share))+row("물량",ton(v.t,1)+"톤")
+      +row("평균값",won(v.price)+"원"));
     d.onmouseleave=hideTip;
   });
 }
