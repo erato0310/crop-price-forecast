@@ -116,7 +116,8 @@ details.unit[open]>summary::after{content:"접기"}
 }
 .bar .lbl{color:var(--muted);font-size:11.5px;font-weight:600;
   letter-spacing:.04em;padding:0 4px 0 6px}
-.pair{display:flex;align-items:center;gap:2px}
+.modebar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:-2px 0 12px}
+.modebar .lbl{padding-left:0}
 .seg{display:flex;background:var(--card-2);border-radius:9px;padding:2px;gap:2px}
 .seg button{
   font:inherit;font-size:13px;padding:5px 11px;border:0;border-radius:7px;
@@ -148,6 +149,10 @@ select{font:inherit;font-size:13px;padding:5px 9px;border:1px solid var(--line);
   .bar{gap:6px;padding:6px}
   .seg button{padding:5px 9px;font-size:12.5px}
   .rnglbl{order:9;flex-basis:100%;padding-left:2px}
+  h1{font-size:23px}
+  .alert{font-size:12.5px;line-height:1.55;padding:9px 11px}
+  .kpi{gap:7px} .kpi .k{padding:7px 9px} .kpi .v{font-size:16.5px}
+  .card{padding:13px}
 }
 .card{
   background:var(--card);border:1px solid var(--line);border-radius:14px;
@@ -222,6 +227,34 @@ tr.thin td:first-child{color:var(--ink-2)}
 b.hi,b.lo{font-weight:650}
 .rank{color:var(--muted);font-variant-numeric:tabular-nums}
 .sub2{font-size:10.5px;color:var(--muted);font-weight:450}
+
+.mu{font-size:10px;color:var(--muted);font-weight:450}
+
+/* 좁은 화면에서는 표를 줄마다 카드로 바꾼다.
+   7열을 321px 칸에 넣으면 가로로 밀어야 보이는데, 폰에서 그건 못 쓴다.
+   머리글은 감추고 칸마다 data-l 을 이름표로 붙인다. */
+@media(max-width:640px){
+  .scroll{overflow-x:visible;margin:0;padding:0}
+  #tbl thead,#ltTbl thead{display:none}
+  #tbl,#tbl tbody,#tbl tr,#tbl td,
+  #ltTbl,#ltTbl tbody,#ltTbl tr,#ltTbl td{display:block;width:auto}
+  /* 한 줄에 하나씩 세우면 카드 하나가 222px까지 간다. 두 칸으로 접는다. */
+  #tbl tr,#ltTbl tr{display:grid;grid-template-columns:1fr 1fr;gap:7px 12px;
+    border:1px solid var(--line);border-radius:11px;
+    padding:9px 12px;margin-bottom:8px;background:var(--card)}
+  #tbl tr.sel,#ltTbl tr.sel{background:var(--accent-soft)}
+  #tbl td,#ltTbl td{border:0;padding:0;text-align:left;white-space:normal;
+    line-height:1.4}
+  #tbl td::before,#ltTbl td::before{content:attr(data-l);display:block;
+    color:var(--muted);font-size:10.5px;font-weight:600;letter-spacing:.01em}
+  #tbl td:first-child,#ltTbl td:first-child{grid-column:1/-1;
+    font-size:15px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+  #tbl td:first-child::before,#ltTbl td:first-child::before{content:none}
+  #tbl td br,#ltTbl td br{display:none}
+  #tbl td .u,#ltTbl td .u{margin-left:5px}
+  /* 마지막 한 칸이 홀로 남으면 폭을 다 쓰게 둔다 */
+  #tbl td:last-child:nth-child(odd),#ltTbl td:last-child:nth-child(odd){grid-column:1/-1}
+}
 
 .tag{display:inline-block;padding:1px 7px;border-radius:99px;font-size:10.5px;
   border:1px solid var(--line-2);color:var(--muted);margin-left:6px;
@@ -316,15 +349,6 @@ svg.chart{width:100%;height:auto;display:block;overflow:visible}
     <span class="rnglbl" id="rngLbl"></span>
     <span class="grow"></span>
     <button class="btn" id="btnBack" style="display:none">◀ 전북 전체</button>
-    <!-- 라벨과 버튼을 한 덩이로 묶는다. 안 그러면 줄바꿈 때 '값'만 앞줄 끝에 남는다. -->
-    <span class="pair">
-      <span class="lbl">값</span>
-      <span class="seg" id="modeSeg">
-        <button data-m="avg" class="on">평균</button>
-        <button data-m="hi">최고</button>
-        <button data-m="lo">최저</button>
-      </span>
-    </span>
   </div>
   <div class="bar" id="customBar" style="display:none">
     <span class="lbl">구간</span>
@@ -354,6 +378,16 @@ svg.chart{width:100%;height:auto;display:block;overflow:visible}
 
     <div class="card">
       <h2 id="tblTitle">시군별 값 순위</h2>
+      <!-- 값 고르는 버튼은 순위 바로 위에 둔다. 위쪽 조작줄에 있으면
+           무엇이 바뀌는지 눈으로 잇기 어렵다. 지도 색도 같이 바뀐다. -->
+      <div class="modebar">
+        <span class="lbl">어떤 값으로 볼까</span>
+        <span class="seg" id="modeSeg">
+          <button data-m="avg" class="on">평균</button>
+          <button data-m="hi">가장 비쌀 때</button>
+          <button data-m="lo">가장 쌀 때</button>
+        </span>
+      </div>
       <div class="kpi" id="kpi"></div>
       <div class="scroll"><table id="tbl"></table></div>
       <div class="note" id="tblNote"></div>
@@ -760,11 +794,13 @@ function renderCounty(){
     const c=DATA.counties[id], r=c.reliability;
     h+=`<tr class="click" data-id="${id}"><td><span class="rank">${i+1}</span> `
       +`<b>${c.name}</b></td>`
-      +`<td>${won(a.avg)}</td><td class="hi">${won(a.hi)}</td>`
-      +`<td class="lo">${won(a.lo)}</td>`
-      +`<td>${won(a.boxHi)}<br><span class="u">${a.boxKg}kg 상자</span></td>`
-      +`<td>${ton(a.qty)}</td>`
-      +`<td class="sub2">${r.cv_mape==null?"–"
+      +`<td data-l="평균">${won(a.avg)}</td>`
+      +`<td class="hi" data-l="가장 비쌀 때">${won(a.hi)}</td>`
+      +`<td class="lo" data-l="가장 쌀 때">${won(a.lo)}</td>`
+      +`<td data-l="제일 비쌌던 상자">${won(a.boxHi)}`
+      +`<br><span class="u">${a.boxKg}kg 상자</span></td>`
+      +`<td data-l="판 물량">${ton(a.qty)}<span class="mu"> 톤</span></td>`
+      +`<td class="sub2" data-l="예측이 얼마나 맞나">${r.cv_mape==null?"–"
         :(r.beats?`평균 <b>${Math.round(r.cv_mape)}%</b> 빗나감`
                  :`<span class="tag warn">들쭉날쭉</span>`)}</td></tr>`;
   });
@@ -847,11 +883,15 @@ function renderEup(){
       +'style="color:var(--lo);border-color:var(--lo)">▼ 제일 쌈</span>';
     const num=(!una&&!thin)?`<span class="rank">${++rk}</span> `:"";
     h+=`<tr class="click${n===EUP?" sel":""}${(thin||una)?" thin":""}" data-e="${n}">`
-      +`<td>${num}<b>${n}</b>${mark}</td><td>${won(a.avg)}</td>`
-      +`<td class="hi">${won(a.hi)}<br><span class="u">${a.hiW}</span></td>`
-      +`<td class="lo">${won(a.lo)}<br><span class="u">${a.loW}</span></td>`
-      +`<td>${won(a.boxHi)}<br><span class="u">${a.boxKg}kg · ${a.boxW}</span></td>`
-      +`<td>${ton(a.qty,1)}</td><td>${fc}</td></tr>`;
+      +`<td>${num}<b>${n}</b>${mark}</td><td data-l="평균">${won(a.avg)}</td>`
+      +`<td class="hi" data-l="가장 비쌀 때">${won(a.hi)}`
+      +`<br><span class="u">${a.hiW}</span></td>`
+      +`<td class="lo" data-l="가장 쌀 때">${won(a.lo)}`
+      +`<br><span class="u">${a.loW}</span></td>`
+      +`<td data-l="제일 비쌌던 상자">${won(a.boxHi)}`
+      +`<br><span class="u">${a.boxKg}kg · ${a.boxW}</span></td>`
+      +`<td data-l="판 물량">${ton(a.qty,1)}<span class="mu"> 톤</span></td>`
+      +`<td data-l="다음 주 예상">${fc}</td></tr>`;
   });
   $("#tbl").innerHTML=h+"</tbody>";
   $("#tbl").querySelectorAll("tr.click").forEach(tr=>tr.onclick=()=>{
@@ -1154,12 +1194,16 @@ function renderLong(){
     +`<b>다만 이건 “예년엔 이랬다”는 참고치이지 그해 예측이 아닙니다</b> — `
     +`그해 작황이나 날씨 충격은 하나도 안 들어가 있습니다. 작목·재배 계획의 밑그림 정도로만 쓰세요.`;
 
-  let h=`<thead><tr><th>월</th><th>앞</th><th>전망<span class="u"> 원/kg</span></th>`
-    +`<th>80% 구간</th><th>산출 방법</th><th>실측 오차율</th></tr></thead><tbody>`;
+  let h=`<thead><tr><th>언제</th><th>예상값<br><span class="u">1kg</span></th>`
+    +`<th>열에 여덟은<br><span class="u">이 안</span></th><th>어떻게 냈나</th>`
+    +`<th>보통 빗나가는<br><span class="u">폭</span></th></tr></thead><tbody>`;
   F.filter(f=>f.ym>="2026-11"||f.validated).forEach(f=>{
-    h+=`<tr${f.validated?'':' class="thin"'}><td>${f.ym}</td><td>${f.h}개월</td>`
-      +`<td><b>${won(f.p)}</b></td><td>${won(f.lo)}~${won(f.hi)}</td>`
-      +`<td>${f.method_ko}</td><td>${f.mape!=null?f.mape+"%":"–"}</td></tr>`;
+    h+=`<tr${f.validated?'':' class="thin"'}><td><b>${f.ym}</b> `
+      +`<span class="u">${f.h}개월 뒤</span></td>`
+      +`<td data-l="예상값"><b>${won(f.p)}</b></td>`
+      +`<td data-l="열에 여덟은 이 안">${won(f.lo)}~${won(f.hi)}</td>`
+      +`<td data-l="어떻게 냈나">${f.validated?"예측 모형":"예년값 + 요즘 시세"}</td>`
+      +`<td data-l="보통 빗나가는 폭">${f.mape!=null?f.mape+"%":"–"}</td></tr>`;
   });
   $("#ltTbl").innerHTML=h+"</tbody>";
 }
