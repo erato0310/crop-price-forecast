@@ -75,6 +75,27 @@ def load() -> pd.DataFrame:
     return d
 
 
+def variety_of(g: pd.DataFrame, n: int = 3) -> list:
+    """그 시장으로 간 물량의 품종 구성 상위 n종. [이름, 비중%, 원/kg] 배열로 담는다.
+
+    키 있는 객체로 담으면 같은 내용이 파일에서 세 배가 된다. 시장마다 붙는
+    자료라 개수가 많다 — 여기서는 배열이 맞다.
+    """
+    tot = g["qty_kg"].sum()
+    if not tot:
+        return []
+    rows = []
+    for name, sub in g.groupby("variety"):
+        q = sub["qty_kg"].sum()
+        x = sub[["price_kg", "qty_kg"]].dropna()
+        p = (x["price_kg"] * x["qty_kg"]).sum() / x["qty_kg"].sum() if x["qty_kg"].sum() else np.nan
+        rows.append((str(name), q, p))
+    rows.sort(key=lambda r: -r[1])
+    # 3% 미만은 뺀다. 0.5%짜리까지 붙이면 줄만 길어지고 읽는 사람에게 쓸모가 없다.
+    return [[nm, round(q / tot * 100, 1), None if pd.isna(p) else round(float(p))]
+            for nm, q, p in rows[:n] if q / tot >= 0.03]
+
+
 def top_mix(g: pd.DataFrame, key: str, n: int = TOP_N) -> list:
     """(이름, 물량t, 비중%, 평균원/kg) 상위 n개 + 그 밖."""
     tot = g["qty_kg"].sum()
@@ -89,9 +110,14 @@ def top_mix(g: pd.DataFrame, key: str, n: int = TOP_N) -> list:
     rows.sort(key=lambda r: -r[1])
     out, rest = [], rows[n:]
     for name, q, p in rows[:n]:
-        out.append({"name": name, "t": round(q / 1000, 1),
-                    "share": round(q / tot * 100, 1),
-                    "price": None if pd.isna(p) else round(float(p))})
+        e = {"name": name, "t": round(q / 1000, 1),
+             "share": round(q / tot * 100, 1),
+             "price": None if pd.isna(p) else round(float(p))}
+        # 시장 줄에는 그 시장으로 간 물량의 품종 구성을 붙인다.
+        # 꼬리(1% 미만)까지 붙이면 파일만 커지고 읽히지도 않는다.
+        if key == "market" and q / tot >= 0.01:
+            e["v"] = variety_of(g[g[key] == name])
+        out.append(e)
     if rest:
         q = sum(r[1] for r in rest)
         pw = [(r[2], r[1]) for r in rest if not pd.isna(r[2])]

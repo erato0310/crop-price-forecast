@@ -256,10 +256,15 @@ b.hi,b.lo{font-weight:650}
   font-variant-numeric:tabular-nums}
 .drow .dp{text-align:right;font-weight:660;font-variant-numeric:tabular-nums}
 .drow.rest .dbar i{background:var(--muted);opacity:.55}
+/* 그 시장으로 간 물량의 품종 구성 — 시장 이름 아래 한 줄 */
+.drow .dv{grid-column:2/-1;font-size:11.5px;color:var(--ink-2);margin-top:-2px;
+  font-variant-numeric:tabular-nums}
+.drow .dv b{font-weight:600;color:var(--ink)}
 @media(max-width:560px){
   .drow{grid-template-columns:1fr auto;gap:3px 8px}
   .drow .dn{grid-column:1} .drow .dp{grid-column:2}
   .drow .dbar{grid-column:1/3;order:3} .drow .dd{grid-column:1/3;order:4;text-align:left}
+  .drow .dv{grid-column:1/3;order:5}
 }
 
 /* 품종 */
@@ -624,16 +629,21 @@ function renderDest(){
   let h="";
   u.markets.forEach(m=>{
     const rest=m.rest?` title="${m.rest.join(', ')}"`:"";
+    const v=(m.v||[]).map(([nm,sh,pr])=>
+      `<b>${nm}</b> ${pct(sh)}${pr?`<span style="color:var(--muted)"> 1kg ${won(pr)}원</span>`:""}`)
+      .join(" · ");
     h+=`<div class="drow${m.rest?" rest":""}"${rest}>`
       +`<span class="dn">${m.name}</span>`
       +`<span class="dbar"><i style="width:${(m.share/mx*100).toFixed(1)}%"></i></span>`
       +`<span class="dd">${ton(m.t,1)}톤${m.price?` · 1kg ${won(m.price)}원`:""}</span>`
-      +`<b class="dp">${pct(m.share)}</b></div>`;
+      +`<b class="dp">${pct(m.share)}</b>`
+      +(v?`<span class="dv">${v}</span>`:"")+`</div>`;
   });
   const top=u.markets[0];
   h+=`<div class="note">${periodNote(key)} 이 지역에서 나간 <b>${ton(u.t,1)}톤</b> 가운데 `
     +`<b>${top.name}</b>으로 간 것이 <b>${pct(top.share)}</b>로 가장 많습니다. `
-    +`막대 옆 숫자는 그 시장으로 간 물량과 거기서 받은 1kg 평균값입니다.<br>`
+    +`막대 옆 숫자는 그 시장으로 간 물량과 거기서 받은 1kg 평균값이고, `
+    +`시장 이름 아래 줄은 <b>그 시장으로 간 물량이 무슨 품종이었는지</b>입니다.<br>`
     +`<b>주의 —</b> ${DST.meta.caveat_ko}</div>`;
   $("#dst").innerHTML=h;
 }
