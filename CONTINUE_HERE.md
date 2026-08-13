@@ -105,6 +105,9 @@ $P lettuce_weekly.py compare                 # 주간
 $P test_long_horizon.py                      # 지평별 성적
 $P forecast_2027.py                          # 2027 전망 생성
 $P export_lettuce_webapp.py                  # 웹앱 JSON 생성 (~10분)
+
+$P analyze_autumn_surge.py                   # 여름·가을 급등기 (기술통계+검정+export)
+$P build_geo.py                              # 시군·읍면 경계 (원본은 data/raw)
 ```
 
 예약 작업 `lettuce_daily_resume`가 매일 00:10에 수집을 이어받는다(완주 상태면 즉시 종료).

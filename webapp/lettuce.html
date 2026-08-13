@@ -337,6 +337,13 @@ svg.chart{width:100%;height:auto;display:block;overflow:visible}
   </div>
 
   <div class="card mt">
+    <h2 id="sgTitle">여름·가을 급등기</h2>
+    <div class="kpi" id="sgKpi"></div>
+    <svg class="chart" id="sgChart" viewBox="0 0 720 260"></svg>
+    <div class="note" id="sgNote"></div>
+  </div>
+
+  <div class="card mt">
     <h2 id="varTitle">품종 구성</h2>
     <div id="variety"></div>
   </div>
@@ -346,7 +353,7 @@ svg.chart{width:100%;height:auto;display:block;overflow:visible}
 
 <script>
 "use strict";
-let DATA=null, LT=null, EUPGEO=null, SEL=null, EUP=null, MODE="avg", WK=[], I0=0, I1=0;
+let DATA=null, LT=null, SG=null, EUPGEO=null, SEL=null, EUP=null, MODE="avg", WK=[], I0=0, I1=0;
 const $=s=>document.querySelector(s);
 const won=v=>v==null||isNaN(v)?"–":Math.round(v).toLocaleString("ko-KR");
 // 물량은 천단위 구분을 붙인다. 예전엔 toFixed 만 써서 21821t 처럼 읽기 어려웠다.
@@ -401,7 +408,8 @@ addEventListener("scroll",hideTip,{passive:true});
 Promise.all([
   fetch("data/lettuce_app.json").then(r=>r.json()),
   fetch("data/lettuce_forecast_2027.json").then(r=>r.json()).catch(()=>null),
-]).then(([d,lt])=>{DATA=d;LT=lt;init()})
+  fetch("data/lettuce_surge.json").then(r=>r.json()).catch(()=>null),
+]).then(([d,lt,sg])=>{DATA=d;LT=lt;SG=sg;init()})
  .catch(e=>{$("#meta").textContent="데이터를 불러오지 못했습니다: "+e});
 
 // 읍면 경계는 드릴다운할 때만 쓴다 — 첫 화면을 169KB 무겁게 할 이유가 없다
@@ -500,7 +508,7 @@ const MODEWORD=()=>MODE==="avg"?"평균":MODE==="hi"?"최고":"최저";
 
 function render(){
   SEL?renderEup():renderCounty();
-  renderChart(); renderLong(); renderVariety();
+  renderChart(); renderLong(); renderSurge(); renderVariety();
 }
 
 /* ── 지도 확대 ─────────────────────────────────────────
@@ -1008,6 +1016,87 @@ function renderLong(){
       +`<td>${f.method_ko}</td><td>${f.mape!=null?f.mape+"%":"–"}</td></tr>`;
   });
   $("#ltTbl").innerHTML=h+"</tbody>";
+}
+
+/* ── 여름·가을 급등기 ───────────────────────────────────
+   '폭등확률'(평년 대비 1.3배)과는 다른 것을 본다. 9월은 원래 비싸서 평년
+   대비로는 정상으로 잡히지만(2025-09 실측 9,154원 < 기준선 10,954원),
+   농가가 겪는 것은 **상반기 대비 몇 배냐**다. 그래서 그 해 1~6월 중앙값의
+   2배를 넘는 구간을 급등기로 보고, 언제 시작해 몇 주 가는지를 보여 준다.
+   시작 시기 예측은 판정불가라 싣지 않는다 — 아래 한계에 그대로 적는다. */
+// 연도를 지운 통일 달력 좌표(윤년 아닌 해 기준). 연도별 구간을 겹쳐 보려면 필요하다
+const doy=s=>{const d=new Date(s+"T00:00:00Z");
+  return (Date.UTC(2001,d.getUTCMonth(),d.getUTCDate())-Date.UTC(2001,0,1))/86400000+1};
+
+function renderSurge(){
+  const nm=SEL?DATA.counties[SEL].name:null;
+  const S=SG?(nm?SG.counties[nm]:SG.jeonbuk):null;
+  $("#sgTitle").textContent=(nm||"전북")+" 여름·가을 급등기";
+  if(!S){
+    $("#sgKpi").innerHTML=""; $("#sgChart").style.display="none";
+    $("#sgNote").textContent=nm
+      ? "이 시군은 급등기가 3개 연도 미만으로만 잡혀 따로 내지 않는다."
+      : "급등기 자료를 불러오지 못했다.";
+    return;
+  }
+  $("#sgChart").style.display="";
+  const P=S.periods;
+  const k=(t,v,u)=>`<div class="k"><span class="t">${t}</span>`
+    +`<span class="v">${v}<span class="u"> ${u}</span></span></div>`;
+  $("#sgKpi").innerHTML=
+    k("급등기가 있던 해",`${S.years_hit}/${S.years_total}`,"년")
+   +k("시작 (중앙값)",S.start_med,`${S.start_min}~${S.start_max}`)
+   +k("지속 (중앙값)",S.weeks_med,`주 · ${S.weeks_min}~${S.weeks_max}주`)
+   +k("최고가 (중앙값)",S.peak_x_med,`배 · ${S.peak_x_min}~${S.peak_x_max}배`);
+
+  const lastWk=WK.length?WK[WK.length-1]:null;
+  const W=720,L=46,R=58,T=28,RH=21;
+  const Ht=T+P.length*RH+16;
+  const ds=P.flatMap(p=>[doy(p.start),doy(p.end)]);
+  const x0=Math.max(120,Math.min(...ds)-12), x1=Math.min(360,Math.max(...ds)+12);
+  const X=d=>L+(W-L-R)*(d-x0)/((x1-x0)||1);
+  const xs=P.map(p=>p.peak_x), mnx=Math.min(...xs), mxx=Math.max(...xs);
+  let s="";
+  // 달 눈금
+  for(let m=1;m<=12;m++){
+    const d=doy(`2001-${String(m).padStart(2,"0")}-01`);
+    if(d<x0||d>x1) continue;
+    s+=`<line x1="${X(d)}" y1="${T-8}" x2="${X(d)}" y2="${Ht-14}" stroke="var(--line)"/>`
+      +`<text class="axis" x="${X(d)+4}" y="${T-12}">${m}월</text>`;
+  }
+  P.forEach((p,i)=>{
+    const y=T+i*RH, a=X(doy(p.start)), b=X(doy(p.end));
+    const ongoing=lastWk&&p.end>=lastWk.slice(0,10);
+    s+=`<text class="axis" x="${L-8}" y="${y+12}" text-anchor="end">${p.year}</text>`;
+    s+=`<rect class="sgbar" data-i="${i}" x="${a}" y="${y+3}" width="${Math.max(3,b-a)}"`
+      +` height="12" rx="4" fill="${ramp(p.peak_x,mnx,mxx)}"`
+      +(ongoing?` stroke="var(--ink-2)" stroke-dasharray="3 2" stroke-width="1.2"`:"")
+      +` style="cursor:default"/>`;
+    // 최고를 찍은 주 — 막대 위에 표면색 링을 둘러 겹쳐도 보이게 한다
+    s+=`<circle cx="${X(doy(p.peak_week))}" cy="${y+9}" r="4" fill="var(--ink)"`
+      +` stroke="var(--card)" stroke-width="2" pointer-events="none"/>`;
+    s+=`<text class="axis" x="${W-R+8}" y="${y+13}">${p.peak_x.toFixed(1)}배</text>`;
+    if(ongoing) s+=`<text class="axis" x="${b+6}" y="${y+13}"`
+      +` fill="var(--warn)">진행 중</text>`;
+  });
+  $("#sgChart").setAttribute("viewBox",`0 0 ${W} ${Ht}`);
+  $("#sgChart").innerHTML=s;
+  $("#sgChart").querySelectorAll(".sgbar").forEach(r=>{
+    const p=P[+r.dataset.i];
+    r.onmousemove=ev=>showTip(ev,`<div class="th">${p.year}년 급등기</div>`
+      +row("구간",`${p.start.slice(5)} ~ ${p.end.slice(5)}`)
+      +row("지속",p.weeks+"주")
+      +row("그 해 기준가",won(p.base)+" 원/kg")
+      +row("최고",`${won(p.peak)} 원/kg (${p.peak_x.toFixed(1)}배)`)
+      +row("최고 주",p.peak_week.slice(5)));
+    r.onmouseleave=hideTip;
+  });
+
+  const m=SG.meta;
+  $("#sgNote").innerHTML=`가로축은 달, 막대 하나가 그 해의 급등기다. `
+    +`<b>급등기 = ${m.def_ko}</b>. 점은 그 해 최고가를 찍은 주.<br>`
+    +`${m.why_ko}<br>`
+    +`<b>다만 시작 시기는 맞히지 못한다.</b> ${m.limit_ko}`;
 }
 
 /* ── 품종 ─────────────────────────────────────────────
