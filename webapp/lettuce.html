@@ -87,6 +87,15 @@ h1 .crumb{font-weight:450;color:var(--muted)}
 .alert{border:1px solid var(--warn);border-radius:11px;padding:11px 14px;
   margin-bottom:12px;font-size:13.5px;line-height:1.65;
   background:color-mix(in srgb,var(--warn) 9%,transparent)}
+/* 폰에서는 이 배너 하나가 첫 화면을 다 먹는다. 내용은 그대로 두고 조판만 줄인다. */
+@media(max-width:560px){
+  .alert{font-size:12.5px;line-height:1.55;padding:9px 11px}
+  .alert .hd{font-size:13px}
+  h1{font-size:23px}
+  .meta{font-size:11.5px;line-height:1.5}
+  .wrap{padding-top:14px}
+  .head{margin-bottom:2px}
+}
 .alert b{color:var(--ink)}
 .alert .hd{font-weight:680;color:var(--warn);margin-bottom:2px;
   display:flex;align-items:center;gap:6px}
@@ -96,13 +105,16 @@ details.unit{
   background:var(--accent-soft);border:1px solid var(--line);
   border-radius:11px;margin-bottom:18px;font-size:13px;
 }
+/* summary를 flex로 잡으면 안에 있는 <b>가 flex 항목이 돼서 글이 덩이째 벌어진다.
+   한 줄 문장이므로 그냥 흐르게 두고, '자세히'만 오른쪽에 절대배치한다. */
 details.unit>summary{
-  cursor:pointer;padding:10px 14px;list-style:none;
-  display:flex;align-items:center;gap:8px;color:var(--ink);font-weight:560;
+  cursor:pointer;padding:10px 58px 10px 14px;list-style:none;
+  color:var(--ink);font-weight:560;position:relative;line-height:1.5;
 }
 details.unit>summary::-webkit-details-marker{display:none}
 details.unit>summary::after{
-  content:"자세히";margin-left:auto;color:var(--muted);font-weight:450;font-size:12px;
+  content:"자세히";position:absolute;right:14px;top:10px;
+  color:var(--muted);font-weight:450;font-size:12px;
 }
 details.unit[open]>summary::after{content:"접기"}
 .unit .body{padding:0 14px 12px;color:var(--ink-2);line-height:1.7;max-width:88ch}
@@ -205,7 +217,7 @@ svg.map{width:100%;height:auto;display:block;border-radius:10px;
 .kpi .t{font-size:11px;color:var(--muted);display:block;margin-bottom:2px}
 .kpi .v{font-size:18px;font-weight:660;letter-spacing:-.01em;display:block;
   line-height:1.3}
-.kpi .u{font-size:11px;font-weight:450;color:var(--muted)}
+.kpi .u{font-size:11px;font-weight:450;color:var(--muted);white-space:nowrap}
 
 /* 표 */
 .scroll{overflow-x:auto;margin:0 -4px;padding:0 4px}
@@ -239,12 +251,12 @@ b.hi,b.lo{font-weight:650}
   #tbl,#tbl tbody,#tbl tr,#tbl td,
   #ltTbl,#ltTbl tbody,#ltTbl tr,#ltTbl td{display:block;width:auto}
   /* 한 줄에 하나씩 세우면 카드 하나가 222px까지 간다. 두 칸으로 접는다. */
-  #tbl tr,#ltTbl tr{display:grid;grid-template-columns:1fr 1fr;gap:7px 12px;
+  #tbl tr,#ltTbl tr{display:grid;grid-template-columns:1fr 1fr;gap:5px 12px;
     border:1px solid var(--line);border-radius:11px;
-    padding:9px 12px;margin-bottom:8px;background:var(--card)}
+    padding:8px 11px;margin-bottom:6px;background:var(--card)}
   #tbl tr.sel,#ltTbl tr.sel{background:var(--accent-soft)}
   #tbl td,#ltTbl td{border:0;padding:0;text-align:left;white-space:normal;
-    line-height:1.4}
+    line-height:1.3;font-size:13.5px}
   #tbl td::before,#ltTbl td::before{content:attr(data-l);display:block;
     color:var(--muted);font-size:10.5px;font-weight:600;letter-spacing:.01em}
   #tbl td:first-child,#ltTbl td:first-child{grid-column:1/-1;
@@ -326,7 +338,7 @@ svg.chart{width:100%;height:auto;display:block;overflow:visible}
   <div id="alert"></div>
 
   <details class="unit">
-    <summary>여기 나오는 값은 모두 <b style="margin:0 2px">1kg 값</b>입니다 — 상자값이 아닙니다</summary>
+    <summary>여기 나오는 값은 모두 <b>1kg 값</b>입니다 — 상자값이 아닙니다</summary>
     <div class="body">
       도매시장 자료에 적힌 값은 <b>상자 하나 값</b>이라, 상자 무게로 나눠 1kg 값으로 바꿨습니다.
       4kg 상자가 13만원에 낙찰됐다면 <b>상자값 130,000원 = 1kg에 32,500원</b>입니다.
@@ -397,12 +409,12 @@ svg.chart{width:100%;height:auto;display:block;overflow:visible}
   <div class="grid g-half mt">
     <div class="card">
       <h2 id="chartTitle">주마다 값이 어떻게 움직였나</h2>
-      <svg class="chart" id="chart" viewBox="0 0 720 300"></svg>
+      <svg class="chart" id="chart"></svg>
       <div class="note" id="chartNote"></div>
     </div>
     <div class="card">
       <h2 id="ltTitle">2027년까지 달마다 얼마쯤 할까</h2>
-      <svg class="chart" id="ltChart" viewBox="0 0 720 300"></svg>
+      <svg class="chart" id="ltChart"></svg>
       <div class="note" id="ltNote"></div>
       <div class="scroll mt"><table id="ltTbl"></table></div>
     </div>
@@ -584,8 +596,8 @@ function showAlert(){
     +`예년에는 이런 시기가 <b>${S.weeks_med}주쯤</b> 이어졌습니다`
     +`(짧으면 ${S.weeks_min}주, 길면 ${S.weeks_max}주). `
     +`<b>다만 올해가 언제 끝날지는 맞히지 못합니다.</b> `
-    +`출하 시기를 정하실 때 "예년엔 이랬다"는 참고로만 보시고, `
-    +`맨 아래 <b>「여름·가을에 값이 크게 오르는 시기」</b>에서 왜 못 맞히는지 확인해 주세요.</div>`;
+    +`출하 시기는 "예년엔 이랬다"는 참고로만 보세요. `
+    +`왜 못 맞히는지는 맨 아래 <b>급등 시기 카드</b>에 적어 뒀습니다.</div>`;
 }
 
 /* ── 집계 ─────────────────────────────────────────────
@@ -699,7 +711,21 @@ function fitLabels(){
   map.style.setProperty("--valF",(LABPX*0.82*k).toFixed(2)+"px");
   map.style.setProperty("--labS",(2.6*k).toFixed(2)+"px");
 }
-addEventListener("resize",fitLabels);
+let rzT=null;
+/* 차트 비율은 화면 폭이 좁은지 넓은지에 따라 달라진다(chartBox).
+   resize 이벤트에만 기대면 놓치는 경우가 있어서, 폭 자체를 관찰한다.
+   **비율이 실제로 바뀔 때만** 다시 그린다 — 매 픽셀마다 그리면 낭비다. */
+let lastW=null;
+function onWidthChange(){
+  fitLabels();
+  const w=chartBox().W;
+  if(w===lastW) return;
+  lastW=w;
+  clearTimeout(rzT); rzT=setTimeout(()=>{ if(DATA) render(); },120);
+}
+addEventListener("resize",onWidthChange);
+addEventListener("orientationchange",onWidthChange);
+if(window.ResizeObserver) new ResizeObserver(onWidthChange).observe(document.body);
 function fitBox(bb,pad){
   const aspect=760/640;
   let [x0,y0,x1,y1]=bb, w=x1-x0, h=y1-y0;
@@ -801,7 +827,7 @@ function renderCounty(){
       +`<br><span class="u">${a.boxKg}kg 상자</span></td>`
       +`<td data-l="판 물량">${ton(a.qty)}<span class="mu"> 톤</span></td>`
       +`<td class="sub2" data-l="평균 오차">${r.cv_mape==null?"–"
-        :(r.beats?`평균 <b>${Math.round(r.cv_mape)}%</b> 빗나감`
+        :(r.beats?`<b>${Math.round(r.cv_mape)}%</b> 빗나감`
                  :`<span class="tag warn">들쭉날쭉</span>`)}</td></tr>`;
   });
   $("#tbl").innerHTML=h+"</tbody>";
@@ -1038,13 +1064,19 @@ function curUnit(){
   return [t[1],t[1].name+" (물량 최대)"];
 }
 
+/* 차트 상자 크기. viewBox를 720x300으로 고정하면 폰에서 세로가 131px까지
+   납작해져 값 흐름을 읽을 수 없다. 화면이 좁으면 가로를 줄여 비율을 세운다. */
+function chartBox(){
+  return innerWidth<=640 ? {W:400,Ht:300} : {W:720,Ht:300};
+}
+
 function renderChart(){
   const [unit,title]=curUnit();
   $("#chartTitle").textContent=title+" — 주간 값 흐름과 다음 주 예상";
   const a=agg(unit.weekly);
   if(!a){$("#chart").innerHTML="";$("#chartNote").textContent="";return}
   const H=[...a.rows], F=(unit.forecast||[]);
-  const W=720,Ht=300,L=54,R=14,T=16,B=32;
+  const {W,Ht}=chartBox(); const L=54,R=14,T=16,B=32;
   const vals=H.flatMap(r=>[r[2],r[3]]).concat(F.flatMap(f=>[f.lo,f.hi]));
   const mn=Math.min(...vals)*.92, mx=Math.max(...vals)*1.06;
   const n=H.length+F.length;
@@ -1085,6 +1117,7 @@ function renderChart(){
     +` stroke-width="1" opacity="0" pointer-events="none"/>`
     +`<rect x="${L}" y="${T}" width="${W-L-R}" height="${Ht-T-B}" fill="transparent"`
     +` id="cxhit" style="cursor:crosshair"/>`;
+  $("#chart").setAttribute("viewBox",`0 0 ${W} ${Ht}`);
   $("#chart").innerHTML=s;
   const hit=$("#cxhit"), line=$("#cx1");
   hit.onmousemove=ev=>{
@@ -1137,7 +1170,7 @@ function renderLong(){
     return;
   }
   $("#ltChart").style.display="";
-  const W=720,Ht=300,L=56,R=14,T=16,B=34;
+  const {W,Ht}=chartBox(); const L=56,R=14,T=16,B=34;
   const vals=F.flatMap(f=>[f.lo,f.hi]);
   const mn=Math.min(...vals)*.9, mx=Math.max(...vals)*1.06;
   const X=i=>L+(W-L-R)*(F.length<2?0:i/(F.length-1));
@@ -1167,6 +1200,7 @@ function renderLong(){
     s+=`<text class="axis" x="${X(i)}" y="${Ht-12}" text-anchor="middle">${f.ym}</text>`});
   s+=`<rect x="${L}" y="${T}" width="${W-L-R}" height="${Ht-T-B}" fill="transparent"`
     +` id="lthit" style="cursor:crosshair"/>`;
+  $("#ltChart").setAttribute("viewBox",`0 0 ${W} ${Ht}`);
   $("#ltChart").innerHTML=s;
   $("#lthit").onmousemove=ev=>{
     const r=$("#ltChart").getBoundingClientRect();
@@ -1240,7 +1274,7 @@ function renderSurge(){
    +k("꼭대기 값",S.peak_x_med,`배 · ${S.peak_x_min}~${S.peak_x_max}배`);
 
   const lastWk=WK.length?WK[WK.length-1]:null;
-  const W=720,L=46,R=58,T=28,RH=21;
+  const W=chartBox().W,L=46,R=58,T=28,RH=21;
   const Ht=T+P.length*RH+16;
   const ds=P.flatMap(p=>[doy(p.start),doy(p.end)]);
   const x0=Math.max(120,Math.min(...ds)-12), x1=Math.min(360,Math.max(...ds)+12);
