@@ -128,6 +128,7 @@ details.unit[open]>summary::after{content:"접기"}
 }
 .bar .lbl{color:var(--muted);font-size:11.5px;font-weight:600;
   letter-spacing:.04em;padding:0 4px 0 6px}
+.pair{display:flex;align-items:center;gap:2px}
 .modebar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:-2px 0 12px}
 .modebar .lbl{padding-left:0}
 .seg{display:flex;background:var(--card-2);border-radius:9px;padding:2px;gap:2px}
@@ -404,6 +405,18 @@ svg.chart{width:100%;height:auto;display:block;overflow:visible}
     <button class="btn" id="btnCustom">직접</button>
     <span class="rnglbl" id="rngLbl"></span>
     <span class="grow"></span>
+    <span class="pair">
+      <span class="lbl">품종</span>
+      <button class="qbtn" data-help="var3" title="품종 나눠 보기 설명"
+        aria-label="품종 나눠 보기 설명" style="margin-right:2px">?</button>
+      <span class="seg" id="varSeg">
+        <button data-v="" class="on">전체</button>
+        <button data-v="pogichap">포기찹</button>
+        <button data-v="chung">청상추</button>
+        <button data-v="jeok">적상추</button>
+      </span>
+    </span>
+    <span class="grow"></span>
     <button class="btn" id="btnBack" style="display:none">◀ 전북 전체</button>
   </div>
   <div class="bar" id="customBar" style="display:none">
@@ -508,6 +521,22 @@ let MODE="avg", WK=[], I0=0, I1=0;
 // 지금 눌린 기간 버튼(주 수). 직접 지정하면 null — 출하처·품종은 미리 계산해 둔
 // 창으로만 낼 수 있어서, 그때는 '전체'를 보여 주고 화면에 그렇게 적는다.
 let RNG="53";
+/* 고른 품종. null 이면 주력 17품종을 합친 값(지금까지 쓰던 것).
+   품종을 고르면 그 품종만 다시 센 파일을 따로 받아 쓴다 — 세 배로 무거워지는
+   자료를 첫 화면에 다 얹을 이유가 없다. */
+let VAR=null;
+const VARDATA={};
+const VARNAME={pogichap:"포기찹",chung:"청상추",jeok:"적상추"};
+/* 값·예측을 읽어 올 시군 묶음. 품종을 고르면 그 파일 것을 쓰고,
+   지도 경계·품종 구성·출하처는 언제나 원래 자료를 쓴다. */
+function CT(){ return (VAR&&VARDATA[VAR])?VARDATA[VAR].counties:DATA.counties; }
+/* 이름은 원본에만 있다(품종 파일도 name 을 싣지만 없는 시군이 있을 수 있다) */
+function cname(id){ return (DATA.counties[id]||CT()[id]||{}).name||id; }
+function loadVar(k){
+  if(!k||VARDATA[k]) return Promise.resolve();
+  return fetch(`data/lettuce_var_${k}.json`).then(r=>r.json())
+    .then(j=>{VARDATA[k]=j;}).catch(()=>{VARDATA[k]={counties:{},meta:{}};});
+}
 const $=s=>document.querySelector(s);
 const won=v=>v==null||isNaN(v)?"–":Math.round(v).toLocaleString("ko-KR");
 // 물량은 천단위 구분을 붙인다. 예전엔 toFixed 만 써서 21821t 처럼 읽기 어려웠다.
@@ -675,6 +704,17 @@ function init(){
     c.style.display=open?"flex":"none";
     $("#btnCustom").classList.toggle("on",open);
   };
+  $("#varSeg").querySelectorAll("button").forEach(b=>b.onclick=()=>{
+    const k=b.dataset.v||null;
+    $("#varSeg").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));
+    loadVar(k).then(()=>{
+      VAR=k;
+      // 고른 품종에 그 시군·읍면이 없으면 있는 데까지만 남긴다
+      if(SEL&&!CT()[SEL]){ SEL=null; EUP=null; zoomTo(null); }
+      else if(SEL&&EUP&&!(CT()[SEL].eups||{})[EUP]){ EUP=null; zoomToEup(); }
+      render();
+    });
+  });
   $("#modeSeg").querySelectorAll("button").forEach(b=>b.onclick=()=>{
     MODE=b.dataset.m;
     $("#modeSeg").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));
@@ -685,6 +725,20 @@ function init(){
     if(EUP){ EUP=null; render(); zoomToEup(); }
     else { SEL=null; EUP=null; zoomTo(null); render(); }
   };
+  setHelp("var3","품종을 나눠 본다는 것",
+    `<p>지금까지 화면에 나온 값은 주력 17품종을 물량가중으로 <b>합친 것</b>이었습니다.
+     그런데 농가가 심는 것은 '상추'가 아니라 청상추이고 포기찹입니다.
+     물량 상위 3품종이 전북 전체의 <b>90.8%</b>(포기찹 39.8 · 청상추 35.1 · 적상추 16.0)라
+     이 셋만 떼어도 대부분을 덮습니다.</p>
+     <p class="h">값과 예측을 다르게 다룹니다</p>
+     <p>셋으로 나누면 계열 하나가 3분의 1로 얇아집니다.
+     <b>값(평균·최고·최저·물량)</b>은 세는 것이라 자료가 있으면 그대로 냅니다.
+     <b>예측과 검증 성적</b>은 계열이 104주보다 짧으면 <b>아예 내지 않습니다</b> —
+     짧은 자료로 낸 예측은 맞는지 확인할 방법이 없기 때문입니다.
+     그런 곳은 <b>자료 얇음</b>으로 표시됩니다.</p>
+     <div class="warn">시군 단위로도 남원·익산·완주·장수·김제·전주는 품종별로 400주 넘게
+     쌓였지만, 고창 포기찹은 46주, 임실은 44주뿐이고 <b>군산은 세 품종 다 부족</b>합니다.
+     읍면까지 내려가면 더 얇아집니다.</div>`);
   showAlert();          // WK가 채워진 뒤라야 마지막 주를 알 수 있다
   render();
 }
@@ -751,7 +805,10 @@ function render(){
 function renderRegion(){
   const box=$("#regionCard");
   if(!SEL){ box.innerHTML=""; return; }
-  const c=DATA.counties[SEL];
+  const c=CT()[SEL];
+  if(!c){ box.innerHTML=`<div class="region"><div class="rt">${cname(SEL)}</div>`
+    +`이 품종은 이 지역에서 판 기록이 없습니다.</div>`; return; }
+  c.name=cname(SEL);
   const unitName=EUP?(EUP===c.name?c.name+" (읍면 모르는 물량)":EUP):c.name;
   const u=EUP?c.eups[EUP]:c;
   const a=agg(u.weekly);
@@ -798,16 +855,17 @@ function dstUnit(){
   const key=(RNG&&DST.meta.horizons.includes(RNG))?RNG:"0";
   let u=DST.jeonbuk;
   if(SEL){
-    const c=DST.counties[DATA.counties[SEL].name];
+    const c=DST.counties[cname(SEL)];
     if(!c) return [null,key];
     u=(EUP&&c.eups[EUP])?c.eups[EUP]:c.self;
   }
   return [u?u[key]||null:null,key];
 }
+const varTag=()=>VAR?` · ${VARNAME[VAR]}`:"";
 function unitLabel(){
-  if(SEL&&EUP) return EUP===DATA.counties[SEL].name
-    ? DATA.counties[SEL].name+" (읍면 모르는 물량)" : DATA.counties[SEL].name+" "+EUP;
-  if(SEL) return DATA.counties[SEL].name;
+  if(SEL&&EUP) return EUP===cname(SEL)
+    ? cname(SEL)+" (읍면 모르는 물량)" : cname(SEL)+" "+EUP;
+  if(SEL) return cname(SEL);
   return "전북 전체";
 }
 function periodNote(key){
@@ -938,18 +996,25 @@ function zoomTo(bb){
 function renderCounty(){
   $("#btnBack").style.display="none";
   $("#crumb").textContent="";
-  $("#mapTitle").textContent="어디가 비싼가 — 시군 지도";
-  $("#tblTitle").textContent="시군별 값 순위";
+  $("#mapTitle").textContent="어디가 비싼가 — 시군 지도"+varTag();
+  $("#tblTitle").textContent="시군별 값 순위"+varTag();
   const vals={};
-  Object.entries(DATA.counties).forEach(([id,c])=>vals[id]=agg(c.weekly));
-  const nums=Object.values(vals).map(pick).filter(v=>v!=null);
+  Object.entries(CT()).forEach(([id,c])=>vals[id]=agg(c.weekly));
+  // 색 척도는 **자료가 두꺼운 시군만으로** 잡는다. 몇 주치뿐인 시군이 최고값을
+  // 차지하면 척도가 늘어나 진짜 산지가 옅어 보인다(청상추 군산 22주 = 7,714원).
+  const thinC=id=>!!(CT()[id]||{}).thin;
+  const solidNums=Object.entries(vals).filter(([id,a])=>a&&!thinC(id))
+    .map(([,a])=>pick(a)).filter(v=>v!=null);
+  const nums=solidNums.length?solidNums
+    :Object.values(vals).map(pick).filter(v=>v!=null);
   const mn=Math.min(...nums), mx=Math.max(...nums);
   const g=DATA.geo;
 
   let svg="";
   Object.entries(g.counties).forEach(([id,geo])=>{
-    const v=pick(vals[id]);
+    const v=pick(vals[id]), th=thinC(id)&&v!=null;
     svg+=`<path class="cty" data-id="${id}" d="${geo.d}" fill="${ramp(v,mn,mx)}"`
+      +(th?` opacity=".45" stroke-dasharray="3 2"`:"")
       +` stroke="var(--card)" stroke-width="1.4" vector-effect="non-scaling-stroke"/>`;
   });
   Object.entries(g.counties).forEach(([id,geo])=>{
@@ -969,6 +1034,8 @@ function renderCounty(){
       ? `<div class="th">${nm}</div>`
         +row("평균",won(a.avg)+"원")+row("가장 비쌀 때",won(a.hi)+"원")
         +row("가장 쌀 때",won(a.lo)+"원")+row("판 물량",ton(a.qty)+"톤")
+        +(thinC(id)?`<div class="r" style="color:var(--warn)">`
+          +`△ 이 품종 거래가 적어 순위·색에서 뺐습니다</div>`:"")
       : `<div class="th">${nm}</div><div class="r">이 기간엔 판 게 없습니다</div>`);
     p.onmouseleave=hideTip;
   });
@@ -976,7 +1043,10 @@ function renderCounty(){
   $("#mapNote").innerHTML=`${WK[I0]} ~ ${WK[I1]} · `
     +(MODE==="avg"?"많이 판 주에 무게를 둔 <b>평균값</b>"
                   :`그 기간 <b>가장 ${MODE==="hi"?"비쌌던":"쌌던"} 값</b>`)
-    +` · <b>시군을 누르면 확대됩니다</b>`;
+    +` · <b>시군을 누르면 확대됩니다</b>`
+    +(VAR?` · <b>${VARNAME[VAR]}</b>만 따로 센 값입니다`:"")
+    +((VAR&&Object.keys(vals).some(id=>thinC(id)))
+      ?` · <b>흐린 곳</b>은 이 품종 거래가 적어 색 기준에서 뺐습니다`:"");
   // "진할수록 높다"고 쓰면 안 된다 — 어두운 화면에서는 높은 쪽이 오히려 밝다.
   // 범례 순서를 기준으로 말하면 두 화면에서 다 맞는다.
   setHelp("map","시군 지도 보는 법",
@@ -993,17 +1063,25 @@ function renderCounty(){
      읍면을 한 번 더 누르면 <b>그 읍면까지 확대</b>되고, 아래 모든 칸이
      그 읍면 기준으로 바뀝니다.</p>`);
 
+  // 품종을 고르면 계열이 얇은 시군이 생긴다(군산 포기찹 16주 등). 값만 보고
+  // 세우면 그런 곳이 1위로 올라와 지표와 표가 어긋난다 — 읍면 표에서 이미
+  // 겪은 문제다. 얇은 곳은 아래로 내리고 순위 번호를 주지 않는다.
+  const thinOf=id=>!!(CT()[id]||{}).thin;
   const sorted=Object.entries(vals).filter(([,a])=>a)
-    .sort((a,b)=>pick(b[1])-pick(a[1]));
+    .sort((a,b)=>(thinOf(a[0])?1:0)-(thinOf(b[0])?1:0)||pick(b[1])-pick(a[1]));
+  const solid=sorted.filter(([id])=>!thinOf(id));
+  const rank=solid.length?solid:sorted;
   let h=`<thead><tr><th>시군</th><th>평균<br><span class="u">1kg 값</span></th>`
     +`<th>가장 비쌀 때<br><span class="u">1kg 값</span></th>`
     +`<th>가장 쌀 때<br><span class="u">1kg 값</span></th>`
     +`<th>제일 비쌌던 상자<br><span class="u">상자 하나 값</span></th>`
     +`<th>판 물량<br><span class="u">톤</span></th>`
     +`<th>평균<br><span class="u">오차</span></th></tr></thead><tbody>`;
-  sorted.forEach(([id,a],i)=>{
-    const c=DATA.counties[id], r=c.reliability;
-    h+=`<tr class="click" data-id="${id}"><td><span class="rank">${i+1}</span> `
+  let rk=0;
+  sorted.forEach(([id,a])=>{
+    const c=CT()[id], r=c.reliability, th=thinOf(id);
+    h+=`<tr class="click${th?" thin":""}" data-id="${id}"><td>`
+      +(th?`<span class="rank">–</span> `:`<span class="rank">${++rk}</span> `)
       +`<b>${c.name}</b></td>`
       +`<td data-l="평균">${won(a.avg)}</td>`
       +`<td class="hi" data-l="가장 비쌀 때">${won(a.hi)}</td>`
@@ -1011,7 +1089,9 @@ function renderCounty(){
       +`<td data-l="제일 비쌌던 상자">${won(a.boxHi)}`
       +`<br><span class="u">${a.boxKg}kg 상자</span></td>`
       +`<td data-l="판 물량">${ton(a.qty)}<span class="mu"> 톤</span></td>`
-      +`<td class="sub2" data-l="평균 오차">${r.cv_mape==null?"–"
+      +`<td class="sub2" data-l="평균 오차">${
+          c.thin?`<span class="tag">자료 얇음</span>`
+        : r.cv_mape==null?"–"
         :(r.beats?`<b>${Math.round(r.cv_mape)}%</b> 빗나감`
                  :`<span class="tag warn">들쭉날쭉</span>`)}</td></tr>`;
   });
@@ -1022,9 +1102,12 @@ function renderCounty(){
     zoomTo(p?bboxOf(p):null); render();});
 
   const all=sorted.map(([,a])=>a);
-  $("#kpi").innerHTML=kpiHtml({label:DATA.counties[sorted[0][0]].name,agg:sorted[0][1]},
-    {label:DATA.counties[sorted[sorted.length-1][0]].name,agg:sorted[sorted.length-1][1]},all);
-  $("#tblNote").innerHTML="줄을 누르면 그 시군의 읍면별 값을 볼 수 있습니다.";
+  $("#kpi").innerHTML=kpiHtml({label:cname(rank[0][0]),agg:rank[0][1]},
+    {label:cname(rank[rank.length-1][0]),agg:rank[rank.length-1][1]},all);
+  const nThinC=sorted.length-solid.length;
+  $("#tblNote").innerHTML="줄을 누르면 그 시군의 읍면별 값을 볼 수 있습니다."
+    +(nThinC>0?` <b>자료 얇음</b>으로 표시된 ${nThinC}곳은 이 품종 거래가 적어 `
+      +`순위에서 뺐습니다 — 몇 주치 값이 그 시군 대표값처럼 보이기 때문입니다.`:"");
   setHelp("tbl","순위표 보는 법",
     `<p class="h">평균 오차</p>
      <p>지난 6년치 자료로 <b>미리 맞혀 본 결과</b>, 실제값과 얼마나 벌어졌는지입니다.
@@ -1051,12 +1134,13 @@ function bboxOf(el){const b=el.getBBox();return [b.x,b.y,b.x+b.width,b.y+b.heigh
 
 /* ── 읍면 단계 ─────────────────────────────────────── */
 function renderEup(){
-  const c=DATA.counties[SEL];
+  const c=CT()[SEL]||{name:cname(SEL),weekly:[],eups:{}};
+  c.name=cname(SEL);
   $("#btnBack").style.display="";
   $("#btnBack").textContent=EUP?`◀ ${c.name} 전체`:"◀ 전북 전체";
   $("#crumb").textContent=" › "+c.name;
-  $("#mapTitle").textContent=c.name+" 읍면 지도";
-  $("#tblTitle").textContent=c.name+" 읍면별 값";
+  $("#mapTitle").textContent=c.name+" 읍면 지도"+varTag();
+  $("#tblTitle").textContent=c.name+" 읍면별 값"+varTag();
 
   const rows=Object.entries(c.eups).map(([n,e])=>[n,e,agg(e.weekly)]).filter(x=>x[2]);
   const byName={}; rows.forEach(r=>byName[r[0]]=r[2]);
@@ -1159,7 +1243,7 @@ function drawEupMap(c,byName,rows,solidNames,thinNames){
   const mn=base.length?Math.min(...base):0, mx=base.length?Math.max(...base):1;
 
   loadEupGeo().then(eg=>{
-    if(SEL!==null&&DATA.counties[SEL]!==c) return;      // 그 사이 다른 시군으로 갔다
+    if(SEL!==null&&cname(SEL)!==c.name) return;         // 그 사이 다른 시군으로 갔다
     const eups=(eg.counties[SEL]||{}).eups||{};
     let svg="";
     // 이웃 시군은 배경으로 옅게 깔아 위치 감각을 남긴다
@@ -1275,15 +1359,17 @@ function legend(mn,mx,isEup){
 
 /* ── 주간 차트 ─────────────────────────────────────── */
 function curUnit(){
-  if(SEL&&EUP&&DATA.counties[SEL].eups[EUP]){
-    return [DATA.counties[SEL].eups[EUP],
-      EUP===DATA.counties[SEL].name?DATA.counties[SEL].name+" (읍면 미상분)"
-        :DATA.counties[SEL].name+" "+EUP];
+  const S=CT();
+  if(SEL&&EUP&&S[SEL]&&S[SEL].eups[EUP]){
+    return [S[SEL].eups[EUP],
+      EUP===cname(SEL)?cname(SEL)+" (읍면 미상분)":cname(SEL)+" "+EUP];
   }
-  if(SEL) return [DATA.counties[SEL],DATA.counties[SEL].name];
-  const t=Object.entries(DATA.counties).map(([id,c])=>[id,c,agg(c.weekly)])
+  if(SEL&&S[SEL]) return [S[SEL],cname(SEL)];
+  if(SEL) return [null,cname(SEL)];
+  const t=Object.entries(S).map(([id,c])=>[id,c,agg(c.weekly)])
     .filter(x=>x[2]).sort((a,b)=>b[2].qty-a[2].qty)[0];
-  return [t[1],t[1].name+" (물량 최대)"];
+  // 이름은 품종 파일이 아니라 원본에서 가져온다 — 품종 파일에 이름이 없어도 버틴다
+  return t?[t[1],cname(t[0])+" (물량 최대)"]:[null,"전북"];
 }
 
 /* 차트 상자 크기. viewBox를 720x300으로 고정하면 폰에서 세로가 131px까지
@@ -1294,7 +1380,7 @@ function chartBox(){
 
 function renderChart(){
   const [unit,title]=curUnit();
-  $("#chartTitle").textContent=title+" — 주간 값 흐름과 다음 주 예상";
+  $("#chartTitle").textContent=title+varTag()+" — 주간 값 흐름과 다음 주 예상";
   const a=agg(unit.weekly);
   if(!a){$("#chart").innerHTML="";$("#chartNote").textContent="";return}
   const H=[...a.rows], F=(unit.forecast||[]);
@@ -1389,8 +1475,7 @@ function renderChart(){
    실선/점선과 속·빈 점으로 구분한다. */
 function renderLong(){
   const F=longFC();
-  const nm=SEL?(EUP&&EUP!==DATA.counties[SEL].name
-      ? DATA.counties[SEL].name+" "+EUP : DATA.counties[SEL].name):null;
+  const nm=SEL?(EUP&&EUP!==cname(SEL)? cname(SEL)+" "+EUP : cname(SEL)):null;
   $("#ltTitle").textContent=(nm||"전북")+" — 2027년까지 달마다 얼마쯤 할까";
   // 설명은 전망이 없을 때도 등록해 둔다 — 물음표는 언제나 눌리기 때문이다
   setHelp("lt","먼 앞날 값 보는 법",
@@ -1494,7 +1579,7 @@ const doy=s=>{const d=new Date(s+"T00:00:00Z");
   return (Date.UTC(2001,d.getUTCMonth(),d.getUTCDate())-Date.UTC(2001,0,1))/86400000+1};
 
 function renderSurge(){
-  const nm=SEL?DATA.counties[SEL].name:null;
+  const nm=SEL?cname(SEL):null;
   const S=SG?(nm?SG.counties[nm]:SG.jeonbuk):null;
   $("#sgTitle").textContent=(nm||"전북")+" — 여름·가을에 값이 크게 오르는 시기";
   if(!S){
