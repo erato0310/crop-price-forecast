@@ -170,10 +170,51 @@ select{font:inherit;font-size:13px;padding:5px 9px;border:1px solid var(--line);
   background:var(--card);border:1px solid var(--line);border-radius:14px;
   padding:16px;box-shadow:var(--shadow);min-width:0;
 }
-.card>h2{
+/* 카드 제목 줄. 설명은 본문에 늘어놓지 않고 오른쪽 물음표 안에 넣는다 —
+   화면을 처음 여는 사람에게 글이 먼저 쏟아지면 정작 숫자를 못 본다. */
+.card>.hd{display:flex;align-items:flex-start;gap:8px;margin:0 0 12px}
+.card>.hd>h2{flex:1;margin:0}
+.card h2{
   font-size:11.5px;margin:0 0 12px;color:var(--muted);font-weight:650;
-  letter-spacing:.06em;text-transform:uppercase;
+  letter-spacing:.06em;text-transform:uppercase;line-height:1.5;
 }
+.qbtn{
+  flex:none;width:21px;height:21px;border-radius:99px;border:1px solid var(--line-2);
+  background:transparent;color:var(--muted);font:inherit;font-size:12px;
+  font-weight:700;line-height:1;cursor:pointer;padding:0;display:grid;
+  place-items:center;margin-top:-1px;
+}
+.qbtn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.qbtn.big{width:34px;height:34px;border-radius:9px;font-size:15px;
+  border-color:var(--line);background:var(--card);margin-top:0}
+
+/* 설명 창 */
+.sheet{position:fixed;inset:0;z-index:80;display:none}
+.sheet.on{display:block}
+.sheet .bg{position:absolute;inset:0;background:rgba(10,12,10,.42)}
+.sheet .panel{
+  position:absolute;right:0;top:0;bottom:0;width:min(460px,100%);
+  background:var(--card);border-left:1px solid var(--line);
+  box-shadow:-12px 0 40px -20px rgba(0,0,0,.5);
+  overflow-y:auto;padding:20px 22px 40px;
+}
+@media(max-width:640px){
+  .sheet .panel{right:0;left:0;top:auto;width:auto;max-height:86vh;
+    border-left:0;border-top:1px solid var(--line);border-radius:16px 16px 0 0;
+    padding:18px 18px 32px}
+}
+.sheet h3{font-size:17px;margin:0 0 4px;font-weight:700;letter-spacing:-.01em}
+.sheet .close{position:absolute;right:14px;top:14px;width:30px;height:30px;
+  border-radius:99px;border:1px solid var(--line);background:var(--card);
+  color:var(--ink-2);font-size:16px;line-height:1;cursor:pointer}
+.sheet .close:hover{border-color:var(--line-2);color:var(--ink)}
+.sheet .body{font-size:14px;line-height:1.75;color:var(--ink-2);margin-top:12px}
+.sheet .body b{color:var(--ink)}
+.sheet .body p{margin:0 0 12px}
+.sheet .body .h{font-weight:700;color:var(--ink);margin:18px 0 5px;font-size:14px}
+.sheet .body .warn{border-left:3px solid var(--warn);
+  background:color-mix(in srgb,var(--warn) 9%,transparent);
+  padding:10px 13px;border-radius:0 8px 8px 0;margin:12px 0;color:var(--ink-2)}
 .mt{margin-top:16px}
 
 /* 지도 */
@@ -331,22 +372,13 @@ svg.chart{width:100%;height:auto;display:block;overflow:visible}
 
   <div class="head">
     <h1>전북 상추 가격 <span class="crumb" id="crumb"></span></h1>
+    <button class="qbtn big" data-help="intro" title="이 화면 설명"
+      aria-label="이 화면 설명">?</button>
     <button class="iconbtn" id="theme" title="밝게/어둡게" aria-label="밝게/어둡게"></button>
   </div>
   <p class="meta" id="meta">불러오는 중…</p>
 
   <div id="alert"></div>
-
-  <details class="unit">
-    <summary>여기 나오는 값은 모두 <b>1kg 값</b>입니다 — 상자값이 아닙니다</summary>
-    <div class="body">
-      도매시장 자료에 적힌 값은 <b>상자 하나 값</b>이라, 상자 무게로 나눠 1kg 값으로 바꿨습니다.
-      4kg 상자가 13만원에 낙찰됐다면 <b>상자값 130,000원 = 1kg에 32,500원</b>입니다.
-      "상추가 10만원 넘었다"고 기억하시는 건 대개 상자값이라, 표에 <b>그 기간 가장 비쌌던 상자값</b>도
-      같이 적어 뒀습니다.
-      <span id="boxRec"></span>
-    </div>
-  </details>
 
   <div class="bar">
     <span class="lbl">기간</span>
@@ -371,7 +403,7 @@ svg.chart{width:100%;height:auto;display:block;overflow:visible}
 
   <div class="grid g-map">
     <div class="card">
-      <h2 id="mapTitle">어디가 비싼가 — 시군 지도</h2>
+      <div class="hd"><h2 id="mapTitle">어디가 비싼가 — 시군 지도</h2><button class="qbtn" data-help="map" title="이 칸 설명" aria-label="이 칸 설명">?</button></div>
       <div class="mapwrap">
         <svg class="map" id="map" viewBox="0 0 760 640" role="img" aria-label="전북 지도">
           <defs>
@@ -389,7 +421,7 @@ svg.chart{width:100%;height:auto;display:block;overflow:visible}
     </div>
 
     <div class="card">
-      <h2 id="tblTitle">시군별 값 순위</h2>
+      <div class="hd"><h2 id="tblTitle">시군별 값 순위</h2><button class="qbtn" data-help="tbl" title="이 칸 설명" aria-label="이 칸 설명">?</button></div>
       <!-- 값 고르는 버튼은 순위 바로 위에 둔다. 위쪽 조작줄에 있으면
            무엇이 바뀌는지 눈으로 잇기 어렵다. 지도 색도 같이 바뀐다. -->
       <div class="modebar">
@@ -408,12 +440,12 @@ svg.chart{width:100%;height:auto;display:block;overflow:visible}
 
   <div class="grid g-half mt">
     <div class="card">
-      <h2 id="chartTitle">주마다 값이 어떻게 움직였나</h2>
+      <div class="hd"><h2 id="chartTitle">주마다 값이 어떻게 움직였나</h2><button class="qbtn" data-help="chart" title="이 칸 설명" aria-label="이 칸 설명">?</button></div>
       <svg class="chart" id="chart"></svg>
       <div class="note" id="chartNote"></div>
     </div>
     <div class="card">
-      <h2 id="ltTitle">2027년까지 달마다 얼마쯤 할까</h2>
+      <div class="hd"><h2 id="ltTitle">2027년까지 달마다 얼마쯤 할까</h2><button class="qbtn" data-help="lt" title="이 칸 설명" aria-label="이 칸 설명">?</button></div>
       <svg class="chart" id="ltChart"></svg>
       <div class="note" id="ltNote"></div>
       <div class="scroll mt"><table id="ltTbl"></table></div>
@@ -421,7 +453,7 @@ svg.chart{width:100%;height:auto;display:block;overflow:visible}
   </div>
 
   <div class="card mt">
-    <h2 id="sgTitle">여름·가을에 값이 크게 오르는 시기</h2>
+    <div class="hd"><h2 id="sgTitle">여름·가을에 값이 크게 오르는 시기</h2><button class="qbtn" data-help="sg" title="이 칸 설명" aria-label="이 칸 설명">?</button></div>
     <div class="kpi" id="sgKpi"></div>
     <svg class="chart" id="sgChart" viewBox="0 0 720 260"></svg>
     <div class="note" id="sgNote"></div>
@@ -429,17 +461,26 @@ svg.chart{width:100%;height:auto;display:block;overflow:visible}
 
   <div class="grid g-half mt">
     <div class="card">
-      <h2 id="dstTitle">어느 도매시장으로 나가나</h2>
+      <div class="hd"><h2 id="dstTitle">어느 도매시장으로 나가나</h2><button class="qbtn" data-help="dst" title="이 칸 설명" aria-label="이 칸 설명">?</button></div>
       <div id="dst"></div>
     </div>
     <div class="card">
-      <h2 id="varTitle">어떤 품종을 얼마나 내나</h2>
+      <div class="hd"><h2 id="varTitle">어떤 품종을 얼마나 내나</h2><button class="qbtn" data-help="var" title="이 칸 설명" aria-label="이 칸 설명">?</button></div>
       <div id="variety"></div>
     </div>
   </div>
 </div>
 
 <div class="tip" id="tip"></div>
+
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <div class="bg" data-close></div>
+  <div class="panel">
+    <button class="close" data-close aria-label="닫기">×</button>
+    <h3 id="sheetTitle"></h3>
+    <div class="body" id="sheetBody"></div>
+  </div>
+</div>
 
 <script>
 "use strict";
@@ -485,6 +526,31 @@ function applyTheme(t){
   };
 })();
 
+/* ── 설명 창 ───────────────────────────────────────────
+   설명을 카드 본문에 늘어놓으면 숫자보다 글이 먼저 눈에 들어온다.
+   물음표 뒤로 넣되, **한계에 관한 말은 빼지 않는다** — 접어 두는 것과
+   지우는 것은 다르다. 카드에는 한 줄 요약만 남기고 나머지를 여기 담는다. */
+const HELP={};
+function setHelp(k,title,html){ HELP[k]={title,html}; }
+function openHelp(k){
+  const h=HELP[k]; if(!h) return;
+  $("#sheetTitle").textContent=h.title;
+  $("#sheetBody").innerHTML=h.html;
+  $("#sheet").classList.add("on");
+  document.body.style.overflow="hidden";
+  $("#sheet").querySelector(".close").focus();
+}
+function closeHelp(){
+  $("#sheet").classList.remove("on");
+  document.body.style.overflow="";
+}
+document.addEventListener("click",e=>{
+  const q=e.target.closest("[data-help]");
+  if(q){ openHelp(q.dataset.help); return; }
+  if(e.target.closest("[data-close]")) closeHelp();
+});
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeHelp(); });
+
 /* ── 도움말 상자 ───────────────────────────────────── */
 const tip=$("#tip");
 function showTip(ev,html){
@@ -527,17 +593,34 @@ function init(){
     ? `전국 공영도매시장 <b>${m.markets_surveyed}곳 전부</b>에서 `
       +(m.markets_with_jeonbuk?`<span style="color:var(--muted)">— 전북 상추가 실제로 팔린 곳은 ${m.markets_with_jeonbuk}곳 — </span>`:"")
     : `전국 도매시장 ${m.markets}곳에서`;
-  $("#meta").innerHTML=`<b>${m.period[0]} ~ ${m.period[1]}</b>의 ${mk} 거래를 모았습니다 · `
-    +`상추 <b>${(m.rows/10000).toFixed(0)}만 건</b>. `
-    +`값은 주로 거래되는 17품종의 <b>1kg 값</b>이고, 물량이 많은 거래에 더 무게를 뒀습니다`
-    +`<span style="color:var(--muted)"> (상추솎음·상추순·쫑상추는 뺐습니다)</span>.`;
+  $("#meta").innerHTML=`<b>${m.period[0]} ~ ${m.period[1]}</b> · 도매시장 `
+    +`<b>${m.markets_surveyed||m.markets}곳</b> · 상추 <b>${(m.rows/10000).toFixed(0)}만 건</b>`
+    +` · 값은 모두 <b>1kg 값</b>`;
 
   let best={v:0};
   Object.values(DATA.counties).forEach(c=>c.weekly.forEach(w=>{
     if(w[6]>best.v) best={v:w[6],kg:w[7],wk:w[0],name:c.name}}));
-  if(best.v) $("#boxRec").innerHTML=`<br>지금까지 가장 비쌌던 상자: `
-    +`<b>${best.name} ${best.wk} 주에 ${best.kg}kg 상자가 ${won(best.v)}원</b>`
-    +` — 1kg으로 치면 ${won(best.v/best.kg)}원입니다.`;
+    const boxRec = best.v
+    ? `<p class="h">상자값과 1kg 값</p>
+       <p>지금까지 가장 비쌌던 상자는 <b>${best.name} ${best.wk} 주에 ${best.kg}kg 상자 ${won(best.v)}원</b>이었습니다.
+       1kg으로 치면 ${won(best.v/best.kg)}원입니다.</p>` : "";
+  setHelp("intro","이 화면은 무엇인가",
+    `<p>전국 공영도매시장 <b>${m.markets_surveyed||m.markets}곳 전부</b>에서
+     ${m.markets_with_jeonbuk?`전북 상추가 실제로 팔린 곳은 ${m.markets_with_jeonbuk}곳입니다. `:""}
+     ${m.period[0]}부터 ${m.period[1]}까지 상추 거래 <b>${(m.rows/10000).toFixed(0)}만 건</b>을 모았습니다.</p>
+     <p class="h">여기 나오는 값은 모두 1kg 값입니다</p>
+     <p>도매시장 자료에 적힌 값은 <b>상자 하나 값</b>이라, 상자 무게로 나눠 1kg 값으로 바꿨습니다.
+     4kg 상자가 13만원에 낙찰됐다면 <b>상자값 130,000원 = 1kg에 32,500원</b>입니다.
+     "상추가 10만원 넘었다"고 기억하시는 건 대개 상자값입니다.</p>`
+    +boxRec
+    +`<p class="h">어떤 상추를 셌나</p>
+     <p>주로 거래되는 17품종이고, 물량이 많은 거래에 더 무게를 뒀습니다.
+     상추솎음·상추순·쫑상추는 뺐습니다 — 작기가 끝날 무렵 나오는 것이라
+     같이 세면 그 지역 값이 실제보다 낮아 보입니다.</p>
+     <p class="h">쓰는 법</p>
+     <p>위 지도에서 <b>시군을 누르면</b> 그 시군으로 확대되며 읍면 경계가 드러납니다.
+     <b>읍면을 한 번 더 누르면</b> 그 읍면까지 확대되고, 아래 모든 칸이 그 읍면 기준으로 바뀝니다.
+     각 칸 오른쪽 위 <b>?</b>를 누르면 그 칸 설명이 나옵니다.</p>`);
 
   const set=new Set();
   Object.values(DATA.counties).forEach(c=>c.weekly.forEach(w=>set.add(w[0])));
@@ -574,7 +657,11 @@ function init(){
     $("#modeSeg").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));
     render();
   });
-  $("#btnBack").onclick=()=>{SEL=null;EUP=null;zoomTo(null);render()};
+  // 이제 단계가 셋이다(전북 / 시군 / 읍면). 한 번에 맨 위로 가지 않고 한 칸씩 나온다.
+  $("#btnBack").onclick=()=>{
+    if(EUP){ EUP=null; render(); zoomToEup(); }
+    else { SEL=null; EUP=null; zoomTo(null); render(); }
+  };
   showAlert();          // WK가 채워진 뒤라야 마지막 주를 알 수 있다
   render();
 }
@@ -686,12 +773,19 @@ function renderDest(){
       +(v?`<span class="dv">${v}</span>`:"")+`</div>`;
   });
   const top=u.markets[0];
-  h+=`<div class="note">${periodNote(key)} 이 지역에서 나간 <b>${ton(u.t,1)}톤</b> 가운데 `
-    +`<b>${top.name}</b>으로 간 것이 <b>${pct(top.share)}</b>로 가장 많습니다. `
-    +`막대 옆 숫자는 그 시장으로 간 물량과 거기서 받은 1kg 평균값이고, `
-    +`시장 이름 아래 줄은 <b>그 시장으로 간 물량이 무슨 품종이었는지</b>입니다.<br>`
-    +`<b>주의 —</b> ${DST.meta.caveat_ko}</div>`;
+  h+=`<div class="note">${periodNote(key)} 나간 <b>${ton(u.t,1)}톤</b> 가운데 `
+    +`<b>${top.name}</b>이 <b>${pct(top.share)}</b>로 가장 많습니다.</div>`;
   $("#dst").innerHTML=h;
+  setHelp("dst","출하처 보는 법",
+    `<p>막대 길이는 <b>그 시장으로 간 물량의 비중</b>입니다.
+     막대 옆 숫자는 물량과 거기서 받은 1kg 평균값이고,
+     시장 이름 아래 줄은 <b>그 시장으로 간 물량이 무슨 품종이었는지</b>입니다.</p>
+     <p class="h">시군마다 갈립니다</p>
+     <p>익산은 서울가락 한 곳이 67%인데, 남원은 부산·광주로 흩어집니다.
+     읍면까지 내려가면 더 뚜렷해서, 남원 운봉읍은 부산엄궁 한 곳이 83%입니다.</p>
+     <div class="warn"><b>주의 —</b> ${DST.meta.caveat_ko}
+     운임도 빠져 있습니다. 남원에서 서울가락은 광주보다 운임이 크니,
+     경락값이 조금 높다고 손에 쥐는 돈이 더 많다는 뜻은 아닙니다.</div>`);
 }
 
 /* ── 지도 확대 ─────────────────────────────────────────
@@ -800,13 +894,25 @@ function renderCounty(){
     p.onmouseleave=hideTip;
   });
   legend(mn,mx,false);
-  $("#mapNote").innerHTML=`${WK[I0]} ~ ${WK[I1]} 사이에 팔린 값입니다. `
-    +(MODE==="avg"?"많이 판 주에 더 무게를 둔 <b>평균값</b>이고, "
-                  :`그 기간에 <b>가장 ${MODE==="hi"?"비쌌던":"쌌던"} 값</b>이고, `)
-    // "진할수록 높다"고 쓰면 안 된다 — 어두운 화면에서는 높은 쪽이 오히려 밝다.
-    // 범례 순서를 기준으로 말하면 두 화면에서 다 맞는다.
-    +`색은 아래 띠를 따릅니다 — <b>오른쪽으로 갈수록 비쌉니다</b>. `
-    +`<b>시군을 누르면 읍면까지 확대해서 볼 수 있습니다.</b>`;
+  $("#mapNote").innerHTML=`${WK[I0]} ~ ${WK[I1]} · `
+    +(MODE==="avg"?"많이 판 주에 무게를 둔 <b>평균값</b>"
+                  :`그 기간 <b>가장 ${MODE==="hi"?"비쌌던":"쌌던"} 값</b>`)
+    +` · <b>시군을 누르면 확대됩니다</b>`;
+  // "진할수록 높다"고 쓰면 안 된다 — 어두운 화면에서는 높은 쪽이 오히려 밝다.
+  // 범례 순서를 기준으로 말하면 두 화면에서 다 맞는다.
+  setHelp("map","시군 지도 보는 법",
+    `<p>고른 기간 동안 그 시군에서 <b>실제로 팔린 값</b>입니다. 색은 아래 띠를 따르고,
+     <b>오른쪽으로 갈수록 비쌉니다.</b></p>
+     <p class="h">평균값이란</p>
+     <p>많이 판 주에 더 무게를 둔 값입니다. 한 상자 팔린 주와 백 상자 팔린 주를
+     똑같이 세면 실제로 받은 값과 멀어집니다.</p>
+     <p class="h">빗금 친 곳</p>
+     <p>그 기간에 상추 출하 기록이 없는 곳입니다. 값이 낮은 것이 아니라
+     <b>자료가 없는 것</b>이라 색을 칠하지 않았습니다.</p>
+     <p class="h">눌러서 들어가기</p>
+     <p>시군을 누르면 그 시군으로 확대되며 읍면 경계가 드러납니다.
+     읍면을 한 번 더 누르면 <b>그 읍면까지 확대</b>되고, 아래 모든 칸이
+     그 읍면 기준으로 바뀝니다.</p>`);
 
   const sorted=Object.entries(vals).filter(([,a])=>a)
     .sort((a,b)=>pick(b[1])-pick(a[1]));
@@ -839,18 +945,36 @@ function renderCounty(){
   const all=sorted.map(([,a])=>a);
   $("#kpi").innerHTML=kpiHtml({label:DATA.counties[sorted[0][0]].name,agg:sorted[0][1]},
     {label:DATA.counties[sorted[sorted.length-1][0]].name,agg:sorted[sorted.length-1][1]},all);
-  $("#tblNote").innerHTML="줄을 누르면 그 시군의 읍면별 값을 볼 수 있습니다. "
-    +"<b>「평균 오차」</b>는 지난 6년치로 미리 맞혀 본 결과, 실제값과 얼마나 벌어졌는지입니다 — "
-    +"‘평균 23% 빗나감’이면 4,000원을 3,100~4,900원쯤으로 짚었다는 뜻입니다. "
-    +"<b>들쭉날쭉</b>은 해마다 값이 너무 튀어서 예측을 믿기 어려운 곳입니다.";
+  $("#tblNote").innerHTML="줄을 누르면 그 시군의 읍면별 값을 볼 수 있습니다.";
+  setHelp("tbl","순위표 보는 법",
+    `<p class="h">평균 오차</p>
+     <p>지난 6년치 자료로 <b>미리 맞혀 본 결과</b>, 실제값과 얼마나 벌어졌는지입니다.
+     '평균 23% 빗나감'이면 4,000원짜리를 <b>3,100~4,900원쯤</b>으로 짚었다는 뜻입니다.
+     낮을수록 좋습니다 — '정확도 몇 %'가 아니라 <b>빗나간 폭</b>이라 방향이 반대입니다.</p>
+     <div class="warn"><b>들쭉날쭉</b>으로 표시된 시군은 해마다 값이 너무 튀어서
+     예측을 믿기 어려운 곳입니다. 그 시군 예측값은 참고만 하세요.</div>
+     <p class="h">제일 비쌌던 상자</p>
+     <p>그 기간에 가장 높게 낙찰된 <b>상자 하나 값</b>입니다. 다른 칸은 모두 1kg 값이라
+     견줘 보시라고 넣었습니다.</p>`);
 }
 const row=(k,v)=>`<div class="r"><span>${k}</span><b>${v}</b></div>`;
+/* 지금 고른 읍면으로 확대한다. 읍면 도형이 아직 안 그려졌으면(드릴다운 직후)
+   그려진 뒤에 다시 부르도록 잠깐 미룬다. */
+function zoomToEup(tries){
+  if(!SEL) return;
+  const cty=$(`#mapG .cty[data-id="${SEL}"]`);
+  if(!EUP){ const t=cty||$("#mapG path"); if(t) zoomTo(bboxOf(t)); return; }
+  const el=$(`#mapG .eup[data-e="${CSS.escape(EUP)}"]`);
+  if(el){ zoomTo(bboxOf(el)); return; }
+  if((tries||0)<10) setTimeout(()=>zoomToEup((tries||0)+1),90);
+}
 function bboxOf(el){const b=el.getBBox();return [b.x,b.y,b.x+b.width,b.y+b.height]}
 
 /* ── 읍면 단계 ─────────────────────────────────────── */
 function renderEup(){
   const c=DATA.counties[SEL];
   $("#btnBack").style.display="";
+  $("#btnBack").textContent=EUP?`◀ ${c.name} 전체`:"◀ 전북 전체";
   $("#crumb").textContent=" › "+c.name;
   $("#mapTitle").textContent=c.name+" 읍면 지도";
   $("#tblTitle").textContent=c.name+" 읍면별 값";
@@ -921,7 +1045,8 @@ function renderEup(){
   });
   $("#tbl").innerHTML=h+"</tbody>";
   $("#tbl").querySelectorAll("tr.click").forEach(tr=>tr.onclick=()=>{
-    EUP=(EUP===tr.dataset.e)?null:tr.dataset.e; render();});
+    EUP=(EUP===tr.dataset.e)?null:tr.dataset.e;
+    render(); zoomToEup();});
 
   $("#kpi").innerHTML=kpiHtml({label:rank[0][0],agg:rank[0][2]},
     {label:rank[rank.length-1][0],agg:rank[rank.length-1][2]}, rows.map(r=>r[2]));
@@ -1001,7 +1126,11 @@ function drawEupMap(c,byName,rows,solidNames,thinNames){
     });
     $("#mapG").querySelectorAll(".eup").forEach(p=>{
       const n=p.dataset.e, a=byName[n];
-      p.onclick=()=>{ if(!a) return; EUP=(EUP===n)?null:n; render(); };
+      p.onclick=()=>{ if(!a) return;
+        EUP=(EUP===n)?null:n; hideTip();
+        // 읍면을 고르면 그 구역까지 확대한다. 다시 누르면 시군 전체로 돌아온다.
+        zoomTo(EUP?bboxOf(p):bboxOf($(`#mapG .cty[data-id="${SEL}"]`)||p));
+        render(); };
       p.onmousemove=ev=>showTip(ev, a
         ? `<div class="th">${n}</div>`
           +row(MODE==="avg"?"평균":MODE==="hi"?"가장 비쌀 때":"가장 쌀 때",won(pick(a))+"원")
@@ -1138,15 +1267,21 @@ function renderChart(){
   };
   hit.onmouseleave=()=>{hideTip();line.setAttribute("opacity","0")};
   const r=unit.reliability;
-  $("#chartNote").innerHTML=`세로 눈금은 <b>1kg 값</b>입니다. `
-    +`연한 띠는 그 주에 <b>가장 싸게·비싸게 팔린 값의 폭</b>, 굵은 선은 그 주 평균, `
-    +`점선은 앞으로의 예상입니다(점선 둘레의 옅은 부분은 <b>열에 여덟은 이 안에 들어온다</b>는 범위).`
-    +(r.cv_mape!=null?` 지난 6년치로 미리 맞혀 봤더니 평균 <b>${Math.round(r.cv_mape)}%</b> `
-      +`빗나갔습니다(예년 이맘때 값만 쓰면 ${Math.round(r.baseline)}%).`:"")
-    +`<br><b>믿을 만한 건 다음 한 주까지입니다.</b> `
-    +`2주 뒤부터는 예년 값만 보는 것과 별 차이가 없어집니다`
-    +`<span style="color:var(--muted)"> (앞선 정도가 1주 +7.65%p → 2주 +1.50%p → 4주 +0.32%p로 줄어듭니다)</span>. `
-    +`먼 주는 <b>“대충 이쯤”</b> 정도로만 보세요.`;
+  $("#chartNote").innerHTML=`띠 = 그 주 싼값~비싼값 · 실선 = 평균 · 점선 = 예상`
+    +` · <b>믿을 만한 건 다음 한 주까지</b>`;
+  setHelp("chart","값 흐름 그래프 보는 법",
+    `<p>세로 눈금은 <b>1kg 값</b>입니다.</p>
+     <p><b>연한 띠</b>는 그 주에 가장 싸게·비싸게 팔린 값의 폭입니다. 같은 주에도
+     이만큼 벌어진다는 뜻이라, 평균만 보고 정하면 안 되는 이유가 여기 있습니다.<br>
+     <b>굵은 선</b>이 그 주 평균, <b>점선</b>이 앞으로의 예상입니다.
+     점선 둘레의 옅은 부분은 <b>열에 여덟은 이 안에 들어온다</b>는 범위입니다.</p>`
+    +(r.cv_mape!=null?`<p class="h">얼마나 맞나</p>
+     <p>지난 6년치로 미리 맞혀 봤더니 평균 <b>${Math.round(r.cv_mape)}%</b> 빗나갔습니다.
+     예년 이맘때 값만 쓰면 ${Math.round(r.baseline)}%였으니, 그만큼은 앞섭니다.</p>`:"")
+    +`<div class="warn"><b>믿을 만한 건 다음 한 주까지입니다.</b>
+     2주 뒤부터는 예년 값만 보는 것과 별 차이가 없어집니다 —
+     앞선 정도가 1주 +7.65%p에서 2주 +1.50%p, 4주 +0.32%p로 줄어듭니다.
+     먼 주는 "대충 이쯤" 정도로만 보세요.</div>`);
 }
 
 /* ── 2027 장기전망 ─────────────────────────────────────
@@ -1159,6 +1294,19 @@ function renderLong(){
   const nm=SEL?(EUP&&EUP!==DATA.counties[SEL].name
       ? DATA.counties[SEL].name+" "+EUP : DATA.counties[SEL].name):null;
   $("#ltTitle").textContent=(nm||"전북")+" — 2027년까지 달마다 얼마쯤 할까";
+  // 설명은 전망이 없을 때도 등록해 둔다 — 물음표는 언제나 눌리기 때문이다
+  setHelp("lt","먼 앞날 값 보는 법",
+    `<p><b>실선 · 속 찬 점</b>은 앞으로 3개월까지 예측 모형이 낸 값입니다.<br>
+     <b>점선 · 빈 점</b>은 그 뒤 구간인데, 모형이 아니라
+     <b>예년 이맘때 값에 요즘 시세를 얹은 참고치</b>입니다.
+     옅은 띠는 열에 여덟이 들어오는 범위입니다.</p>
+     <p class="h">왜 먼 구간은 모형을 안 쓰나</p>
+     <p>4개월을 넘기면 <b>모형이 예년 평균보다 오히려 못 맞힙니다.</b>
+     1년 뒤를 보면 모형은 29.7% 빗나가는데 예년값은 23.0%였습니다.
+     못 맞히는 걸 알면서 쓰느니 안 쓰는 편이 낫습니다.</p>
+     <div class="warn"><b>이건 "예년엔 이랬다"는 참고치이지 그해 예측이 아닙니다.</b>
+     그해 작황이나 날씨 충격은 하나도 안 들어가 있습니다.
+     작목·재배 계획의 밑그림 정도로만 쓰세요.</div>`);
   if(!F||!F.length){
     // 빈 차트라도 SVG는 viewBox 높이만큼 자리를 차지한다. 접어서 카드가
     // 안내문 한 줄 높이로 줄게 한다.
@@ -1218,15 +1366,10 @@ function renderLong(){
   const y27=F.filter(f=>f.ym.startsWith("2027"));
   const pk=y27.length?y27.reduce((a,b)=>b.p>a.p?b:a):null;
   const bt=y27.length?y27.reduce((a,b)=>b.p<a.p?b:a):null;
-  $("#ltNote").innerHTML=`<b>실선 · 속 찬 점</b>은 앞으로 3개월까지 예측 모형이 낸 값입니다. `
-    +`<b>점선 · 빈 점</b>은 그 뒤 구간인데, 모형이 아니라 <b>예년 이맘때 값에 요즘 시세를 얹은 참고치</b>입니다. `
-    +`옅은 띠는 열에 여덟이 들어오는 범위입니다.<br>`
-    +`4개월을 넘기면 <b>모형이 예년 평균보다 오히려 못 맞혀서</b> 아예 쓰지 않습니다`
-    +`<span style="color:var(--muted)"> (1년 뒤: 모형 29.7% vs 예년값 23.0%)</span>.<br>`
-    +(pk?`2027년은 <b class="hi">${pk.ym.replace("-","년 ")}월이 가장 비싸고(${won(pk.p)}원)</b> · `
-        +`<b class="lo">${bt.ym.replace("-","년 ")}월이 가장 쌀 것</b>으로 나옵니다(${won(bt.p)}원). `:"")
-    +`<b>다만 이건 “예년엔 이랬다”는 참고치이지 그해 예측이 아닙니다</b> — `
-    +`그해 작황이나 날씨 충격은 하나도 안 들어가 있습니다. 작목·재배 계획의 밑그림 정도로만 쓰세요.`;
+  $("#ltNote").innerHTML=
+    (pk?`2027년은 <b class="hi">${pk.ym.replace("-","년 ")}월이 가장 비싸고</b>(${won(pk.p)}원) `
+       +`<b class="lo">${bt.ym.replace("-","년 ")}월이 가장 쌉니다</b>(${won(bt.p)}원). `:"")
+    +`<b>그해 예측이 아니라 참고치입니다.</b>`;
 
   let h=`<thead><tr><th>언제</th><th>예상값<br><span class="u">1kg</span></th>`
     +`<th>열에 여덟은<br><span class="u">이 안</span></th><th>어떻게 냈나</th>`
@@ -1316,17 +1459,25 @@ function renderSurge(){
     r.onmouseleave=hideTip;
   });
 
-  $("#sgNote").innerHTML=`가로는 달, 막대 하나가 그 해에 값이 크게 오른 기간입니다. `
-    +`점은 그 해 가장 비쌌던 주입니다. `
-    +`여기서 말하는 <b>“크게 올랐다”는 그 해 1~6월 보통값의 2배를 넘었다</b>는 뜻입니다`
-    +`<span style="color:var(--muted)"> (9월은 원래 비싼 달이라 “예년 9월과 비교”하면 오른 줄 모릅니다. `
-    +`농사짓는 분이 실제로 겪는 건 상반기 대비 몇 배냐라서 이렇게 잡았습니다)</span>.<br>`
-    +`<b>주의 — 언제 시작할지는 맞히지 못합니다.</b> `
-    +`오르기 시작하기 전 몇 주를 놓고 “4주 안에 오르기 시작하나”를 시험해 봤지만, `
-    +`<b>달력만 보고 찍는 것보다 낫다는 증거가 없었습니다.</b> `
-    +`값이 오르기 직전의 시세가 평범한 주와 거의 구별되지 않기 때문입니다. `
-    +`그러니 이 그림은 <b>“예년엔 이맘때 이만큼 올랐다”</b>까지만 말해 줍니다. `
-    +`올해 출하를 미룰지 당길지는 이 그림만 보고 정하지 마세요.`;
+  $("#sgNote").innerHTML=`막대 하나가 그 해에 값이 크게 오른 기간, 점은 가장 비쌌던 주입니다. `
+    +`<b>주의 — 언제 시작할지는 맞히지 못합니다.</b>`;
+  setHelp("sg","값이 크게 오르는 시기",
+    `<p>가로는 달, 막대 하나가 그 해에 값이 크게 오른 기간입니다.
+     점은 그 해 가장 비쌌던 주입니다.</p>
+     <p class="h">"크게 올랐다"의 기준</p>
+     <p>그 해 <b>1~6월 보통값의 2배를 넘었다</b>는 뜻입니다.
+     9월은 원래 비싼 달이라 "예년 9월과 비교"하면 올라도 오른 줄 모릅니다 —
+     실제로 2025년 9월은 1kg 9,154원까지 갔는데도 예년 9월 기준으로는 '정상'으로
+     잡혔습니다. 농사짓는 분이 겪는 건 <b>상반기 대비 몇 배냐</b>라서 이렇게 잡았습니다.</p>
+     <p class="h">기준값을 상반기로 잡은 이유</p>
+     <p>한 해 전체 평균을 쓰면 급등기 자신이 평균을 끌어올려 기준이 흔들립니다.
+     상반기 값은 <b>6월 말이면 확정</b>돼서 그 해 안에 바로 쓸 수 있습니다.</p>
+     <div class="warn"><b>언제 시작할지는 맞히지 못합니다.</b>
+     오르기 시작하기 전 몇 주를 놓고 "4주 안에 오르기 시작하나"를 시험해 봤지만,
+     <b>달력만 보고 찍는 것보다 낫다는 증거가 없었습니다.</b>
+     값이 오르기 직전의 시세가 평범한 주와 거의 구별되지 않기 때문입니다.
+     이 그림은 "예년엔 이맘때 이만큼 올랐다"까지만 말해 줍니다 —
+     올해 출하를 미룰지 당길지를 이것만 보고 정하지 마세요.</div>`);
 }
 
 /* ── 품종 ─────────────────────────────────────────────
@@ -1352,14 +1503,17 @@ function renderVariety(){
     +` <span style="color:var(--muted)">1kg ${won(v.price)}원</span></span>`).join("")+`</div>`;
   const jj=V.find(v=>v.name.includes("쫑"));
   const rest=V.find(v=>v.rest);
-  bar+=`<div class="note">${periodNote(key)} 막대 길이는 <b>물량 비중</b>, 옆의 값은 `
-    +`그 품종이 받은 1kg 평균값입니다. 적상추·청상추는 지역마다 갈리고, `
-    +`쫑상추는 어디서나 나옵니다.`
-    +(jj?` <b>${jj.name}는 ${pct(jj.share)}에 1kg ${won(jj.price)}원</b>인데, `
-      +`한 작기가 끝날 무렵 순을 꺾어 내는 것이라 값이 낮습니다. `
-      +`그래서 <b>위쪽 가격에는 넣지 않고</b> 따로 셉니다.`:"")
-    +(rest?` 물량이 적은 ${rest.rest.length}종은 '그 밖'으로 묶었습니다(${rest.rest.join(", ")}).`:"")
-    +`</div>`;
+  bar+=`<div class="note">${periodNote(key)}</div>`;
+  setHelp("var","품종 구성 보는 법",
+    `<p>막대 길이는 <b>물량 비중</b>, 옆의 값은 그 품종이 받은 1kg 평균값입니다.
+     적상추·청상추는 지역마다 갈리고, 쫑상추는 어디서나 나옵니다.</p>`
+    +(jj?`<p class="h">쫑상추</p>
+     <p><b>${jj.name}는 ${pct(jj.share)}에 1kg ${won(jj.price)}원</b>입니다.
+     한 작기가 끝날 무렵 순을 꺾어 내는 것이라 값이 낮습니다.
+     그래서 <b>위쪽 가격에는 넣지 않고</b> 따로 셉니다 —
+     쫑상추를 섞으면 그 지역 값이 실제보다 낮아 보입니다.</p>`:"")
+    +(rest?`<p class="h">'그 밖'에 들어간 것</p>
+     <p>물량이 적은 ${rest.rest.length}종을 묶었습니다: ${rest.rest.join(", ")}.</p>`:""));
   $("#variety").innerHTML=bar;
   $("#variety").querySelectorAll(".vbar div").forEach(d=>{
     const v=V[+d.dataset.v];
