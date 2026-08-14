@@ -347,14 +347,15 @@ b.hi,b.lo{font-weight:650}
 .drow:last-of-type{border-bottom:0}
 .drow .dn{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .drow .dbar{background:var(--card-2);border-radius:4px;height:16px;position:relative}
-.drow .dbar i{position:absolute;inset:0 auto 0 0;background:var(--accent);
-  border-radius:4px;display:block}
+.drow .dbar .fill{position:absolute;inset:0 auto 0 0;border-radius:4px;
+  overflow:hidden;display:flex}
+.drow .dbar .fill i{display:block;height:100%}
 /* 숫자는 막대 위에 얹지 않는다 — 채워진 부분과 빈 부분을 걸치면 어느 쪽에서도
    대비가 안 맞는다. 칸을 따로 준다. */
 .drow .dd{text-align:right;font-size:11.5px;color:var(--muted);white-space:nowrap;
   font-variant-numeric:tabular-nums}
 .drow .dp{text-align:right;font-weight:660;font-variant-numeric:tabular-nums}
-.drow.rest .dbar i{background:var(--muted);opacity:.55}
+.drow.rest .dbar .fill{opacity:.55}
 /* 그 시장으로 간 물량의 품종 구성 — 시장 이름 아래 한 줄 */
 .drow .dv{grid-column:2/-1;font-size:11.5px;color:var(--ink-2);margin-top:-2px;
   font-variant-numeric:tabular-nums}
@@ -786,6 +787,9 @@ function renderRegion(){
    둘 다 기간 버튼과 같은 창으로 미리 계산해 뒀다(export_destinations.py).
    예전 품종 카드는 기간을 무시하고 전 기간 고정이라, 위쪽 표와 다른 기간을
    말하고 있었다. 여기서 같이 맞춘다. */
+// 품종 색. 출하처 막대와 품종 칸이 **같은 색표·같은 순서**를 쓴다.
+const VC=["var(--s1)","var(--s2)","var(--s3)","var(--s4)","var(--s5)","var(--s6)",
+          "var(--s7)","var(--muted)"];
 const RNGWORD={"8":"최근 8주","26":"최근 6개월","53":"최근 1년","157":"최근 3년","0":"전 기간"};
 // 물량이 있는데 반올림해서 "0%"라고 적으면 안 판 것처럼 보인다
 const pct=v=>v>0&&v<0.1?"0.1% 미만":v+"%";
@@ -820,23 +824,36 @@ function renderDest(){
     $("#dst").innerHTML=`<div class="note">이 기간에 이 지역에서 나간 물량이 없습니다.</div>`;
     return;
   }
+  // 막대를 품종 색으로 나눈다 — 어느 시장에 무엇이 나가는지가 한눈에 들어온다.
+  // 색은 아래 품종 칸과 **같은 순서**를 쓴다. 두 칸이 다른 색을 쓰면 못 잇는다.
+  const order=(u.varieties||[]).map(v=>v.name);
+  const colOf=n=>{const i=order.indexOf(n); return i>=0?VC[i%VC.length]:"var(--muted)"};
   const mx=Math.max(...u.markets.map(m=>m.share));
   let h="";
   u.markets.forEach(m=>{
     const rest=m.rest?` title="${m.rest.join(', ')}"`:"";
-    const v=(m.v||[]).map(([nm,sh,pr])=>
-      `<b>${nm}</b> ${pct(sh)}${pr?`<span style="color:var(--muted)"> 1kg ${won(pr)}원</span>`:""}`)
-      .join(" · ");
+    const vs=m.v||[];
+    const known=vs.reduce((s,x)=>s+x[1],0);
+    // 막대 안을 품종 비율대로 쪼갠다. 상위 몇 종만 오므로 나머지는 한 칸으로 둔다.
+    let seg="";
+    vs.forEach(([nm,sh])=>{ seg+=`<i style="width:${(sh/100*100).toFixed(1)}%;`
+      +`background:${colOf(nm)}" title="${nm} ${pct(sh)}"></i>`; });
+    if(known<99.5) seg+=`<i style="width:${(100-known).toFixed(1)}%;`
+      +`background:var(--muted);opacity:.45" title="그 밖 ${pct(+(100-known).toFixed(1))}"></i>`;
     h+=`<div class="drow${m.rest?" rest":""}"${rest}>`
       +`<span class="dn">${m.name}</span>`
-      +`<span class="dbar"><i style="width:${(m.share/mx*100).toFixed(1)}%"></i></span>`
+      +`<span class="dbar"><span class="fill" style="width:${(m.share/mx*100).toFixed(1)}%">`
+      +(seg||`<i style="width:100%;background:var(--accent)"></i>`)+`</span></span>`
       +`<span class="dd">${ton(m.t,1)}톤${m.price?` · 1kg ${won(m.price)}원`:""}</span>`
-      +`<b class="dp">${pct(m.share)}</b>`
-      +(v?`<span class="dv">${v}</span>`:"")+`</div>`;
+      +`<b class="dp">${pct(m.share)}</b></div>`;
   });
   const top=u.markets[0];
-  h+=`<div class="note">${periodNote(key)} 나간 <b>${ton(u.t,1)}톤</b> 가운데 `
-    +`<b>${top.name}</b>이 <b>${pct(top.share)}</b>로 가장 많습니다.</div>`;
+  // 막대 색이 무슨 품종인지 알려 주는 범례
+  let leg=`<div class="vleg" style="margin-top:10px">`+order.slice(0,7).map((nm,i)=>
+    `<span><i style="background:${VC[i%VC.length]}"></i>${nm}</span>`).join("")+`</div>`;
+  h+=leg+`<div class="note">${periodNote(key)} 나간 <b>${ton(u.t,1)}톤</b> 가운데 `
+    +`<b>${top.name}</b>이 <b>${pct(top.share)}</b>로 가장 많습니다. `
+    +`<b>막대 색은 품종</b>입니다.</div>`;
   $("#dst").innerHTML=h;
   setHelp("dst","출하처 보는 법",
     `<p>막대 길이는 <b>그 시장으로 간 물량의 비중</b>입니다.
@@ -1024,8 +1041,8 @@ const row=(k,v)=>`<div class="r"><span>${k}</span><b>${v}</b></div>`;
    그려진 뒤에 다시 부르도록 잠깐 미룬다. */
 function zoomToEup(tries){
   if(!SEL) return;
-  const cty=$(`#mapG .cty[data-id="${SEL}"]`);
-  if(!EUP){ const t=cty||$("#mapG path"); if(t) zoomTo(bboxOf(t)); return; }
+  const cty=$(`#mapG .ctyline[data-id="${SEL}"]`)||$(`#mapG .cty[data-id="${SEL}"]`);
+  if(!EUP){ if(cty) zoomTo(bboxOf(cty)); return; }
   const el=$(`#mapG .eup[data-e="${CSS.escape(EUP)}"]`);
   if(el){ zoomTo(bboxOf(el)); return; }
   if((tries||0)<10) setTimeout(()=>zoomToEup((tries||0)+1),90);
@@ -1170,8 +1187,9 @@ function drawEupMap(c,byName,rows,solidNames,thinNames){
     if(EUP&&eups[EUP]) svg+=`<path d="${eups[EUP].d}" fill="none" stroke="var(--ink)"`
       +` stroke-width="2.4" vector-effect="non-scaling-stroke" pointer-events="none"/>`;
     // 시군 외곽선
-    svg+=`<path d="${g.counties[SEL].d}" fill="none" stroke="var(--ink-2)"`
-      +` stroke-width="1.8" vector-effect="non-scaling-stroke" pointer-events="none"/>`;
+    svg+=`<path class="ctyline" data-id="${SEL}" d="${g.counties[SEL].d}" fill="none"`
+      +` stroke="var(--ink-2)" stroke-width="1.8" vector-effect="non-scaling-stroke"`
+      +` pointer-events="none"/>`;
     // 라벨은 자리가 나는 읍면만
     names.forEach(n=>{
       const e=eups[n], a=byName[n];
@@ -1336,20 +1354,25 @@ function renderChart(){
         +row("그 주 싼값~비싼값",won(w[2])+"~"+won(w[3]))+row("판 물량",ton(w[4],1)+"톤"));
     }else{const f=F[i-H.length];
       showTip(ev,`<div class="th">${f.wk} 주 · 예상</div>`+row("예상값",won(f.p)+"원")
-        +row("열에 여덟은 이 안",won(f.lo)+"~"+won(f.hi))
+        +row("80% 예측구간",won(f.lo)+"~"+won(f.hi)+"원")
         +(f.reliable?"":`<div class="r" style="color:var(--warn)">△ 2주 뒤부터는 믿기 어렵습니다</div>`));
     }
   };
   hit.onmouseleave=()=>{hideTip();line.setAttribute("opacity","0")};
   const r=unit.reliability;
-  $("#chartNote").innerHTML=`띠 = 그 주 싼값~비싼값 · 실선 = 평균 · 점선 = 예상`
-    +` · <b>믿을 만한 건 다음 한 주까지</b>`;
+  $("#chartNote").innerHTML=`띠 = 주간 최저~최고 · 실선 = 주간 평균 · `
+    +`점선 = 예측(80% 구간)`
+    +(r.cv_mape!=null?` · 평균 오차 <b>${Math.round(r.cv_mape)}%</b>`:"")
+    +` · <b>검증된 지평은 1주</b>`;
   setHelp("chart","값 흐름 그래프 보는 법",
     `<p>세로 눈금은 <b>1kg 값</b>입니다.</p>
-     <p><b>연한 띠</b>는 그 주에 가장 싸게·비싸게 팔린 값의 폭입니다. 같은 주에도
-     이만큼 벌어진다는 뜻이라, 평균만 보고 정하면 안 되는 이유가 여기 있습니다.<br>
-     <b>굵은 선</b>이 그 주 평균, <b>점선</b>이 앞으로의 예상입니다.
-     점선 둘레의 옅은 부분은 <b>열에 여덟은 이 안에 들어온다</b>는 범위입니다.</p>`
+     <p><b>연한 띠</b>는 그 주의 최저~최고 폭입니다. 같은 주에도 이만큼 벌어진다는
+     뜻이라, 평균만 보고 정하면 안 되는 이유가 여기 있습니다.<br>
+     <b>굵은 선</b>이 주간 평균, <b>점선</b>이 예측값입니다.</p>
+     <p class="h">80% 예측구간</p>
+     <p>점선 둘레의 옅은 띠입니다. <b>실제값이 이 범위 안에 들어올 확률이 80%</b>라는
+     뜻입니다. 실측 적중률은 <b>81.9%</b>로 명목값과 거의 일치합니다
+     (50% 구간 52.8%, 90% 구간 87.5%). 점예측보다 이 구간이 더 믿을 만합니다.</p>`
     +(r.cv_mape!=null?`<p class="h">얼마나 맞나</p>
      <p>지난 6년치로 미리 맞혀 봤더니 평균 <b>${Math.round(r.cv_mape)}%</b> 빗나갔습니다.
      예년 이맘때 값만 쓰면 ${Math.round(r.baseline)}%였으니, 그만큼은 앞섭니다.</p>`:"")
@@ -1374,7 +1397,7 @@ function renderLong(){
     `<p><b>실선 · 속 찬 점</b>은 앞으로 3개월까지 예측 모형이 낸 값입니다.<br>
      <b>점선 · 빈 점</b>은 그 뒤 구간인데, 모형이 아니라
      <b>예년 이맘때 값에 요즘 시세를 얹은 참고치</b>입니다.
-     옅은 띠는 열에 여덟이 들어오는 범위입니다.</p>
+     옅은 띠는 <b>80% 예측구간</b>입니다.</p>
      <p class="h">왜 먼 구간은 모형을 안 쓰나</p>
      <p>4개월을 넘기면 <b>모형이 예년 평균보다 오히려 못 맞힙니다.</b>
      1년 뒤를 보면 모형은 29.7% 빗나가는데 예년값은 23.0%였습니다.
@@ -1432,7 +1455,7 @@ function renderLong(){
     i=Math.max(0,Math.min(F.length-1,i));
     const f=F[i];
     showTip(ev,`<div class="th">${f.ym} · ${f.h}개월 뒤</div>`
-      +row("예상값",won(f.p)+"원")+row("열에 여덟은 이 안",won(f.lo)+"~"+won(f.hi))
+      +row("예상값",won(f.p)+"원")+row("80% 예측구간",won(f.lo)+"~"+won(f.hi)+"원")
       +row("어떻게 냈나",f.validated?"예측 모형":"예년값 + 요즘 시세")
       +(f.mape!=null?row("평균 오차",f.mape+"%"):""));
   };
@@ -1447,13 +1470,13 @@ function renderLong(){
     +`<b>그해 예측이 아니라 참고치입니다.</b>`;
 
   let h=`<thead><tr><th>언제</th><th>예상값<br><span class="u">1kg</span></th>`
-    +`<th>열에 여덟은<br><span class="u">이 안</span></th><th>어떻게 냈나</th>`
+    +`<th>80%<br><span class="u">예측구간</span></th><th>어떻게 냈나</th>`
     +`<th>평균<br><span class="u">오차</span></th></tr></thead><tbody>`;
   F.filter(f=>f.ym>="2026-11"||f.validated).forEach(f=>{
     h+=`<tr${f.validated?'':' class="thin"'}><td><b>${f.ym}</b> `
       +`<span class="u">${f.h}개월 뒤</span></td>`
       +`<td data-l="예상값"><b>${won(f.p)}</b></td>`
-      +`<td data-l="열에 여덟은 이 안">${won(f.lo)}~${won(f.hi)}</td>`
+      +`<td data-l="80% 예측구간">${won(f.lo)}~${won(f.hi)}</td>`
       +`<td data-l="어떻게 냈나">${f.validated?"예측 모형":"예년값 + 요즘 시세"}</td>`
       +`<td data-l="평균 오차">${f.mape!=null?f.mape+"%":"–"}</td></tr>`;
   });
@@ -1567,8 +1590,7 @@ function renderVariety(){
   }
   // 상위 7종 + '그 밖'까지 이미 묶여서 온다. 색은 8칸을 넘지 않는다.
   const V=u.varieties;
-  const C=["var(--s1)","var(--s2)","var(--s3)","var(--s4)","var(--s5)","var(--s6)",
-           "var(--s7)","var(--muted)"];
+  const C=VC;
   let bar=`<div class="vbar">`;
   V.forEach((v,i)=>{
     bar+=`<div style="width:${v.share}%;background:${C[i%C.length]}" data-v="${i}">`
