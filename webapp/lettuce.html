@@ -216,6 +216,19 @@ select{font:inherit;font-size:13px;padding:5px 9px;border:1px solid var(--line);
   background:color-mix(in srgb,var(--warn) 9%,transparent);
   padding:10px 13px;border-radius:0 8px 8px 0;margin:12px 0;color:var(--ink-2)}
 .mt{margin-top:16px}
+.src{color:var(--muted);font-size:12.5px;line-height:1.7}
+.src b{color:var(--ink-2)}
+
+/* 확대해 들어간 곳을 옆에서 말로 설명한다. 지도만으로는 무엇을 보고 있는지
+   모르고, 표만으로는 그래서 어떻다는 건지 모른다. */
+.region{background:var(--card-2);border-radius:11px;padding:12px 14px;
+  margin-bottom:12px;font-size:13.5px;line-height:1.7;color:var(--ink-2)}
+.region .rt{font-size:15.5px;font-weight:700;color:var(--ink);
+  letter-spacing:-.01em;margin-bottom:5px}
+.region b{color:var(--ink)}
+.region .row{display:flex;gap:8px;padding:2px 0}
+.region .row .k{color:var(--muted);flex:none;width:5.4em}
+.region .warn{color:var(--warn);font-weight:600}
 
 /* 지도 */
 .mapwrap{position:relative}
@@ -376,8 +389,6 @@ svg.chart{width:100%;height:auto;display:block;overflow:visible}
       aria-label="이 화면 설명">?</button>
     <button class="iconbtn" id="theme" title="밝게/어둡게" aria-label="밝게/어둡게"></button>
   </div>
-  <p class="meta" id="meta">불러오는 중…</p>
-
   <div id="alert"></div>
 
   <div class="bar">
@@ -432,6 +443,7 @@ svg.chart{width:100%;height:auto;display:block;overflow:visible}
           <button data-m="lo">가장 쌀 때</button>
         </span>
       </div>
+      <div id="regionCard"></div>
       <div class="kpi" id="kpi"></div>
       <div class="scroll"><table id="tbl"></table></div>
       <div class="note" id="tblNote"></div>
@@ -468,6 +480,12 @@ svg.chart{width:100%;height:auto;display:block;overflow:visible}
       <div class="hd"><h2 id="varTitle">어떤 품종을 얼마나 내나</h2><button class="qbtn" data-help="var" title="이 칸 설명" aria-label="이 칸 설명">?</button></div>
       <div id="variety"></div>
     </div>
+  </div>
+
+  <div class="card mt src">
+    <div class="hd"><h2>이 자료는</h2>
+    <button class="qbtn" data-help="intro" title="자세히" aria-label="자세히">?</button></div>
+    <div id="srcNote"></div>
   </div>
 </div>
 
@@ -593,9 +611,13 @@ function init(){
     ? `전국 공영도매시장 <b>${m.markets_surveyed}곳 전부</b>에서 `
       +(m.markets_with_jeonbuk?`<span style="color:var(--muted)">— 전북 상추가 실제로 팔린 곳은 ${m.markets_with_jeonbuk}곳 — </span>`:"")
     : `전국 도매시장 ${m.markets}곳에서`;
-  $("#meta").innerHTML=`<b>${m.period[0]} ~ ${m.period[1]}</b> · 도매시장 `
-    +`<b>${m.markets_surveyed||m.markets}곳</b> · 상추 <b>${(m.rows/10000).toFixed(0)}만 건</b>`
-    +` · 값은 모두 <b>1kg 값</b>`;
+  $("#srcNote").innerHTML=`<b>${m.period[0]} ~ ${m.period[1]}</b>의 전국 공영도매시장 `
+    +`<b>${m.markets_surveyed||m.markets}곳</b> 경매 기록`
+    +(m.markets_with_jeonbuk?`(전북 상추가 실제로 팔린 곳 ${m.markets_with_jeonbuk}곳)`:"")
+    +`에서 상추 <b>${(m.rows/10000).toFixed(0)}만 건</b>을 모았습니다. `
+    +`값은 주로 거래되는 17품종의 <b>1kg 값</b>이고, 물량이 많은 거래에 더 무게를 뒀습니다. `
+    +`상추솎음·상추순·쫑상추는 뺐습니다. 자료: 공공데이터포털 도매시장 경매정보, `
+    +`기상청 ASOS·AWS, 통계청 2018 시군구·읍면동 경계.`;
 
   let best={v:0};
   Object.values(DATA.counties).forEach(c=>c.weekly.forEach(w=>{
@@ -718,6 +740,46 @@ const MODEWORD=()=>MODE==="avg"?"평균":MODE==="hi"?"최고":"최저";
 function render(){
   SEL?renderEup():renderCounty();
   renderChart(); renderLong(); renderSurge(); renderDest(); renderVariety();
+  renderRegion();
+}
+
+/* ── 지금 보고 있는 곳 ───────────────────────────────────
+   확대해 들어가면 지도 옆에 그 지역이 어떤 곳인지 말로 적는다.
+   지도만 보면 무엇을 보고 있는지 모르고, 표만 보면 그래서 어떻다는 건지
+   모른다. 여기서 두 가지를 잇는다. */
+function renderRegion(){
+  const box=$("#regionCard");
+  if(!SEL){ box.innerHTML=""; return; }
+  const c=DATA.counties[SEL];
+  const unitName=EUP?(EUP===c.name?c.name+" (읍면 모르는 물량)":EUP):c.name;
+  const u=EUP?c.eups[EUP]:c;
+  const a=agg(u.weekly);
+  if(!a){ box.innerHTML=`<div class="region"><div class="rt">${unitName}</div>`
+    +`이 기간에는 판 기록이 없습니다.</div>`; return; }
+
+  const [d]=dstUnit();
+  const top=d&&d.markets&&d.markets[0];
+  const v1=d&&d.varieties&&d.varieties[0];
+  const S=SG?(EUP?null:SG.counties[c.name]):null;
+  const r=u.reliability||{};
+  const row=(k,v)=>`<div class="row"><span class="k">${k}</span><span>${v}</span></div>`;
+
+  let h=`<div class="region"><div class="rt">${unitName}</div>`;
+  h+=row("값", `1kg 평균 <b>${won(a.avg)}원</b> `
+    +`<span style="color:var(--muted)">(${won(a.lo)} ~ ${won(a.hi)})</span>`);
+  h+=row("물량", `<b>${ton(a.qty,1)}톤</b>`
+    +(EUP?"":` · 읍면 ${Object.keys(c.eups).length}곳`));
+  if(top) h+=row("출하처", `<b>${top.name}</b> ${pct(top.share)}`
+    +(d.markets[1]?` <span style="color:var(--muted)">· ${d.markets[1].name} ${pct(d.markets[1].share)}</span>`:""));
+  if(v1) h+=row("품종", `<b>${v1.name}</b> ${pct(v1.share)}`
+    +(d.varieties[1]?` <span style="color:var(--muted)">· ${d.varieties[1].name} ${pct(d.varieties[1].share)}</span>`:""));
+  if(S) h+=row("급등기", `예년 <b>${md("2001-"+S.start_med)}</b>쯤 시작해 `
+    +`<b>${S.weeks_med}주</b> · 꼭대기 <b>${S.peak_x_med}배</b>`);
+  if(r.cv_mape!=null) h+=row("예측", r.beats
+    ? `지난 6년 평균 <b>${Math.round(r.cv_mape)}%</b> 빗나감`
+    : `<span class="warn">들쭉날쭉 — 예측을 믿기 어려운 곳</span>`);
+  h+=`</div>`;
+  box.innerHTML=h;
 }
 
 /* ── 출하처·품종 ────────────────────────────────────────
@@ -1053,13 +1115,18 @@ function renderEup(){
 
   const una=rows.find(r=>r[1].unassigned);
   const nThin=rows.filter(r=>!r[1].unassigned&&isThin(...r)).length;
-  $("#tblNote").innerHTML="읍면을 누르면 지도와 아래 그래프가 그 읍면으로 바뀝니다. "
-    +"가장 비쌀 때·쌀 때 아래에는 <b>실제로 그 값이 나온 주</b>를 적었습니다."
-    +(una?` <b>${una[0]}</b> 줄(이 시군 물량의 `
-      +`${(una[2].qty/totQ*100).toFixed(0)}%)은 출하할 때 주소를 시군까지만 적어서 `
-      +`어느 읍면인지 알 수 없는 물량입니다. 실제로 판 물량이라 표에는 두되 순위에서만 뺐습니다.`:"")
-    +(nThin>0?` 거래가 너무 적은 ${nThin}곳(${ton(thr,1)}톤 미만이거나 3주치 미만)도 `
-      +`순위에서 뺐습니다 — 한두 번 판 것이 그 동네 최고가처럼 보이기 때문입니다.`:"");
+  $("#tblNote").innerHTML="줄을 누르면 그 읍면으로 확대됩니다.";
+  setHelp("tbl",c.name+" 읍면별 값 보는 법",
+    `<p>가장 비쌀 때·쌀 때 아래에는 <b>실제로 그 값이 나온 주</b>를 적었습니다.</p>`
+    +(una?`<p class="h">${una[0]} 줄</p>
+     <p>이 시군 물량의 <b>${(una[2].qty/totQ*100).toFixed(0)}%</b>인데, 출하할 때 주소를
+     시군까지만 적어서 어느 읍면인지 알 수 없는 물량입니다.
+     실제로 판 물량이라 표에는 두되 <b>순위에서만 뺐습니다.</b></p>`:"")
+    +(nThin>0?`<p class="h">거래가 너무 적은 ${nThin}곳</p>
+     <p>${ton(thr,1)}톤 미만이거나 3주치가 안 되는 읍면은 순위에서 뺐습니다.
+     한두 번 판 것이 그 동네 최고가처럼 보이기 때문입니다. 표에는 아래쪽에 남겨 뒀습니다.</p>`:"")
+    +`<div class="warn"><b>다음 주 예상</b>은 그 읍면 자료가 얇으면 크게 빗나갑니다.
+     '믿기 어려움'으로 표시된 줄은 참고만 하세요.</div>`);
 }
 
 /* 읍면 지도. 지도에는 그 시군의 **모든** 읍면을 그리고, 가격자료가 있는 곳만
@@ -1146,14 +1213,22 @@ function drawEupMap(c,byName,rows,solidNames,thinNames){
   const nHave=rows.filter(r=>!r[1].unassigned).length;
   const q=rows.reduce((s,r)=>s+r[2].qty,0)||1;
   const qUna=rows.filter(r=>r[1].unassigned).reduce((s,r)=>s+r[2].qty,0);
-  $("#mapNote").innerHTML=`${c.name}의 읍면들입니다. `
-    +`띠 오른쪽으로 갈수록 비쌉니다. `
-    +`<b>빗금 친 곳</b>은 이 기간에 상추를 안 냈거나, 지도 이름과 출하 기록이 서로 안 맞는 동네입니다.`
-    +(thinNames.size?` <b>흐리게 점선으로 두른 ${thinNames.size}곳</b>은 거래가 너무 적어 `
-      +`색 기준에서 뺐습니다 — 한두 번 판 값이 기준을 다 차지하면 진짜 산지가 옅어 보이기 때문입니다.`:"")
-    +(qUna>0?` 이 시군 물량의 <b>${(qUna/q*100).toFixed(0)}%</b>는 주소를 시군까지만 적어서 `
-      +`지도에 올릴 수 없었습니다.`:"")
-    +` 값이 있는 읍면은 ${nHave}곳입니다.`;
+  $("#mapNote").innerHTML=`${c.name}의 읍면 ${nHave}곳에 값이 있습니다. `
+    +`<b>빗금</b>은 출하 기록이 없는 곳`
+    +(qUna>0?` · 이 시군 물량의 <b>${(qUna/q*100).toFixed(0)}%</b>는 읍면을 알 수 없습니다`:"");
+  setHelp("map",c.name+" 읍면 지도 보는 법",
+    `<p>색은 아래 띠를 따르고 <b>오른쪽으로 갈수록 비쌉니다.</b>
+     읍면을 누르면 그 구역까지 확대되고, 아래 모든 칸이 그 읍면 기준으로 바뀝니다.</p>
+     <p class="h">빗금 친 곳</p>
+     <p>이 기간에 상추를 안 냈거나, 지도 이름과 출하 기록이 서로 안 맞는 동네입니다.
+     출하할 때 적은 주소가 법정동인데 지도는 행정동인 경우가 있습니다.
+     <b>이름을 임의로 맞추지 않고</b> 모르는 채로 뒀습니다.</p>`
+    +(thinNames.size?`<p class="h">흐리게 점선으로 두른 ${thinNames.size}곳</p>
+     <p>거래가 너무 적어 색 기준에서 뺐습니다. 한두 번 판 값이 기준을 다 차지하면
+     진짜 산지가 옅어 보이기 때문입니다.</p>`:"")
+    +(qUna>0?`<div class="warn">이 시군 물량의 <b>${(qUna/q*100).toFixed(0)}%</b>는
+     출하할 때 주소를 시군까지만 적어서 어느 읍면인지 알 수 없습니다.
+     그만큼은 지도에 못 올렸습니다.</div>`:""));
 }
 
 function kpiHtml(top,bot,all){
