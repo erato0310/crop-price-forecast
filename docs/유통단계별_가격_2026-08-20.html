@@ -1,0 +1,355 @@
+<title>상추 유통단계별 가격</title>
+<style>
+:root{
+  color-scheme: light;
+  --paper:#f7f8f5; --card:#fff; --sunk:#f0f2ed;
+  --ink:#17201b; --ink-2:#3f4a43; --muted:#6b756d;
+  --rule:#dde2da; --rule-2:#c6cec3;
+  --accent:#2c6b4f; --soft:#e6efe8;
+  --farm:#2c6b4f; --mid:#c98500; --retail:#b4462f;
+  --warn:#8a6a16; --warn-bg:#f6efdd;
+  --shadow:0 1px 2px rgba(23,32,27,.05), 0 10px 30px -18px rgba(23,32,27,.3);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --paper:#111310; --card:#191c17; --sunk:#1f231d;
+    --ink:#e9ede7; --ink-2:#bcc4bb; --muted:#8d968c;
+    --rule:#2a2e27; --rule-2:#3b4138;
+    --accent:#7cc49a; --soft:#1c2620;
+    --farm:#7cc49a; --mid:#d5ab4f; --retail:#e58a72;
+    --warn:#d5ab4f; --warn-bg:#282112;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -18px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --paper:#111310; --card:#191c17; --sunk:#1f231d;
+  --ink:#e9ede7; --ink-2:#bcc4bb; --muted:#8d968c;
+  --rule:#2a2e27; --rule-2:#3b4138;
+  --accent:#7cc49a; --soft:#1c2620;
+  --farm:#7cc49a; --mid:#d5ab4f; --retail:#e58a72;
+  --warn:#d5ab4f; --warn-bg:#282112;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -18px rgba(0,0,0,.8);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font:16px/1.75 system-ui,-apple-system,"Segoe UI","Malgun Gothic",sans-serif;
+  word-break:keep-all;overflow-wrap:break-word;-webkit-font-smoothing:antialiased}
+.wrap{max-width:940px;margin:0 auto;padding:0 22px 90px}
+header{padding:64px 0 26px;border-bottom:2px solid var(--ink)}
+.eyebrow{font-size:12px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--accent);font-weight:700;margin:0 0 12px}
+h1{font-size:clamp(27px,4vw,40px);line-height:1.2;margin:0 0 14px;
+  letter-spacing:-.02em;font-weight:700;text-wrap:balance}
+.sub{font-size:16.5px;color:var(--ink-2);margin:0;max-width:60ch}
+.meta{display:flex;flex-wrap:wrap;gap:5px 24px;margin-top:22px;font-size:13px;color:var(--muted)}
+.meta b{color:var(--ink);font-weight:600}
+section{padding-top:44px;scroll-margin-top:14px}
+h2{font-size:23px;margin:0 0 6px;letter-spacing:-.01em;font-weight:700}
+h2 .n{color:var(--accent);margin-right:11px;font-variant-numeric:tabular-nums}
+h3{font-size:16.5px;margin:26px 0 7px;font-weight:680}
+p{margin:0 0 13px;max-width:66ch}
+ul{max-width:66ch;padding-left:21px;margin:0 0 13px}
+li{margin-bottom:6px}
+strong{font-weight:680}
+code{font-family:Consolas,"Cascadia Mono",ui-monospace,monospace;font-size:.87em;
+  background:var(--sunk);padding:1px 5px;border-radius:4px}
+.stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:22px 0}
+.stat .s{border:1px solid var(--rule);border-radius:11px;padding:13px 15px;background:var(--card)}
+.stat .k{font-size:11.5px;color:var(--muted);display:block;margin-bottom:3px}
+.stat .v{font-size:24px;font-weight:700;letter-spacing:-.02em;display:block;line-height:1.2;
+  font-variant-numeric:tabular-nums}
+.stat .n{font-size:11.5px;color:var(--muted)}
+.wrap-x{overflow-x:auto;margin:18px 0 6px;border:1px solid var(--rule);
+  border-radius:10px;background:var(--card)}
+table{width:100%;border-collapse:collapse;font-size:13.5px;
+  font-variant-numeric:tabular-nums;min-width:540px}
+th,td{padding:9px 13px;text-align:right;border-bottom:1px solid var(--rule)}
+th{font-size:11.5px;letter-spacing:.03em;color:var(--muted);font-weight:700;
+  text-transform:uppercase;background:var(--sunk);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+tbody tr:last-child td{border-bottom:0}
+.farm{color:var(--farm);font-weight:650}
+.retail{color:var(--retail);font-weight:650}
+.warn{border-left:3px solid var(--warn);background:var(--warn-bg);padding:13px 17px;
+  border-radius:0 9px 9px 0;margin:20px 0;font-size:14.5px}
+.warn .t{font-weight:700;margin-bottom:4px;color:var(--warn)}
+.warn p:last-child{margin-bottom:0}
+.callout{border-left:3px solid var(--accent);background:var(--soft);padding:13px 17px;
+  border-radius:0 9px 9px 0;margin:20px 0;font-size:14.5px}
+.callout .t{font-weight:700;margin-bottom:4px;color:var(--accent)}
+.callout p:last-child{margin-bottom:0}
+figure{margin:22px 0;border:1px solid var(--rule);border-radius:11px;
+  background:var(--card);padding:17px;overflow-x:auto}
+figcaption{font-size:12.5px;color:var(--muted);margin-top:11px;line-height:1.55;max-width:68ch}
+svg{display:block;max-width:100%;height:auto}
+.leg{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-2);margin-top:10px}
+.leg i{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:5px}
+footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+  font-size:13px;color:var(--muted)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:3px}
+@media(max-width:640px){
+  header{padding-top:44px}
+  .wrap{padding:0 16px 60px}
+  h2{font-size:20px}
+}
+</style>
+
+<div class="wrap">
+<header>
+  <p class="eyebrow">전북 상추 가격예측 · 부속 분석</p>
+  <h1>소비자가 1만 3천원 낼 때<br>농가는 4천원을 받습니다</h1>
+  <p class="sub">전북산 도매시장 경락가와 전국 소매가를 품종별로 1:1 대응시켜
+    유통 단계별 가격을 재봤습니다. 값이 쌀 때 농가 몫이 더 줄어드는 구조가 확인됩니다.</p>
+  <div class="meta">
+    <span>작성 <b>2026-08-20</b></span>
+    <span>대상 기간 <b>2025-08-18 ~ 2026-08-10</b> (52주)</span>
+    <span>품종 <b>적상추·청상추</b></span>
+  </div>
+</header>
+
+<section id="s1">
+  <h2><span class="n">1</span>요약</h2>
+  <div class="stat">
+    <div class="s"><span class="k">농가 몫 (적상추)</span><span class="v">30.0%</span>
+      <span class="n">소매 12,695원 중 3,996원</span></div>
+    <div class="s"><span class="k">농가 몫 (청상추)</span><span class="v">33.3%</span>
+      <span class="n">소매 13,729원 중 4,716원</span></div>
+    <div class="s"><span class="k">산지 비쌀 때</span><span class="v">48%</span>
+      <span class="n">소매배율 2.0배</span></div>
+    <div class="s"><span class="k">산지 쌀 때</span><span class="v">18%</span>
+      <span class="n">소매배율 5~6배</span></div>
+  </div>
+  <div class="callout">
+    <div class="t">핵심</div>
+    <p><strong>산지값이 떨어져도 소매값은 그만큼 떨어지지 않습니다.</strong>
+    그래서 값이 쌀 때 농가 몫이 절반 이하로 줄어듭니다.
+    주간 변화 상관이 적상추 +0.24, 청상추 +0.09로 매우 낮은 것이 같은 이야기입니다 —
+    소매가는 산지가의 주간 움직임을 거의 따라가지 않습니다.</p>
+  </div>
+</section>
+
+<section id="s2">
+  <h2><span class="n">2</span>무엇과 무엇을 견줬나</h2>
+  <p>세 단계가 각각 다른 자료원에서 나옵니다. 같은 품종(적상추·청상추)으로 대응됩니다.</p>
+  <div class="wrap-x">
+  <table>
+    <thead><tr><th>단계</th><th>자료원</th><th>뜻</th></tr></thead>
+    <tbody>
+      <tr><td class="farm">산지 경락가</td><td>본 프로젝트 수집<br><span style="color:var(--muted);font-size:12px">공공데이터포털 도매시장 경매정보</span></td>
+        <td style="text-align:left">전북산이 도매시장에서 <b>경매로 낙찰된 값.</b> 농가 수취의 기준</td></tr>
+      <tr><td style="color:var(--mid);font-weight:650">중도매인 판매가</td><td>KAMIS</td>
+        <td style="text-align:left">경매로 산 물건을 <b>중도매인이 소매상에 넘기는 값</b></td></tr>
+      <tr><td class="retail">소매가</td><td>KAMIS</td>
+        <td style="text-align:left">대형마트·전통시장 등 <b>소비자 구매가</b> 평균</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>모두 <b>원/kg</b>으로 맞췄습니다. KAMIS는 <code>p_convert_kg_yn=Y</code>로 kg 환산을 요청했습니다.</p>
+</section>
+
+<section id="s3">
+  <h2><span class="n">3</span>1년 평균</h2>
+  <div class="wrap-x">
+  <table>
+    <thead><tr><th>품종</th><th>산지 경락가</th><th>중도매인 판매</th><th>소매</th>
+      <th>소매÷산지</th><th>농가 몫</th></tr></thead>
+    <tbody>
+      <tr><td><b>적상추</b></td><td class="farm">3,996</td><td>6,799</td>
+        <td class="retail">12,695</td><td>3.7배</td><td><b>30.0%</b></td></tr>
+      <tr><td><b>청상추</b></td><td class="farm">4,716</td><td>6,856</td>
+        <td class="retail">13,729</td><td>3.2배</td><td><b>33.3%</b></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>단위 원/kg. '농가 몫'은 소매가 100원 중 산지 경락가가 차지하는 비율입니다.</p>
+</section>
+
+<section id="s4">
+  <h2><span class="n">4</span>월별 흐름</h2>
+  <figure>
+    <svg viewBox="0 0 860 330" role="img" aria-label="청상추 유통단계별 월별 가격">
+      <defs>
+        <marker id="d" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5">
+          <circle cx="3.5" cy="3.5" r="3" fill="currentColor"/></marker>
+      </defs>
+      <!-- y축 -->
+      <g font-size="11" fill="var(--muted)" font-family="system-ui">
+        <line x1="62" y1="26" x2="62" y2="272" stroke="var(--rule-2)"/>
+        <line x1="62" y1="272" x2="836" y2="272" stroke="var(--rule-2)"/>
+        <text x="54" y="30" text-anchor="end">20,000</text>
+        <text x="54" y="91" text-anchor="end">15,000</text>
+        <text x="54" y="152" text-anchor="end">10,000</text>
+        <text x="54" y="213" text-anchor="end">5,000</text>
+        <text x="54" y="276" text-anchor="end">0</text>
+      </g>
+      <g stroke="var(--rule)">
+        <line x1="62" y1="26" x2="836" y2="26"/><line x1="62" y1="87" x2="836" y2="87"/>
+        <line x1="62" y1="148" x2="836" y2="148"/><line x1="62" y1="209" x2="836" y2="209"/>
+      </g>
+      <!-- 소매 -->
+      <path d="M92,57 L154,33 L216,52 L278,78 L340,133 L402,86 L464,100 L526,141 L588,143 L650,157 L712,143 L774,113 L836,77"
+        fill="none" stroke="var(--retail)" stroke-width="2.4" stroke-linejoin="round"/>
+      <!-- 중도매 -->
+      <path d="M92,139 L154,123 L216,137 L278,197 L340,217 L402,180 L464,208 L526,230 L588,227 L650,223 L712,199 L774,171 L836,151"
+        fill="none" stroke="var(--mid)" stroke-width="2.4" stroke-linejoin="round"/>
+      <!-- 산지 -->
+      <path d="M92,179 L154,161 L216,186 L278,234 L340,224 L402,201 L464,231 L526,243 L588,237 L650,240 L712,226 L774,210 L836,186"
+        fill="none" stroke="var(--farm)" stroke-width="2.8" stroke-linejoin="round"/>
+      <!-- x축 -->
+      <g font-size="10.5" fill="var(--muted)" font-family="system-ui" text-anchor="middle">
+        <text x="92" y="290">25-08</text><text x="216" y="290">25-10</text>
+        <text x="340" y="290">25-12</text><text x="464" y="290">26-02</text>
+        <text x="588" y="290">26-04</text><text x="712" y="290">26-06</text>
+        <text x="836" y="290">26-08</text>
+      </g>
+      <!-- 강조: 2026-03 -->
+      <g>
+        <line x1="526" y1="141" x2="526" y2="243" stroke="var(--warn)" stroke-width="1.4"
+          stroke-dasharray="3 3"/>
+        <text x="534" y="196" font-size="11" fill="var(--warn)" font-family="system-ui"
+          font-weight="700">4.5배</text>
+      </g>
+      <g>
+        <line x1="154" y1="33" x2="154" y2="161" stroke="var(--accent)" stroke-width="1.4"
+          stroke-dasharray="3 3"/>
+        <text x="162" y="100" font-size="11" fill="var(--accent)" font-family="system-ui"
+          font-weight="700">2.1배</text>
+      </g>
+    </svg>
+    <div class="leg">
+      <span><i style="background:var(--retail)"></i>소매</span>
+      <span><i style="background:var(--mid)"></i>중도매인 판매</span>
+      <span><i style="background:var(--farm)"></i>산지 경락가</span>
+    </div>
+    <figcaption>청상추, 원/kg. 세 선의 <b>간격이 곧 유통 단계별 가산액</b>입니다.
+      2025년 9월처럼 산지값이 높을 때는 세 선이 붙고(2.1배), 2026년 3월처럼 낮을 때는
+      벌어집니다(4.5배). 소매선이 산지선보다 훨씬 평평한 것이 이 분석의 요점입니다.</figcaption>
+  </figure>
+
+  <div class="wrap-x">
+  <table>
+    <thead><tr><th>월</th><th colspan="3" style="text-align:center">적상추</th>
+      <th colspan="3" style="text-align:center">청상추</th></tr>
+      <tr><th></th><th>산지</th><th>소매</th><th>농가몫</th>
+      <th>산지</th><th>소매</th><th>농가몫</th></tr></thead>
+    <tbody>
+      <tr><td>2025-08</td><td class="farm">7,054</td><td>15,494</td><td>45%</td>
+        <td class="farm">7,644</td><td>17,616</td><td>43%</td></tr>
+      <tr><td>2025-09</td><td class="farm">8,533</td><td>17,725</td><td><b>48%</b></td>
+        <td class="farm">9,145</td><td>19,650</td><td><b>47%</b></td></tr>
+      <tr><td>2025-10</td><td class="farm">5,448</td><td>17,030</td><td>33%</td>
+        <td class="farm">7,049</td><td>18,000</td><td>41%</td></tr>
+      <tr><td>2025-11</td><td class="farm">2,667</td><td>13,969</td><td><b>19%</b></td>
+        <td class="farm">3,141</td><td>15,850</td><td><b>19%</b></td></tr>
+      <tr><td>2025-12</td><td class="farm">3,049</td><td>10,207</td><td>29%</td>
+        <td class="farm">3,921</td><td>11,413</td><td>34%</td></tr>
+      <tr><td>2026-01</td><td class="farm">4,981</td><td>13,909</td><td>36%</td>
+        <td class="farm">5,853</td><td>15,239</td><td>39%</td></tr>
+      <tr><td>2026-02</td><td class="farm">2,587</td><td>12,784</td><td>20%</td>
+        <td class="farm">3,333</td><td>14,098</td><td>23%</td></tr>
+      <tr><td>2026-03</td><td class="farm">1,839</td><td>9,745</td><td><b>19%</b></td>
+        <td class="farm">2,363</td><td>10,710</td><td>22%</td></tr>
+      <tr><td>2026-04</td><td class="farm">2,795</td><td>9,552</td><td>29%</td>
+        <td class="farm">2,869</td><td>10,545</td><td>27%</td></tr>
+      <tr><td>2026-05</td><td class="farm">2,168</td><td>8,947</td><td>24%</td>
+        <td class="farm">2,597</td><td>9,402</td><td>28%</td></tr>
+      <tr><td>2026-06</td><td class="farm">2,680</td><td>10,499</td><td>26%</td>
+        <td class="farm">3,791</td><td>10,585</td><td>36%</td></tr>
+      <tr><td>2026-07</td><td class="farm">4,839</td><td>13,118</td><td>37%</td>
+        <td class="farm">5,103</td><td>13,099</td><td>39%</td></tr>
+      <tr><td>2026-08</td><td class="farm">5,630</td><td>15,529</td><td>36%</td>
+        <td class="farm">7,025</td><td>15,979</td><td>44%</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="s5">
+  <h2><span class="n">5</span>값이 쌀 때 농가 몫이 더 줄어듭니다</h2>
+  <p>주간 자료를 산지값 기준으로 상·하위 20%로 나눠 봤습니다.</p>
+  <div class="wrap-x">
+  <table>
+    <thead><tr><th>구간</th><th>적상추 소매배율</th><th>적상추 농가몫</th>
+      <th>청상추 소매배율</th><th>청상추 농가몫</th></tr></thead>
+    <tbody>
+      <tr><td>산지 비쌀 때 (상위 20%)</td><td>2.01배</td><td class="farm">47.7%</td>
+        <td>2.05배</td><td class="farm">49.5%</td></tr>
+      <tr><td>산지 쌀 때 (하위 20%)</td><td>6.09배</td><td class="retail">17.8%</td>
+        <td>5.28배</td><td class="retail">18.7%</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>산지값이 반토막 나도 소매값은 그만큼 내려가지 않습니다. 그 차이가 유통 단계에
+    남으면서 <strong>농가 몫이 48%에서 18%로 줄어듭니다.</strong></p>
+  <h3>상관으로도 같은 이야기가 나옵니다</h3>
+  <ul>
+    <li><b>수준 상관</b> 적상추 +0.779 / 청상추 +0.758 — 비싼 철엔 소매도 비쌉니다</li>
+    <li><b>주간 변화 상관</b> 적상추 +0.240 / 청상추 +0.086 —
+      <strong>주 단위 등락은 거의 전달되지 않습니다</strong></li>
+  </ul>
+</section>
+
+<section id="s6">
+  <h2><span class="n">6</span>이 숫자를 읽을 때 주의할 것</h2>
+  <div class="warn">
+    <div class="t">격차를 그대로 "누가 가져갔다"로 읽으면 안 됩니다</div>
+    <p>소매가에는 포장·운송·보관·감모(신선채소는 손실이 큽니다)·매장 운영비·판매
+      마진이 모두 들어 있습니다. 상추는 부피가 크고 쉽게 무르는 품목이라 이 비용이
+      작지 않습니다.</p>
+  </div>
+  <ul>
+    <li><b>지역이 다릅니다.</b> 우리 산지값은 <b>전북산</b>이고 KAMIS는 <b>전국 평균</b>입니다.</li>
+    <li><b>등급이 다릅니다.</b> KAMIS 도·소매는 <b>상품(上品)</b> 기준이고,
+      우리 경락가는 전 등급을 물량가중한 값입니다. 이것만으로도 격차가 부풀 수 있습니다.</li>
+    <li><b>집계 방식이 다릅니다.</b> 우리 값은 실제 거래 물량으로 가중했고,
+      KAMIS는 조사처 평균입니다.</li>
+    <li><b>기간이 1년뿐입니다.</b> KAMIS 일별 자료는 최근 1년만 제공됩니다
+      (그 이전을 요청하면 최근 1년이 그대로 반환됩니다). 과거는 연평균만 있습니다.</li>
+  </ul>
+  <p>따라서 이 표는 <b>유통 마진의 정확한 분해가 아니라, 단계 간 격차의 크기와
+    그 격차가 값에 따라 어떻게 달라지는지</b>를 보는 자료입니다.</p>
+</section>
+
+<section id="s7">
+  <h2><span class="n">7</span>본 프로젝트와의 연결</h2>
+  <p>이 결과는 앞서 확인한 <b>포장 규격 효과</b>와 이어집니다.
+    같은 주·같은 시장·같은 품종·같은 등급 안에서 <b>2kg 소포장이 4kg보다 kg당 23% 더</b>
+    받았고, 그 비율 차이가 시군 간 가격차의 83%를 설명했습니다.</p>
+  <p>2kg 규격은 소매 지향 포장입니다. 즉 <strong>농가가 소매 단계에 가까운 형태로
+    낼수록 더 받는다</strong>는 방향이 두 분석에서 함께 나타납니다. 다만 소포장은
+    선별·포장 노동과 자재비가 더 들기 때문에, 경락가 차이가 그대로 소득 차이는
+    아닙니다.</p>
+  <div class="callout">
+    <div class="t">다음에 확인할 것</div>
+    <p>소포장 전환의 <b>순이익</b>을 보려면 포장 자재비와 노동시간이 필요합니다.
+      현재 자료에는 없습니다. 농가 실측이나 농촌진흥청 표준소득 자료로 보완해야
+      "2kg으로 바꾸면 이만큼 남는다"를 말할 수 있습니다.</p>
+  </div>
+</section>
+
+<section id="s8">
+  <h2><span class="n">8</span>재현</h2>
+  <div class="wrap-x">
+  <table>
+    <thead><tr><th>스크립트</th><th>하는 일</th></tr></thead>
+    <tbody>
+      <tr><td><code>fetch_retail_kamis.py</code></td>
+        <td style="text-align:left">KAMIS 소매·도매 일별 수집 (품종별, 최근 1년)</td></tr>
+      <tr><td><code>analyze_margin_chain.py</code></td>
+        <td style="text-align:left">산지·중도매·소매 3단계 대조, 이 문서의 모든 수치</td></tr>
+      <tr><td><code>analyze_region_gap.py</code></td>
+        <td style="text-align:left">포장 규격 효과 (7절 연결)</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>산출물: <code>outputs/margin_chain.csv</code> (주간 원자료),
+    <code>data/raw/kamis_lettuce_retail.csv</code> (KAMIS 일별 972행)</p>
+</section>
+
+<footer>
+  <p>전북 상추 가격예측 · 부속 분석 「상추 유통단계별 가격」 · 2026-08-20 ·
+    자료: 공공데이터포털 도매시장 경매정보, KAMIS 농산물유통정보</p>
+</footer>
+</div>
