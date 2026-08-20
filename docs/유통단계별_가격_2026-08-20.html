@@ -101,7 +101,7 @@ footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
   <p class="eyebrow">전북 상추 가격예측 · 부속 분석</p>
   <h1>소비자가 1만 3천원 낼 때<br>농가는 4천원을 받습니다</h1>
   <p class="sub">전북산 도매시장 경락가와 전국 소매가를 품종별로 1:1 대응시켜
-    유통 단계별 가격을 재봤습니다. 값이 쌀 때 농가 몫이 더 줄어드는 구조가 확인됩니다.</p>
+    유통 단계별 가격을 재봤습니다. 값이 쌀 때 농가 몫이 더 줄어드는 구조가 확인되며, 미국·프랑스·스페인 통계와 견줘 그 수준이 어디쯤인지도 함께 봤습니다.</p>
   <div class="meta">
     <span>작성 <b>2026-08-20</b></span>
     <span>대상 기간 <b>2025-08-18 ~ 2026-08-10</b> (52주)</span>
@@ -292,7 +292,124 @@ footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
 </section>
 
 <section id="s6">
-  <h2><span class="n">6</span>이 숫자를 읽을 때 주의할 것</h2>
+  <h2><span class="n">6</span>국제 비교 — 30%는 높은가 낮은가</h2>
+  <p>농가 몫 30%가 정상인지 판단하려면 기준이 필요합니다. 주요국 통계를 모았습니다.</p>
+
+  <div class="wrap-x">
+  <table>
+    <thead><tr><th>기준</th><th>농가 몫</th><th>배율</th><th>출처 · 연도</th></tr></thead>
+    <tbody>
+      <tr><td>프랑스 토마토 (관행)</td><td class="farm">46.6%</td><td>2.1배</td>
+        <td style="text-align:left">OFPM 2025</td></tr>
+      <tr><td>프랑스 토마토 (유기)</td><td>37.5%</td><td>2.7배</td>
+        <td style="text-align:left">OFPM 2025</td></tr>
+      <tr><td>한국 전체 평균</td><td>50.8%</td><td>2.0배</td>
+        <td style="text-align:left">aT 2023·2024</td></tr>
+      <tr><td>한국 엽근채소 (배추·무)</td><td>35.7%</td><td>2.8배</td>
+        <td style="text-align:left">aT</td></tr>
+      <tr style="background:var(--soft)"><td><b>본 분석 · 전북 상추</b></td>
+        <td class="farm"><b>30~33%</b></td><td><b>3.2~3.7배</b></td>
+        <td style="text-align:left"><b>2025-08~2026-08</b></td></tr>
+      <tr><td>미국 신선채소 16종</td><td>23~28%</td><td>3.6~4.3배</td>
+        <td style="text-align:left">USDA ERS, 2000년 이후</td></tr>
+      <tr><td>미국 결구상추</td><td>38%</td><td>2.6배</td>
+        <td style="text-align:left">USDA ERS 2017</td></tr>
+      <tr><td>스페인 농산물 전체</td><td>—</td><td class="retail">4.27배</td>
+        <td style="text-align:left">COAG IPOD 2025-11</td></tr>
+      <tr><td>스페인 상추</td><td>—</td><td class="retail">6.3배</td>
+        <td style="text-align:left">COAG IPOD 2025-10</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>겉으로는 <b>중간쯤</b>입니다. 미국 신선채소(23~28%)보다 높고, 스페인 상추(6.3배)보다
+    훨씬 낫고, 프랑스 토마토(46.6%)보다는 못합니다.</p>
+
+  <div class="warn">
+    <div class="t">그런데 분모가 다릅니다 — 이 표를 그대로 읽으면 안 됩니다</div>
+    <p>해외 지표는 <b>농가수취가</b>(farm gate)를 쓰고, 우리 수치는 <b>경락가</b>를 씁니다.
+      경락가는 농가수취가보다 <b>한 단계 위</b>입니다. 농가는 경락가에서 수집·운송·
+      상장수수료·포장재비를 다시 뺀 값을 받습니다.</p>
+    <p><b>같은 기준으로 맞추면 우리 수치는 지금보다 나빠집니다.</b></p>
+  </div>
+
+  <h3>얼마나 나빠지나</h3>
+  <p>aT가 낸 2024년 단계별 구조를 우리 값에 대입해 보면 짐작할 수 있습니다.</p>
+  <div class="wrap-x">
+  <table>
+    <thead><tr><th>단계</th><th>한국 평균 (aT 2024)</th><th>본 분석 상추</th></tr></thead>
+    <tbody>
+      <tr><td>소비자가</td><td>100.0</td><td>100.0</td></tr>
+      <tr><td>─ 소매단계 비용</td><td>25.6</td><td rowspan="2" style="vertical-align:middle">
+        (합쳐서 67~70)</td></tr>
+      <tr><td>─ 도매단계 비용</td><td>14.2</td></tr>
+      <tr><td><b>= 경락가 수준</b></td><td><b>60.2</b></td><td class="farm"><b>30~33</b></td></tr>
+      <tr><td>─ 출하단계 비용</td><td>9.4</td><td style="color:var(--muted)">미상</td></tr>
+      <tr><td><b>= 농가수취</b></td><td><b>50.8</b></td>
+        <td class="retail"><b>30보다 낮음</b></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>한국 평균 구조(출하 9.4%p)를 그대로 적용하면 상추 농가수취율은 <b>20% 안팎</b>이 됩니다.
+    그러면 미국 신선채소(23~28%)보다 <b>낮아지고</b> 스페인과의 격차도 좁혀집니다.</p>
+  <div class="warn">
+    <div class="t">이 20%는 추정입니다</div>
+    <p>9.4%p는 <b>전 품목 평균</b>이고 상추 개별 수치가 아닙니다. 상추는 부피가 크고
+      쉽게 무르는 품목이라 출하비용 비중이 평균보다 클 가능성이 높습니다 —
+      그렇다면 20%보다 더 낮습니다. 정확한 값은 aT 유통실태조사의 상추 개별
+      수치를 받아야 합니다.</p>
+  </div>
+
+  <h3>신선채소는 원래 낮습니다</h3>
+  <p>어느 나라든 신선채소의 농가 몫은 식량작물보다 크게 낮습니다.
+    한국만 봐도 식량작물 64.1% vs 엽근채소 35.7%입니다. 이유는 품목의 성질에 있습니다.</p>
+  <ul>
+    <li><b>부피 대비 값이 쌉니다</b> — 같은 트럭에 실어도 운송비 비중이 큽니다</li>
+    <li><b>쉽게 무릅니다</b> — 감모(폐기) 손실이 유통 단계마다 발생합니다</li>
+    <li><b>저장이 안 됩니다</b> — 재고로 값을 방어할 수 없어 시세에 그대로 노출됩니다</li>
+  </ul>
+  <p>따라서 <b>30%라는 수치 자체는 이상하지 않습니다.</b> 문제로 삼을 것은 수준이 아니라
+    5절에서 본 <b>비대칭</b>입니다 — 값이 쌀 때 농가 몫이 48%에서 18%로 무너지는 것.
+    이건 품목 성질로 설명되지 않습니다.</p>
+
+  <h3>한국은 나빠지는 추세입니다</h3>
+  <p>aT 기준 유통비용률은 2014년 44.8%에서 2024년 49.2%로 올랐습니다. 뜯어보면
+    방향이 갈립니다.</p>
+  <div class="wrap-x">
+  <table>
+    <thead><tr><th>단계</th><th>2014</th><th>2024</th><th>변화</th></tr></thead>
+    <tbody>
+      <tr><td>출하단계</td><td>10.0%</td><td>9.4%</td><td class="farm">−0.6%p</td></tr>
+      <tr><td>도매단계</td><td>11.6%</td><td>14.2%</td><td class="retail">+2.6%p</td></tr>
+      <tr><td>소매단계</td><td>23.2%</td><td>25.6%</td><td class="retail">+2.4%p</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p><b>산지 쪽 효율은 좋아졌는데 뒷단이 더 가져갔습니다.</b> 농가가 출하비용을 줄인
+    만큼이 소비자가 인하로 가지 않고 도매·소매 단계에 남았다는 뜻입니다.</p>
+
+  <h3>유럽은 측정에서 규제로 넘어갔습니다</h3>
+  <p>EU는 <b>불공정거래관행 지침(2019/633)</b>을 2022년부터 시행하고 있습니다.
+    농가 보호를 위한 최소 기준을 두고 회원국이 더 강한 규제를 둘 수 있게 했습니다.</p>
+  <ul>
+    <li>부패하기 쉬운 농식품 대금을 <b>30일 넘겨 지급하는 것을 금지</b></li>
+    <li>촉박한 주문 취소 금지</li>
+    <li>생산비 이하 강매 방지</li>
+  </ul>
+  <p>2025년 12월 집행위 평가는 "아직 초기지만 이미 더 공정한 환경에 기여하고 있다"고
+    보고했고, 집행위원장은 <b>이 법의 개정을 예고</b>했습니다. 2024년 3월에는
+    <b>농식품 공급망 관측소(AFCO)</b>를 신설해 마진과 부가가치의 분배를 상시
+    관측하기로 했습니다.</p>
+  <div class="callout">
+    <div class="t">시사점</div>
+    <p>유럽은 <b>측정 → 규제</b> 순서로 갑니다. 한국은 aT 유통실태조사로 측정은 하고
+      있으나 규제는 약합니다. 그리고 본 분석이 보인 <b>비대칭</b>은 연평균 통계로는
+      드러나지 않습니다 — 측정 단위를 주(週)로 내려야 보입니다.</p>
+  </div>
+</section>
+
+<section id="s7">
+  <h2><span class="n">7</span>이 숫자를 읽을 때 주의할 것</h2>
   <div class="warn">
     <div class="t">격차를 그대로 "누가 가져갔다"로 읽으면 안 됩니다</div>
     <p>소매가에는 포장·운송·보관·감모(신선채소는 손실이 큽니다)·매장 운영비·판매
@@ -305,6 +422,8 @@ footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
       우리 경락가는 전 등급을 물량가중한 값입니다. 이것만으로도 격차가 부풀 수 있습니다.</li>
     <li><b>집계 방식이 다릅니다.</b> 우리 값은 실제 거래 물량으로 가중했고,
       KAMIS는 조사처 평균입니다.</li>
+    <li><b>분모가 해외 지표와 다릅니다.</b> 우리는 <b>경락가</b> 기준이고 해외 통계는
+      <b>농가수취가</b> 기준입니다. 6절에 자세히 적었습니다.</li>
     <li><b>기간이 1년뿐입니다.</b> KAMIS 일별 자료는 최근 1년만 제공됩니다
       (그 이전을 요청하면 최근 1년이 그대로 반환됩니다). 과거는 연평균만 있습니다.</li>
   </ul>
@@ -312,8 +431,8 @@ footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
     그 격차가 값에 따라 어떻게 달라지는지</b>를 보는 자료입니다.</p>
 </section>
 
-<section id="s7">
-  <h2><span class="n">7</span>본 프로젝트와의 연결</h2>
+<section id="s8">
+  <h2><span class="n">8</span>본 프로젝트와의 연결</h2>
   <p>이 결과는 앞서 확인한 <b>포장 규격 효과</b>와 이어집니다.
     같은 주·같은 시장·같은 품종·같은 등급 안에서 <b>2kg 소포장이 4kg보다 kg당 23% 더</b>
     받았고, 그 비율 차이가 시군 간 가격차의 83%를 설명했습니다.</p>
@@ -329,8 +448,8 @@ footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
   </div>
 </section>
 
-<section id="s8">
-  <h2><span class="n">8</span>재현</h2>
+<section id="s9">
+  <h2><span class="n">9</span>재현</h2>
   <div class="wrap-x">
   <table>
     <thead><tr><th>스크립트</th><th>하는 일</th></tr></thead>
