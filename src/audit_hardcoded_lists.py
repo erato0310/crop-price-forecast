@@ -135,6 +135,21 @@ def main() -> None:
     print()
     print("  c) 재배형태 판별 임계 (infer_cultivation_type)")
     print("     출하 계절구조로 추론. 관측 아님. KOSIS 93.5%와 대조해 92.8%로 검증됨.")
+    print()
+    print("  d) 남원 산간 읍면 (analyze_namwon_shift.MOUNTAIN_EUP)")
+    from analyze_namwon_shift import MOUNTAIN_EUP
+    nw = jb[jb["county"].astype(str).str.contains("남원", na=False)]
+    if len(nw):
+        from export_lettuce_webapp import extract_eup
+        e = [extract_eup(a, b) for a, b in zip(nw["plor_nm"], nw["county"])]
+        names = sorted({x for x in e if str(x).endswith(("읍", "면"))})
+        miss = [x for x in names if x not in MOUNTAIN_EUP]
+        print(f"     지정 {len(MOUNTAIN_EUP)}곳: {' · '.join(MOUNTAIN_EUP)}")
+        print(f"     남원 읍면 {len(names)}곳 중 나머지 {len(miss)}곳은 저지대로 본다.")
+    print("     자료에 고도가 없어 지명으로 골랐다. 열거 아님 — 사람 판단이다.")
+    print("     -> 이 목록은 '산간 비중' 계산에만 쓰이고 모델에는 안 들어간다.")
+    print("        비중 자체가 라벨 이동에 좌우되므로(analyze_namwon_shift) 경계값을")
+    print("        조금 바꿔도 결론(겉보기 28%는 과대)은 안 흔들린다.")
 
     # ── 6. 읍면 파싱 ────────────────────────────────────────
     print()
