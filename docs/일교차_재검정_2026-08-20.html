@@ -1,0 +1,419 @@
+<meta charset="utf-8">
+<title>일교차 재검정 — 여덟 설계와 그 경계</title>
+<style>
+:root{
+  color-scheme: light;
+  --paper:#f7f8f5; --card:#fff; --sunk:#f0f2ed;
+  --ink:#17201b; --ink-2:#3f4a43; --muted:#6b756d;
+  --rule:#dde2da; --rule-2:#c6cec3;
+  --accent:#2c6b4f; --soft:#e6efe8;
+  --farm:#2c6b4f; --mid:#c98500; --retail:#b4462f;
+  --warn:#8a6a16; --warn-bg:#f6efdd;
+  --shadow:0 1px 2px rgba(23,32,27,.05), 0 10px 30px -18px rgba(23,32,27,.3);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --paper:#111310; --card:#191c17; --sunk:#1f231d;
+    --ink:#e9ede7; --ink-2:#bcc4bb; --muted:#8d968c;
+    --rule:#2a2e27; --rule-2:#3b4138;
+    --accent:#7cc49a; --soft:#1c2620;
+    --farm:#7cc49a; --mid:#d5ab4f; --retail:#e58a72;
+    --warn:#d5ab4f; --warn-bg:#282112;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -18px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --paper:#111310; --card:#191c17; --sunk:#1f231d;
+  --ink:#e9ede7; --ink-2:#bcc4bb; --muted:#8d968c;
+  --rule:#2a2e27; --rule-2:#3b4138;
+  --accent:#7cc49a; --soft:#1c2620;
+  --farm:#7cc49a; --mid:#d5ab4f; --retail:#e58a72;
+  --warn:#d5ab4f; --warn-bg:#282112;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -18px rgba(0,0,0,.8);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font:16px/1.75 system-ui,-apple-system,"Segoe UI","Malgun Gothic",sans-serif;
+  word-break:keep-all;overflow-wrap:break-word;-webkit-font-smoothing:antialiased}
+.wrap{max-width:940px;margin:0 auto;padding:0 22px 90px}
+header{padding:64px 0 26px;border-bottom:2px solid var(--ink)}
+.eyebrow{font-size:12px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--accent);font-weight:700;margin:0 0 12px}
+h1{font-size:clamp(27px,4vw,40px);line-height:1.2;margin:0 0 14px;
+  letter-spacing:-.02em;font-weight:700;text-wrap:balance}
+.sub{font-size:16.5px;color:var(--ink-2);margin:0;max-width:60ch}
+.meta{display:flex;flex-wrap:wrap;gap:5px 24px;margin-top:22px;font-size:13px;color:var(--muted)}
+.meta b{color:var(--ink);font-weight:600}
+section{padding-top:44px;scroll-margin-top:14px}
+h2{font-size:23px;margin:0 0 6px;letter-spacing:-.01em;font-weight:700}
+h2 .n{color:var(--accent);margin-right:11px;font-variant-numeric:tabular-nums}
+h3{font-size:16.5px;margin:26px 0 7px;font-weight:680}
+p{margin:0 0 13px;max-width:66ch}
+ul{max-width:66ch;padding-left:21px;margin:0 0 13px}
+li{margin-bottom:6px}
+strong{font-weight:680}
+code{font-family:Consolas,"Cascadia Mono",ui-monospace,monospace;font-size:.87em;
+  background:var(--sunk);padding:1px 5px;border-radius:4px}
+.stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:22px 0}
+.stat .s{border:1px solid var(--rule);border-radius:11px;padding:13px 15px;background:var(--card)}
+.stat .k{font-size:11.5px;color:var(--muted);display:block;margin-bottom:3px}
+.stat .v{font-size:24px;font-weight:700;letter-spacing:-.02em;display:block;line-height:1.2;
+  font-variant-numeric:tabular-nums}
+.stat .n{font-size:11.5px;color:var(--muted)}
+.wrap-x{overflow-x:auto;margin:18px 0 6px;border:1px solid var(--rule);
+  border-radius:10px;background:var(--card)}
+table{width:100%;border-collapse:collapse;font-size:13.5px;
+  font-variant-numeric:tabular-nums;min-width:540px}
+th,td{padding:9px 13px;text-align:right;border-bottom:1px solid var(--rule)}
+th{font-size:11.5px;letter-spacing:.03em;color:var(--muted);font-weight:700;
+  text-transform:uppercase;background:var(--sunk);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+tbody tr:last-child td{border-bottom:0}
+.farm{color:var(--farm);font-weight:650}
+.retail{color:var(--retail);font-weight:650}
+.warn{border-left:3px solid var(--warn);background:var(--warn-bg);padding:13px 17px;
+  border-radius:0 9px 9px 0;margin:20px 0;font-size:14.5px}
+.warn .t{font-weight:700;margin-bottom:4px;color:var(--warn)}
+.warn p:last-child{margin-bottom:0}
+.callout{border-left:3px solid var(--accent);background:var(--soft);padding:13px 17px;
+  border-radius:0 9px 9px 0;margin:20px 0;font-size:14.5px}
+.callout .t{font-weight:700;margin-bottom:4px;color:var(--accent)}
+.callout p:last-child{margin-bottom:0}
+figure{margin:22px 0;border:1px solid var(--rule);border-radius:11px;
+  background:var(--card);padding:17px;overflow-x:auto}
+figcaption{font-size:12.5px;color:var(--muted);margin-top:11px;line-height:1.55;max-width:68ch}
+svg{display:block;max-width:100%;height:auto}
+.leg{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-2);margin-top:10px}
+.leg i{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:5px}
+footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+  font-size:13px;color:var(--muted)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:3px}
+@media(max-width:640px){
+  header{padding-top:44px}
+  .wrap{padding:0 16px 60px}
+  h2{font-size:20px}
+}
+</style>
+
+<div class="wrap">
+
+<header>
+  <p class="eyebrow">전북 상추 가격예측 · 방법 보고</p>
+  <h1>여덟 번 물어서 알아낸 것은<br>답이 아니라 경계였습니다</h1>
+  <p class="sub">일교차가 상추값을 올리는지 여덟 가지 설계로 검정했습니다. 전부 판정불가입니다.
+    그런데 마지막 설계에서 <b>왜 안 잡히는지</b>가 나왔고, 그게 이 자료로 무엇을 물을 수 있고
+    무엇을 물을 수 없는지의 경계였습니다.</p>
+  <div class="meta">
+    <span>작성 <b>2026-08-20</b></span>
+    <span>자료 <b>2018-01 ~ 2026-08</b> (전북산 476,188행)</span>
+    <span>대상 <b>전북 14개 시군 · 61개 읍면</b></span>
+  </div>
+</header>
+
+<section id="s1">
+  <h2><span class="n">1</span>요약</h2>
+  <div class="stat">
+    <div class="s"><span class="k">검정한 설계</span><span class="v">8</span>
+      <span class="n">전부 판정불가</span></div>
+    <div class="s"><span class="k">지역 간 유효 단위</span><span class="v">14</span>
+      <span class="n">무엇을 넣어도 시군 수</span></div>
+    <div class="s"><span class="k">물량가중 시 유효표본</span><span class="v">3.67</span>
+      <span class="n">14곳이 사실상 넷</span></div>
+    <div class="s"><span class="k">감지 한계</span><span class="v">±17~24%</span>
+      <span class="n">이보다 작으면 못 본다</span></div>
+  </div>
+  <div class="callout">
+    <div class="t">핵심</div>
+    <p><strong>일교차가 값에 영향이 없다고 말할 수 없습니다. 이 자료로는 못 잰다는 것까지가
+      말할 수 있는 전부입니다.</strong> 그 둘은 다릅니다. 마지막 설계에 <b>양성 대조</b>를
+      넣지 않았다면 "효과 없음"이라고 잘못 적을 뻔했습니다 — 이미 아는 효과조차 같은 설계에서
+      떨어졌기 때문입니다.</p>
+  </div>
+  <p>대신 얻은 것이 있습니다. <b>어떤 질문은 이 자료로 답할 수 있고 어떤 질문은 원리적으로
+    답할 수 없는지</b>를 가르는 기준입니다. 5절에 정리했습니다.</p>
+</section>
+
+<section id="s2">
+  <h2><span class="n">2</span>가설 — 생리적으로 타당했습니다</h2>
+  <p><b>엽채류는 일교차가 크면 잎이 두꺼워집니다.</b> 낮에 광합성으로 만든 동화산물을 밤에
+    호흡으로 덜 태우기 때문입니다. 잎이 두꺼우면 조직이 치밀해 상품성이 오릅니다.</p>
+  <p>그렇다면 일교차가 큰 지역의 상추가 비싸야 하고, 저지대는 여름에 일교차가 무너지고
+    열대야가 오므로 <b>격차가 여름에 벌어져야</b> 합니다. 반증 가능한 예측이라 검정할 수
+    있었습니다.</p>
+
+  <h3>가장 단순한 형태 — 순위를 맞춰 봤습니다</h3>
+  <div class="wrap-x">
+  <table>
+    <thead><tr><th>시군</th><th>일교차</th><th>순위</th><th>가격 상대값</th><th>순위</th><th>관측 주수</th></tr></thead>
+    <tbody>
+      <tr><td>진안군</td><td>12.64</td><td>1</td><td>1.012</td><td>6</td><td>3,038</td></tr>
+      <tr><td>무주군</td><td>12.60</td><td>2</td><td class="retail">0.711</td><td class="retail">14</td><td>866</td></tr>
+      <tr><td>완주군</td><td>12.29</td><td>3</td><td>0.905</td><td>13</td><td>7,184</td></tr>
+      <tr><td>장수군</td><td>12.11</td><td>4</td><td>1.055</td><td>3</td><td>5,931</td></tr>
+      <tr><td>남원시</td><td>11.34</td><td>8</td><td class="farm">1.077</td><td class="farm">1</td><td>7,526</td></tr>
+      <tr><td>고창군</td><td>10.17</td><td>10</td><td class="farm">1.065</td><td class="farm">2</td><td>730</td></tr>
+      <tr><td>전주시</td><td>9.75</td><td>11</td><td>0.928</td><td>11</td><td>3,086</td></tr>
+      <tr><td>군산시</td><td>9.06</td><td>14</td><td>0.915</td><td>12</td><td>59</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>14곳 중 8곳만 뽑았습니다. <b>r = −0.110, 스피어만 rho = +0.007.</b> 양 끝이 특히
+    어긋납니다 — 일교차 2위 무주가 가격 꼴찌이고, 가격 1·2위인 남원·고창은 일교차 8위·10위입니다.</p>
+  <p>이 판정을 포함해 처음 다섯 설계(시군 간 상관 / 계절 격차 / 시군 내 주별 값 / 시군 내
+    주별 등급 / 문턱 13개)가 <b>전부 판정불가</b>였습니다.</p>
+</section>
+
+<section id="s3">
+  <h2><span class="n">3</span>세 갈래로 다시 물었습니다</h2>
+  <p>기각이 성급했을 수 있습니다. 처음 다섯 설계에는 각각 빈틈이 있었고, 세 가지 반론이
+    제기됐습니다. 셋 다 정당한 지적입니다.</p>
+
+  <h3>설계 6 — 물량으로 가중하면?</h3>
+  <p>처음 다섯 설계는 전부 <b>동일가중</b>이었습니다. 물량 4톤인 군산이 8,712톤인 남원과
+    같은 무게로 들어갑니다. 물량으로 가중하면 달라질까요.</p>
+  <div class="wrap-x">
+  <table>
+    <thead><tr><th>변수</th><th>동일가중</th><th>물량가중</th><th>95% 구간</th><th>판정</th></tr></thead>
+    <tbody>
+      <tr><td>일교차</td><td>−0.251</td><td>−0.245</td><td>[−0.707, +0.766]</td><td>판정불가</td></tr>
+      <tr><td>(대조) 소형상자 비율</td><td>+0.335</td><td class="farm">+0.814</td><td>[−0.038, +0.978]</td><td>판정불가</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>일교차는 꿈쩍하지 않습니다. 대조로 넣은 소형상자가 +0.814로 뛰어 반가울 뻔했는데,
+    함정이었습니다.</p>
+  <div class="warn">
+    <div class="t">가중은 표본을 늘리지 않습니다</div>
+    <p><b>Kish 유효표본이 3.67입니다.</b> 실제로는 14곳인데요. 남원 38% + 익산 32%로 물량의
+      70%라 사실상 서너 점짜리 상관이 됩니다. 남원 하나를 빼면 +0.814가 <b>+0.256</b>으로
+      무너집니다.</p>
+    <p>계수가 커 보여도 유효표본을 같이 보지 않으면, 가중치로 <b>집단 비교의 함정을 다시
+      짓는 꼴</b>입니다. 앞선 분석이 얇은 시군을 <i>빼는</i> 쪽을 택한 것은 이래서 옳았습니다.</p>
+  </div>
+
+  <h3>설계 7 — 일교차 말고 규모와 같이 넣으면?</h3>
+  <p>값을 정하는 것이 일교차 하나일 리 없습니다. <b>주산지이면서 일교차도 큰 곳</b>이 비싸야
+    하는 것 아닐까요. 게다가 이건 앞의 실패를 설명할 수도 있습니다 — 일교차 1·2위인 진안·무주는
+    규모가 작습니다. 10톤짜리 시군의 가격은 그 지역 상추의 품질이라기보다 몇몇 출하 건의
+    우연에 가깝습니다.</p>
+  <div class="wrap-x">
+  <table>
+    <thead><tr><th></th><th>물량 많음</th><th>물량 적음</th></tr></thead>
+    <tbody>
+      <tr><td>일교차 큼</td><td>0.998 (4곳)</td><td>0.890 (3곳)</td></tr>
+      <tr><td>일교차 작음</td><td>1.030 (3곳)</td><td>0.973 (4곳)</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>가로로 보면 물량 많은 쪽이 두 줄 다 높습니다(+7.5%p). 세로로 보면 일교차 큰 쪽이 두 줄 다
+    <b>낮습니다</b>. <strong>규모는 제안한 방향이고, 일교차는 반대입니다.</strong></p>
+  <p>회귀로 보면 설명력이 실제로 붙습니다 — R²가 규모만 0.138 · 일교차만 0.074에서 둘을 같이
+    넣으면 <b>0.296</b>으로 뜁니다. 그런데 <b>계수가 하나도 잡히지 않습니다.</b> 구간이 전부
+    0을 포함합니다.</p>
+  <div class="warn">
+    <div class="t">행을 늘려도 표본은 안 늘어납니다</div>
+    <p>시군 × 연도로 92점까지 늘려 봤습니다. 관측치 단위로 재면 규모가
+      <b>+0.0289 [+0.0049, +0.0473]로 유의</b>하게 나옵니다. 그런데 시군 블록 부트스트랩으로
+      바로잡으면 <b>[−0.0249, +0.0647] 판정불가</b>가 됩니다.</p>
+    <p>독립 단위는 여전히 시군 13개입니다. 연도를 늘려 얻은 유의는 <b>같은 시군을 여러 번
+      센 것</b>입니다.</p>
+  </div>
+
+  <h3>설계 8 — 대응짝으로 옮기면?</h3>
+  <p>앞선 분석에서 같은 벽을 만났을 때 쓴 방법이 있습니다. 지역 간 상관을 버리고
+    <b>같은 주·같은 시장·같은 품종·같은 등급 안에서 2kg과 4kg을 직접 맞붙이는</b> 방식으로
+    포장 효과를 찾아냈습니다. 표본이 셀 수천 개였습니다.</p>
+  <p>같은 장치를 일교차에 씁니다. 셀을 <code>주 · 시장 · 품종 · 등급 · 상자규격 · 거래구분</code>까지
+    좁히면 남는 차이는 산지뿐입니다. 상추는 정식에서 수확까지 30~45일이라 창도 넷 썼습니다.</p>
+  <div class="wrap-x">
+  <table>
+    <thead><tr><th>일교차 창</th><th>계수</th><th>95% 구간</th><th>판정</th><th>셀</th></tr></thead>
+    <tbody>
+      <tr><td>출하 주</td><td>−0.0275</td><td>[−0.0751, +0.0207]</td><td>판정불가</td><td>15,242</td></tr>
+      <tr><td>직전 2주</td><td>−0.0292</td><td>[−0.0896, +0.0267]</td><td>판정불가</td><td>15,262</td></tr>
+      <tr><td>직전 4주</td><td>−0.0327</td><td>[−0.1012, +0.0291]</td><td>판정불가</td><td>15,252</td></tr>
+      <tr><td>직전 6주</td><td>−0.0354</td><td>[−0.1057, +0.0284]</td><td>판정불가</td><td>15,237</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>또 판정불가입니다. 그런데 이번에는 <b>같이 돌린 양성 대조</b>가 결정적인 것을
+    알려줬습니다.</p>
+</section>
+
+<section id="s4">
+  <h2><span class="n">4</span>양성 대조가 밝혀낸 것</h2>
+  <p>설계 8에는 <b>이미 아는 효과</b>를 같은 장치로 되짚는 검사를 넣었습니다. 셀에서
+    상자규격만 빼고 2kg과 4kg을 맞붙이면, 앞서 확인된 포장 프리미엄이 다시 나와야 합니다.</p>
+  <div class="wrap-x">
+  <table>
+    <thead><tr><th>2kg vs 4kg (전 기간 실제 +11%)</th><th>계수</th><th>95% 구간</th><th>판정</th></tr></thead>
+    <tbody>
+      <tr><td>셀 클러스터</td><td>−0.1327</td><td>[−0.1539, −0.1126]</td><td class="farm">유의</td></tr>
+      <tr><td>시군 클러스터</td><td>−0.0832</td><td>[−0.2914, +0.1294]</td><td class="retail">판정불가</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p><strong>실재하는 효과인데도 떨어졌습니다.</strong> 이 설계는 11%짜리 효과조차 가려내지
+    못합니다.</p>
+  <div class="callout">
+    <div class="t">그래서 판정불가를 "효과 없음"으로 읽으면 안 됩니다</div>
+    <p>감지 한계가 일교차 1도당 <b>±4.8~6.7%</b>입니다. 시군 간 실제 일교차 폭이 3.6도이니
+      <b>±17~24%까지는 그냥 지나갑니다.</b> 앞서 찾은 포장 효과(+11%)도 이 한계 안에
+      들어갑니다.</p>
+    <p>양성 대조가 없었다면 "여덟 번 해도 안 나오니 효과가 없다"고 적었을 겁니다.
+      <b>없는 것과 못 재는 것은 다릅니다.</b></p>
+  </div>
+</section>
+
+<section id="s5">
+  <h2><span class="n">5</span>경계 — 무엇을 물을 수 있고 무엇을 못 묻는가</h2>
+  <p>왜 포장에서는 통한 장치가 일교차에서는 안 통할까요. 자료의 구조에 답이 있습니다.</p>
+
+  <figure>
+    <svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg" role="img"
+         aria-label="변수가 셀 안에서 갈리는지에 따라 검정 가능 여부가 나뉘는 그림">
+      <defs>
+        <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+          <path d="M0,1 L7,4.5 L0,8" fill="none" stroke="currentColor" stroke-width="1.4"/>
+        </marker>
+      </defs>
+      <g font-family="system-ui,sans-serif" font-size="13" fill="currentColor" color="currentColor">
+        <rect x="240" y="14" width="220" height="46" rx="9"
+              fill="var(--soft)" stroke="var(--accent)" stroke-width="1.5"/>
+        <text x="350" y="34" text-anchor="middle" font-weight="700" fill="var(--accent)">새 가설이 나오면</text>
+        <text x="350" y="51" text-anchor="middle" font-size="12" fill="var(--ink-2)">같은 셀 안에서 그 변수가 갈리는가?</text>
+
+        <path d="M300,60 L160,104" fill="none" stroke="var(--rule-2)" stroke-width="1.5" marker-end="url(#ar)"/>
+        <path d="M400,60 L540,104" fill="none" stroke="var(--rule-2)" stroke-width="1.5" marker-end="url(#ar)"/>
+        <text x="205" y="88" text-anchor="middle" font-size="12" font-weight="700" fill="var(--farm)">갈린다</text>
+        <text x="497" y="88" text-anchor="middle" font-size="12" font-weight="700" fill="var(--retail)">안 갈린다</text>
+
+        <rect x="26" y="110" width="270" height="128" rx="10"
+              fill="var(--card)" stroke="var(--farm)" stroke-width="1.5"/>
+        <text x="46" y="134" font-weight="700" fill="var(--farm)">포장 · 등급 · 출하시점 · 출하처</text>
+        <text x="46" y="158" font-size="12" fill="var(--ink-2)">같은 시군이 2kg·4kg을 같이 낸다</text>
+        <text x="46" y="177" font-size="12" fill="var(--ink-2)">(셀·시군 조합의 14.1%)</text>
+        <text x="46" y="202" font-size="12.5" fill="var(--ink)">유효 단위 <tspan font-weight="700">셀 수천 개</tspan></text>
+        <text x="46" y="222" font-size="12.5" font-weight="700" fill="var(--farm)">→ 잘 잡힌다</text>
+
+        <rect x="404" y="110" width="270" height="128" rx="10"
+              fill="var(--card)" stroke="var(--retail)" stroke-width="1.5"/>
+        <text x="424" y="134" font-weight="700" fill="var(--retail)">일교차 · 고도 · 토양</text>
+        <text x="424" y="158" font-size="12" fill="var(--ink-2)">그 주 그 시군의 값은 하나뿐이다</text>
+        <text x="424" y="177" font-size="12" fill="var(--ink-2)">(같은 시군 안에서 갈리는 조합 0)</text>
+        <text x="424" y="202" font-size="12.5" fill="var(--ink)">유효 단위 <tspan font-weight="700">시군 14개</tspan></text>
+        <text x="424" y="222" font-size="12.5" font-weight="700" fill="var(--retail)">→ 설계를 바꿔도 14개</text>
+
+        <rect x="150" y="256" width="400" height="34" rx="8"
+              fill="var(--sunk)" stroke="var(--rule)" stroke-width="1"/>
+        <text x="350" y="277" text-anchor="middle" font-size="12.5" fill="var(--ink-2)">
+          남는 경로는 <tspan font-weight="700" fill="var(--ink)">같은 시군의 시간 변동</tspan> 하나뿐이다
+        </text>
+      </g>
+    </svg>
+    <figcaption>대응짝은 <b>셀 안에서 갈리는 변수만</b> 구해준다. 포장은 같은 시군이 두 규격을
+      같이 내므로 시군 간 비교 없이도 식별되지만, 일교차는 장소의 성질이라 그 주에 값이
+      14개뿐이다. 셀을 아무리 쌓아도 늘지 않는다.</figcaption>
+  </figure>
+
+  <p><b>안 갈리면 설계를 아무리 바꿔도 독립 단위가 14개입니다.</b> 물량으로 가중해도(설계 6),
+    다른 변수와 같이 넣어도(설계 7), 대응짝으로 옮겨도(설계 8) 마찬가지입니다.</p>
+
+  <h3>그래도 남는 경로가 하나 있습니다</h3>
+  <p>장소의 고정된 성질을 볼 수 있는 유일한 길은 <b>같은 시군의 시간 변동</b>입니다.
+    한 시군 안에서 일교차는 주마다 변하므로 유효 단위가 14개에 묶이지 않습니다.</p>
+  <p>그게 처음 판의 설계 3·4였습니다. <b>4,321주 / 5,028주</b>에서 r = +0.024 / −0.047이고,
+    최소 감지 효과가 <b>±1.3~2.1%</b>였습니다. 이건 표본 부족이 아니라 신호가 없는 쪽입니다.</p>
+  <div class="callout">
+    <div class="t">그러므로 기각은 유지됩니다 — 다만 근거가 옮겨갑니다</div>
+    <p>"여덟 설계 전부 판정불가니까 효과가 없다"가 아닙니다. 지역 간 설계들(1·2·6·7·8)은
+      <b>애초에 판정할 힘이 없었습니다.</b> 기각의 근거는 <b>설계 3·4 하나뿐</b>이고,
+      그건 지금도 유효합니다.</p>
+  </div>
+</section>
+
+<section id="s6">
+  <h2><span class="n">6</span>곁가지로 나온 두 가지</h2>
+
+  <h3>규모의 효과는 비례가 아니라 문턱일 수 있습니다</h3>
+  <p>규모만 따로 보면 기상이 필요 없으니 관측지점 수에 묶이지 않습니다. 읍면으로 내려가
+    104주 이상인 61곳(물량의 99.4%)으로 다시 쟀습니다. 계수는 여전히 판정불가지만
+    (+0.0189 [−0.0035, +0.0431]), 4분위로 끊으니 모양이 다릅니다.</p>
+  <div class="wrap-x">
+  <table>
+    <thead><tr><th>규모 4분위</th><th>읍면</th><th>물량</th><th>가격 상대값</th></tr></thead>
+    <tbody>
+      <tr><td>1분위 (작음)</td><td>16</td><td>678t</td><td class="retail">0.964</td></tr>
+      <tr><td>2분위</td><td>15</td><td>2,749t</td><td>1.065</td></tr>
+      <tr><td>3분위</td><td>15</td><td>14,186t</td><td>1.080</td></tr>
+      <tr><td>4분위 (큼)</td><td>15</td><td>104,875t</td><td>1.046</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p><strong>클수록 비싼 것이 아니라, 너무 작으면 쌉니다.</strong> 2~4분위는 1.05~1.08로
+    평평하고 1분위만 10%p 아래입니다. 1분위는 16개 읍면을 합쳐 678톤 — 읍면당 연 5톤
+    남짓입니다. 직선 하나를 그으면 이 계단이 눌려 상관계수가 작아 보입니다.</p>
+
+  <h3>소포장 프리미엄이 최근 두 배로 커졌습니다</h3>
+  <p>양성 대조를 만들다 발견한 것입니다. "2kg이 4kg보다 kg당 23% 더 받는다"는 앞선 결과는
+    <b>최근 1년 기준</b>이었습니다. 같은 셀 정의로 전 기간을 다시 재면 절반입니다.</p>
+  <div class="wrap-x">
+  <table>
+    <thead><tr><th>기간</th><th>셀</th><th>비율 중앙값</th><th>비율 평균</th></tr></thead>
+    <tbody>
+      <tr><td>최근 53주</td><td>1,269</td><td class="farm">1.260</td><td>1.519</td></tr>
+      <tr><td>전 기간 (2018-01~2026-08)</td><td>7,318</td><td>1.107</td><td>1.338</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>지역차 설명에는 최근 1년 값을 쓰는 것이 맞습니다(지역차 자체를 최근 1년으로 쟀으므로).
+    다만 <b>23%를 과거까지 일반화하면 안 됩니다.</b> 추세인지 최근의 일시적 벌어짐인지는
+    아직 보지 않았습니다.</p>
+</section>
+
+<section id="s7">
+  <h2><span class="n">7</span>다음에도 쓸 규칙</h2>
+  <p>이번에 얻은 것을 방법론으로 옮겨 뒀습니다.</p>
+  <ul>
+    <li><b>검정 전에 묻는다 — 같은 셀 안에서 갈리는 변수인가.</b> 안 갈리면 설계를 아무리
+      바꿔도 독립 단위가 14개다.</li>
+    <li><b>표본을 늘렸다고 착각하지 말 것.</b> 시군 × 연도로 92점이 돼도 클러스터는 13개다.
+      물량가중은 유효표본을 3.67로 <i>줄인다</i>.</li>
+    <li><b>유의가 하나만 나오면 그 하나를 의심한다.</b> 가중치 변환에 안정한지 본다.
+      가중을 세게 할수록 계수가 커지면(−0.002 → −0.056) 일반적 효과가 아니다.</li>
+    <li><b>결과가 없으면 양성 대조로 장치를 확인한다.</b> 이미 아는 효과를 같은 설계로
+      되짚어 본다. 감지 한계를 함께 적지 않으면 "없음"과 "못 잼"을 구별할 수 없다.</li>
+  </ul>
+</section>
+
+<section id="s8">
+  <h2><span class="n">8</span>재현</h2>
+  <div class="wrap-x">
+  <table>
+    <thead><tr><th>스크립트</th><th>하는 일</th></tr></thead>
+    <tbody>
+      <tr><td><code>analyze_dtr_premium.py</code> 외 3</td>
+        <td style="text-align:left">설계 1~5 — 시군 간 · 계절 격차 · 시군 내 주별 · 등급 · 문턱</td></tr>
+      <tr><td><code>analyze_dtr_weighted.py</code></td>
+        <td style="text-align:left">설계 6 — 물량가중 재검정, 유효표본 진단</td></tr>
+      <tr><td><code>analyze_scale_dtr.py</code></td>
+        <td style="text-align:left">설계 7 — 규모와 동시 투입, 사분면, 읍면 61곳</td></tr>
+      <tr><td><code>analyze_dtr_matched.py</code></td>
+        <td style="text-align:left">설계 8 — 대응짝 + 양성 대조 + 감지 한계</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>산출물: <code>outputs/dtr_weighted.csv</code> · <code>scale_dtr_eup.csv</code> ·
+    <code>scale_dtr_county_year.csv</code> · <code>dtr_matched.csv</code></p>
+  <p>전체 경위는 <code>HANDOFF.md</code> 1-E(설계 1~8) · 1-F(포장 규격)에 있습니다.</p>
+</section>
+
+<footer>
+  전북 상추 가격예측 · 방법 보고 · 2026-08-20<br>
+  모든 구간은 시군 블록 부트스트랩 95%입니다. 구간이 0을 포함하면 "판정불가"로 적고
+  "효과 없음"으로 적지 않습니다.
+</footer>
+
+</div>

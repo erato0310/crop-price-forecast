@@ -245,6 +245,7 @@ itemclasscode=NN&itemcode=NN` GET 한 방으로 받힌다. 스크립트로 만�
 않지만, 직선을 그으면 이 계단이 눌려 상관계수가 작아 보인다는 점은 기억할 것.
 
 스크립트: `analyze_dtr_weighted.py` · `analyze_scale_dtr.py` · `analyze_dtr_matched.py`
+문서: `docs/일교차_재검정_2026-08-20.html`
 
 ---
 
