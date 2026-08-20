@@ -209,3 +209,26 @@ CHAIN_DONE
 완주 (104개월)
 ======== complete - running audit ======== 
 CHAIN_DONE 
+ 
+======== scheduled run start 2026-08-17  9:07:50.98 ======== 
+ 
+======== scheduled run start 2026-08-20  9:04:15.19 ======== 
+상추 일별 수집 | scope=national | 2018-01~오늘 | 시장 23곳 | chunk=1개월
+[재개] lettuce_daily_raw.csv에서 완료월 104개 / 2,164,359건
+받을 월이 없다 — 104개월 전부 완료됨
+
+저장: lettuce_daily_raw.csv (2,164,359행)
+저장: lettuce_daily_by_county.csv (27,459행) — 타깃=주력 17종, 쫑상추 별도 계열
+저장: lettuce_daily_by_origin_sido.csv (67,291행)
+
+[무결성]
+  월별 거래일수: 중앙값 26일, 최소 9일
+  [경고] 거래일 15일 미만인 월 1개: ['2026-08']
+  전 월 시장 23곳 완비
+  완전 동일 행 8,308건 (0.38%) — 제거 금지
+  totalCount 대비 초과 수집 없음
+  kg 환산 불가 비율 0.01% (unit_nm!='kg' 또는 unit_qty>50)
+체크포인트 삭제(완주)
+완주 (104개월)
+======== complete - running audit ======== 
+CHAIN_DONE 
