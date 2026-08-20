@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>상추 유통단계별 가격</title>
 <style>
 :root{
@@ -333,31 +334,62 @@ footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
     <p><b>같은 기준으로 맞추면 우리 수치는 지금보다 나빠집니다.</b></p>
   </div>
 
-  <h3>얼마나 나빠지나</h3>
-  <p>aT가 낸 2024년 단계별 구조를 우리 값에 대입해 보면 짐작할 수 있습니다.</p>
+  <h3>얼마나 나빠지나 — 상추 실측치로 계산</h3>
+  <p>aT 유통실태조사는 단계별 비용을 <b>품목별로</b> 냅니다. 상추 개별 수치가 있어서
+    대리값을 쓰지 않고 그대로 대입할 수 있습니다.</p>
   <div class="wrap-x">
   <table>
-    <thead><tr><th>단계</th><th>한국 평균 (aT 2024)</th><th>본 분석 상추</th></tr></thead>
+    <thead><tr><th>단계</th>
+      <th>한국 전체 평균<br><span style="font-weight:400;color:var(--muted);text-transform:none">aT 2024</span></th>
+      <th>상추<br><span style="font-weight:400;color:var(--muted);text-transform:none">aT 2011</span></th>
+      <th>본 분석 상추<br><span style="font-weight:400;color:var(--muted);text-transform:none">2025-08~2026-08</span></th></tr></thead>
     <tbody>
-      <tr><td>소비자가</td><td>100.0</td><td>100.0</td></tr>
-      <tr><td>─ 소매단계 비용</td><td>25.6</td><td rowspan="2" style="vertical-align:middle">
-        (합쳐서 67~70)</td></tr>
-      <tr><td>─ 도매단계 비용</td><td>14.2</td></tr>
-      <tr><td><b>= 경락가 수준</b></td><td><b>60.2</b></td><td class="farm"><b>30~33</b></td></tr>
-      <tr><td>─ 출하단계 비용</td><td>9.4</td><td style="color:var(--muted)">미상</td></tr>
-      <tr><td><b>= 농가수취</b></td><td><b>50.8</b></td>
-        <td class="retail"><b>30보다 낮음</b></td></tr>
+      <tr><td>소비자가</td><td>100.0</td><td>100.0</td><td>100.0</td></tr>
+      <tr><td>─ 소매단계 비용</td><td>25.6</td><td>37.1</td>
+        <td rowspan="2" style="vertical-align:middle">(합쳐서 67~70)</td></tr>
+      <tr><td>─ 도매단계 비용</td><td>14.2</td><td>19.8</td></tr>
+      <tr><td><b>= 경락가 수준</b></td><td><b>60.2</b></td><td><b>43.1</b></td>
+        <td class="farm"><b>30~33</b></td></tr>
+      <tr><td>─ 출하단계 비용</td><td>9.4</td><td class="farm">5.9</td>
+        <td class="farm">5.9 <span style="font-weight:400;color:var(--muted);text-transform:none">(상추값 적용)</span></td></tr>
+      <tr><td><b>= 농가수취</b></td><td><b>50.8</b></td><td><b>37.2</b></td>
+        <td class="farm"><b>25~27</b></td></tr>
     </tbody>
   </table>
   </div>
-  <p>한국 평균 구조(출하 9.4%p)를 그대로 적용하면 상추 농가수취율은 <b>20% 안팎</b>이 됩니다.
-    그러면 미국 신선채소(23~28%)보다 <b>낮아지고</b> 스페인과의 격차도 좁혀집니다.</p>
+  <p>상추 출하비용률 <b>5.9%</b>를 적용하면 농가수취율은 <b>25~27%</b>가 됩니다.
+    비율로 옮겨 계산해도(출하비용이 경락가에서 차지하는 몫 5.9/43.1 = 13.7%를
+    우리 경락가에 적용) 26~28%로 같은 자리에 옵니다.
+    <b>미국 신선채소(23~28%)와 같은 범위</b>이고, 스페인 상추(6.3배)와는 여전히
+    큰 차이가 있습니다.</p>
+
+  <div class="callout">
+    <div class="t">이 문서 앞 판의 추정을 정정합니다</div>
+    <p>상추 개별 수치를 받기 전에는 전 품목 평균 9.4%p를 대입해 <b>20% 안팎</b>이라
+      적고, "상추는 부피가 크고 쉽게 무르니 출하비용 비중이 평균보다 <b>클</b> 것이고,
+      그렇다면 20%보다 더 낮다"고 덧붙였습니다. <b>방향이 반대였습니다.</b></p>
+    <p>실측 5.9%는 전 품목 평균 9.4%보다 <b>작고</b>, 같은 부류인 엽근채소류
+      가중평균 23.7%(2011)의 <b>4분의 1</b>입니다. 이유는 분모에 있습니다. 이 %는 모두
+      <b>소비자가격을 100으로 놓은 몫</b>인데, 상추는 소매가가 kg당 12,000원대로 높아
+      같은 운송·포장비라도 비중이 작게 잡힙니다. 배추·무는 소매가가 낮아 같은 절대비용이
+      큰 비중으로 나타납니다. <b>부피와 부패성은 절대 비용을 키우지만 비중을 키우지는
+      않습니다</b> — 값이 함께 비싸면 상쇄됩니다.</p>
+  </div>
+
   <div class="warn">
-    <div class="t">이 20%는 추정입니다</div>
-    <p>9.4%p는 <b>전 품목 평균</b>이고 상추 개별 수치가 아닙니다. 상추는 부피가 크고
-      쉽게 무르는 품목이라 출하비용 비중이 평균보다 클 가능성이 높습니다 —
-      그렇다면 20%보다 더 낮습니다. 정확한 값은 aT 유통실태조사의 상추 개별
-      수치를 받아야 합니다.</p>
+    <div class="t">이 5.9%는 2011년 값이고, 그 뒤로 상추 조사가 없습니다</div>
+    <p>상추는 <b>2013년부터 aT 유통실태조사 품목에서 빠졌습니다.</b> 2024년 엽근채소류
+      조사 품목은 배추 4종·무 4종·당근·양배추뿐입니다. 화면에는 2012년까지 나오지만
+      <b>2012년 9개 값이 2011년과 자릿수까지 완전히 같아</b> 재조사 없이 이월된 것으로
+      보입니다(같은 현상이 17개 품목 61건에서 나타납니다). 마지막 실조사는 2011년입니다.</p>
+    <p>1998~2011년 14년간 상추 출하비용률은 <b>2.6~9.9%</b> 사이에서 움직였고 평균은
+      5.6%입니다. 추세라 할 만한 방향은 없습니다. 그래도 15년 지난 값을 지금에
+      대입하는 것이므로 <b>25~27%는 여전히 추정</b>입니다. 다만 전 품목 평균을 빌려
+      쓰던 앞 판보다는 근거가 낫습니다.</p>
+    <p>참고로 aT가 상추 농가수취율을 마지막으로 낸 값은 <b>37.2%(2011)</b>입니다.
+      우리가 2025-26년에 잰 <b>경락가 수준</b>이 30~33%인데, 경락가는 농가수취가보다
+      <b>한 단계 위</b>입니다. 15년 사이 농가 몫이 줄었다는 뜻일 수 있지만, aT의 소매
+      조사처 구성과 우리 표본이 달라 그대로 시계열로 읽어서는 안 됩니다.</p>
   </div>
 
   <h3>신선채소는 원래 낮습니다</h3>
@@ -460,11 +492,14 @@ footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
         <td style="text-align:left">산지·중도매·소매 3단계 대조, 이 문서의 모든 수치</td></tr>
       <tr><td><code>analyze_region_gap.py</code></td>
         <td style="text-align:left">포장 규격 효과 (7절 연결)</td></tr>
+      <tr><td><code>fetch_at_margin.py</code></td>
+        <td style="text-align:left">aT 유통실태조사 품목별 유통비용 (6절 상추 5.9%)</td></tr>
     </tbody>
   </table>
   </div>
   <p>산출물: <code>outputs/margin_chain.csv</code> (주간 원자료),
-    <code>data/raw/kamis_lettuce_retail.csv</code> (KAMIS 일별 972행)</p>
+    <code>data/raw/kamis_lettuce_retail.csv</code> (KAMIS 일별 972행),
+    <code>data/raw/kamis_margin_by_item.csv</code> (aT 품목별 유통비용 46품목 + 부류 가중평균 7, 1998~2024, 1,222행)</p>
 </section>
 
 <footer>
